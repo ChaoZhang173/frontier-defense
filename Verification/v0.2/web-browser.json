@@ -1,0 +1,32 @@
+{
+  "version": "0.2.0",
+  "date": "2026-09-15",
+  "browser": "Codex in-app browser (Chromium)",
+  "url": "http://127.0.0.1:8765/",
+  "viewport": [
+    1280,
+    720
+  ],
+  "passed": true,
+  "checks": [
+    "Loaded the final Web build and Chinese briefing",
+    "Started wave 1 with 160 supplies",
+    "E opens the command terminal and pauses the battle",
+    "Hiring deducts 120 and fills one squad slot with 220 health",
+    "Insufficient funds disable the hire button",
+    "Return resumes the battle",
+    "G changes the squad to Hold and draws a ground marker",
+    "F switches back to Follow and clears the marker",
+    "Esc pauses; Continue returns to battle",
+    "Final build no longer reports missing SphereCollider components",
+    "Pointer-lock rejection is handled locally without the Unity fatal-alert dialog",
+    "Wave 1 completed with 18 kills and progressed to wave 2",
+    "No error-level console messages after final reload"
+  ],
+  "limits": [
+    "No independent Chrome, Safari, Windows or mobile test",
+    "Unused URP helper shaders report unsupported GPU variants; the game renders",
+    "One persistent-data synchronization deprecation warning",
+    "Embedded Chromium can decline pointer lock; the rejection is handled and controls were verified after resuming"
+  ]
+}

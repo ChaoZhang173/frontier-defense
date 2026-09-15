@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Frontier
 {
     public enum Faction { Defense, Invaders }
-    public enum Role { Player, Marine, Runner, Spitter, Colossus, Command, Barracks, Bunker }
+    public enum Role { Player, Marine, Runner, Spitter, Colossus, Command, Barracks, Bunker, Squad }
     public enum Phase { Briefing, Assault, Intermission, Victory, Defeat }
 
     public sealed class Health : MonoBehaviour
@@ -18,6 +18,8 @@ namespace Frontier
         public int Lane, Slot = -1;
         public ActorBrain Brain;
         public ArtRig Rig;
+        public Vector3 WeakPoint;
+        public float WeakRadius;
         public Vector3 Aim => transform.position + Vector3.up * AimHeight;
         public bool IsBuilding => Role == Role.Command || Role == Role.Barracks || Role == Role.Bunker;
 
@@ -32,18 +34,26 @@ namespace Frontier
             if (!Alive || GameWorld.I.Ended || (source != null && source.Faction == Faction)) return;
             if (Role == Role.Colossus) amount *= .72f;
             if (critical) amount *= 1.65f;
+            float applied=Mathf.Min(Current,amount);
             Current = Mathf.Max(0, Current - amount);
             LastDamageTime = GameWorld.I.SimTime;
             Rig?.Flash();
             if (Role == Role.Player) GameWorld.I.Player.Hurt(amount);
             if (source != null && source.Role == Role.Player)
-                GameWorld.I.Player.HitConfirm(Current <= 0, critical);
+                GameWorld.I.Player.HitConfirm(Current <= 0, critical,applied,Aim,GetInstanceID());
             if (Current > 0) return;
             Alive = false;
             GameWorld.I.OnKilled(this, source);
         }
 
         public void Heal(float amount) { if (Alive) Current = Mathf.Min(Maximum, Current + amount); }
+        public bool WeakPointHit(Vector3 origin,Vector3 direction)
+        {
+            if(WeakRadius<=0)return false;
+            Vector3 delta=transform.TransformPoint(WeakPoint)-origin;
+            float along=Vector3.Dot(delta,direction);
+            return along>0&&(delta-direction*along).sqrMagnitude<=WeakRadius*WeakRadius;
+        }
     }
 
     public static class Combat
@@ -53,7 +63,7 @@ namespace Frontier
         public const int WorldMask = 1 << WorldLayer;
         public const int ShotMask = (1 << WorldLayer) | (1 << UnitLayer) | (1 << PlayerLayer);
 
-        public static bool Trace(Vector3 start, Vector3 direction, float distance, Health ignore, out RaycastHit hit)
+        public static bool Trace(Vector3 start, Vector3 direction, float distance, Health ignore, out RaycastHit hit,bool passFriendlyUnits=false)
         {
             hit = default;
             int count = Physics.RaycastNonAlloc(start, direction, Hits, distance, ShotMask, QueryTriggerInteraction.Collide);
@@ -61,7 +71,8 @@ namespace Frontier
             for (int i = 0; i < count; i++)
             {
                 Health health = Hits[i].collider.GetComponentInParent<Health>();
-                if (health == ignore || (health != null && !health.Alive)) continue;
+                if ((ignore!=null&&health==ignore) || (health != null && !health.Alive&&!health.IsBuilding)) continue;
+                if(passFriendlyUnits&&ignore!=null&&health!=null&&health.Faction==ignore.Faction&&!health.IsBuilding)continue;
                 if (Hits[i].distance >= closest) continue;
                 hit = Hits[i]; closest = hit.distance;
             }
@@ -72,22 +83,24 @@ namespace Frontier
         {
             Vector3 delta = target.Aim - from.Aim;
             if (delta.sqrMagnitude < .01f) return true;
-            if (!Trace(from.Aim, delta.normalized, delta.magnitude + .1f, from, out var hit)) return true;
+            if (!Trace(from.Aim, delta.normalized, delta.magnitude + .1f, from, out var hit,from.Role==Role.Squad||from.Role==Role.Player)) return true;
             return hit.collider.GetComponentInParent<Health>() == target;
         }
 
         public static void Rifle(Health from, Vector3 muzzle, Vector3 direction, float damage, bool player)
         {
             Vector3 end = muzzle + direction * 110;
-            if (Trace(muzzle, direction, 110, from, out var hit))
+            if (Trace(muzzle, direction, 110, from, out var hit,player||from.Role==Role.Squad))
             {
                 end = hit.point;
                 Health target = hit.collider.GetComponentInParent<Health>();
-                bool critical = target != null && !target.IsBuilding && hit.point.y > target.transform.position.y + target.AimHeight * 1.28f;
+                bool critical = target != null && target.WeakPointHit(muzzle,direction);
+                if(player&&target!=null)GameWorld.I.Squad.MarkTarget(target);
                 if (target != null) target.Damage(damage, from, critical);
                 GameWorld.I.Effects.Spark(end, target != null && target.Faction == Faction.Invaders ? Art.Pink : Art.Amber, .17f);
             }
             GameWorld.I.Effects.Tracer(muzzle, end, player ? Art.Cyan : Art.Amber, player ? .038f : .021f);
+            if(player)GameWorld.I.Effects.Spark(muzzle,Art.Cyan,.12f);
             if (player) GameWorld.I.Sounds.Play(SoundId.Rifle, .45f);
             else GameWorld.I.Sounds.DistantShot(muzzle);
         }

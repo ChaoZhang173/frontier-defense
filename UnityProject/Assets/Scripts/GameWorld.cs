@@ -18,9 +18,11 @@ namespace Frontier
         public Soundscape Sounds;
         public GameHud Hud;
         public RuntimeChecks Checks;
+        public SquadDirector Squad;
+        public bool CommandTerminalOpen {get;private set;}
         public Phase Phase = Phase.Briefing;
         public bool Paused, Diagnostic;
-        public int Wave, Credits = 80, WeaponLevel, DefenseLevel, Kills, PlayerKills, Deaths;
+        public int Wave, Credits = 160, WeaponLevel, DefenseLevel, Kills, PlayerKills, Deaths;
         public int EnemiesAlive, MarinesAlive, SpawnedThisWave, TotalSpawned, PeakEnemies, PeakMarines;
         public float SimTime, IntermissionLeft, ProductionLeft = 10, RespawnLeft;
         public float ToastLeft, WaveBannerLeft;
@@ -36,7 +38,7 @@ namespace Frontier
         List<SpawnOrder> orders;
         int nextSpawn;
         float spawnLeft, missionDuration;
-        readonly Health[] squad = new Health[8];
+        readonly Health[] garrison = new Health[8];
         public static readonly Vector3[] DefensePosts = {
             new Vector3(-13.5f,0,15.5f),new Vector3(13.5f,0,15.5f),
             new Vector3(-16.2f,0,12.5f),new Vector3(16.2f,0,12.5f),
@@ -64,10 +66,11 @@ namespace Frontier
             Sounds = gameObject.AddComponent<Soundscape>(); Sounds.Setup();
             SpawnPlayer();
             for(int i=0;i<4;i++) SpawnMarine(i, false);
+            Squad=gameObject.AddComponent<SquadDirector>();Squad.Setup();
             Hud = gameObject.AddComponent<GameHud>();
             ApplyQuality(Quality);
             if(Diagnostic) { Checks = gameObject.AddComponent<RuntimeChecks>(); Checks.Setup(this); }
-            else if(DeployOnLoad) { DeployOnLoad=false; BeginCampaign(); }
+            if(DeployOnLoad) { DeployOnLoad=false; BeginCampaign(); }
         }
 
         void ConfigureLighting()
@@ -132,7 +135,7 @@ namespace Frontier
         public Health SpawnMarine(int slot=-1,bool deploy=true)
         {
             if(MarinesAlive>=8)return null;
-            if(slot<0)for(int i=0;i<squad.Length;i++)if(squad[i]==null||!squad[i].Alive){slot=i;break;}
+            if(slot<0)for(int i=0;i<garrison.Length;i++)if(garrison[i]==null||!garrison[i].Alive){slot=i;break;}
             if(slot<0)return null;
             Vector3 spawn=deploy?new Vector3(-14+(slot%3-1)*.5f,0,-3.8f):DefensePosts[slot];
             Transform root=Art.Root("Auto-deployed marine",transform,spawn);
@@ -140,7 +143,7 @@ namespace Frontier
             h.Rig=Art.Marine(root,false);
             var col=root.gameObject.AddComponent<CapsuleCollider>();col.center=new Vector3(0,1,0);col.height=2;col.radius=.42f;col.isTrigger=true;root.gameObject.layer=Combat.UnitLayer;
             var brain=root.gameObject.AddComponent<ActorBrain>();brain.Setup(h,DefensePosts[slot]);
-            squad[slot]=h;MarinesAlive++;PeakMarines=Mathf.Max(PeakMarines,MarinesAlive);
+            garrison[slot]=h;MarinesAlive++;PeakMarines=Mathf.Max(PeakMarines,MarinesAlive);
             if(deploy)Effects.Burst(spawn+Vector3.up*.1f,Art.Cyan,.8f);
             return h;
         }
@@ -155,6 +158,8 @@ namespace Frontier
             float radius=role==Role.Colossus?1.12f:role==Role.Spitter?.68f:.52f;
             Health h=root.gameObject.AddComponent<Health>();h.Setup(role,Faction.Invaders,hp,height,radius);h.Lane=lane;
             h.Rig=Art.Creature(root,role);
+            h.WeakPoint=role==Role.Colossus?new Vector3(0,2.55f,.33f):role==Role.Spitter?new Vector3(0,1.19f,-.40f):new Vector3(0,.56f,.79f);
+            h.WeakRadius=role==Role.Colossus?.4f:role==Role.Spitter?.34f:.28f;
             var col=root.gameObject.AddComponent<CapsuleCollider>();col.radius=radius;col.height=height*1.8f;col.center=Vector3.up*(height*.8f);col.isTrigger=true;root.gameObject.layer=Combat.UnitLayer;
             root.gameObject.AddComponent<ActorBrain>().Setup(h,Vector3.zero);
             EnemiesAlive++;TotalSpawned++;PeakEnemies=Mathf.Max(PeakEnemies,EnemiesAlive);
@@ -192,6 +197,10 @@ namespace Frontier
         void Update()
         {
             if(!Diagnostic && Input.GetKeyDown(KeyCode.Escape) && Phase!=Phase.Briefing && !Ended)SetPaused(!Paused);
+            if(!Diagnostic && Input.GetKeyDown(KeyCode.E))
+            {
+                if(CommandTerminalOpen)SetPaused(false);else TryOpenCommandTerminal();
+            }
             if(!Diagnostic && !Paused && Phase==Phase.Assault && Player.LostControl)SetPaused(true);
             float dt=Time.deltaTime;
             ToastLeft=Mathf.Max(0,ToastLeft-Time.unscaledDeltaTime);
@@ -222,6 +231,7 @@ namespace Frontier
                 ProductionLeft-=dt;
                 if(ProductionLeft<=0){SpawnMarine();ProductionLeft=12;}
             }
+            Squad.Tick(dt);
             for(int i=0;i<Entities.Count;i++)
             {
                 var h=Entities[i];if(h!=null && h.Alive && h.Brain!=null)h.Brain.Tick(dt);
@@ -276,6 +286,7 @@ namespace Frontier
             if(Wave==5) { Phase=Phase.Victory;Player.ReleaseControl();Sounds.Play(SoundId.Win,.8f);return; }
             Phase=Phase.Intermission;IntermissionLeft=30;
             Player.ReleaseControl();Player.Self.Heal(180);
+            Squad.Regroup();
             Notice("防线稳住了 · 获得 "+(80+Wave*25)+" 补给");
             Sounds.Play(SoundId.Upgrade,.65f);
         }
@@ -290,10 +301,12 @@ namespace Frontier
             {
                 EnemiesAlive=Mathf.Max(0,EnemiesAlive-1);Kills++;
                 if(source!=null && source.Role==Role.Player)PlayerKills++;
+                if(source!=null && source.Role==Role.Squad)Squad.Kills++;
                 Credits+=victim.Role==Role.Colossus?36:victim.Role==Role.Spitter?13:7;
                 Effects.Burst(victim.Aim,Art.Pink,victim.Role==Role.Colossus?1.6f:.65f);
             }
             else if(victim.Role==Role.Marine) { MarinesAlive=Mathf.Max(0,MarinesAlive-1);Effects.Burst(victim.Aim,Art.Cyan,.6f); }
+            else if(victim.Role==Role.Squad) { Squad.OnLost(victim);Effects.Burst(victim.Aim,Art.Amber,.6f); }
             else
             {
                 Effects.Burst(victim.Aim,Art.Amber,4);
@@ -331,7 +344,14 @@ namespace Frontier
         {
             if(Ended||Phase==Phase.Briefing)return;
             Paused=pause;Time.timeScale=pause?0:1;
+            if(!pause)CommandTerminalOpen=false;
             if(pause)Player.ReleaseControl();else if(Phase==Phase.Assault)Player.RequestControl();
+        }
+        public bool NearCommand=>Command!=null&&Command.Alive&&Player.Self.Alive&&Vector3.Distance(Player.transform.position,new Vector3(0,0,-1.3f))<6;
+        public bool TryOpenCommandTerminal()
+        {
+            if(Paused||Phase!=Phase.Assault||!NearCommand)return false;
+            CommandTerminalOpen=true;SetPaused(true);return true;
         }
         public void Notice(string text){Toast=text;ToastLeft=4;}
         public void Restart(){Time.timeScale=1;DeployOnLoad=true;SceneManager.LoadScene(0);}

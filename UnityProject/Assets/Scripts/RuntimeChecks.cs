@@ -12,7 +12,7 @@ namespace Frontier
         [Serializable] public sealed class Report
         {
             public string mode, outcome, version;public bool passed;public float simulatedSeconds,hqHealth;
-            public int wave,spawned,kills,playerKills,deaths,peakEnemies,peakMarines;
+            public int wave,spawned,kills,playerKills,deaths,peakEnemies,peakMarines,squadKills,squadHired,squadPeak,criticalHits;
             public List<string> actors=new List<string>();public List<string> checks=new List<string>();public List<string> failures=new List<string>();
         }
         public static string Argument(string key)
@@ -21,6 +21,7 @@ namespace Frontier
             return "";
         }
         public static bool Requested=>Argument("--frontier-check")!="";
+        static Report restartReport;
         GameWorld world;Report report;string mode;int frames;bool finished,capturing;
         public void Setup(GameWorld w)
         {
@@ -36,8 +37,21 @@ namespace Frontier
             }
             if(frames==6)
             {
+                if(mode=="squad")
+                {
+                    if(restartReport!=null)
+                    {
+                        report=restartReport;restartReport=null;
+                        Check(world.Squad.Count==0&&world.Squad.Kills==0&&world.Wave==1&&world.Credits==160,"Restart clears the previous squad, orders, credits and battle state");
+                        Complete();return;
+                    }
+                    try { SquadChecks.Run(world,Check); }
+                    catch(Exception exception){Check(false,"Squad diagnostic exception: "+exception);Complete();return;}
+                    restartReport=report;finished=true;world.Restart();return;
+                }
                 if(mode=="mechanics"){Mechanics();Complete();return;}
                 world.Player.Bot=mode=="victory";world.BeginCampaign();
+                if(mode=="victory"){world.TryOpenCommandTerminal();world.Squad.Hire();world.SetPaused(false);}
                 if(mode=="defeat")
                 {
                     world.Barracks.Damage(10000,null);world.Bunker.Damage(10000,null);
@@ -51,7 +65,7 @@ namespace Frontier
                     if(mode=="victory")
                     {
                         if(world.Command.Current<world.Command.Maximum-600)world.Buy(2);
-                        world.Buy(0);world.Buy(1);
+                        world.Squad.Hire();world.Buy(0);world.Buy(1);
                     }
                     world.StartWave();
                 }
@@ -66,6 +80,7 @@ namespace Frontier
                     Check(world.TotalSpawned==198&&world.Kills==198,"All 198 scheduled invaders spawned and defeated");
                     Check(world.Wave==5&&world.EnemiesAlive==0&&world.RemainingToSpawn==0,"Victory waits for the complete fifth wave");
                     Check(world.PlayerKills>20,"Player bot uses actual rifle hits");
+                    Check(world.Squad.Hired>=3&&world.Squad.PeakCount==3&&world.Squad.Kills>0,"A recruited three-person squad participates in the full five-wave campaign");
                 }
                 Check(world.PeakMarines<=8,"Garrison respects eight-unit cap");
                 Check(world.PeakEnemies<=55,"Concurrent enemy count stays bounded");
@@ -115,9 +130,16 @@ namespace Frontier
         IEnumerator Capture()
         {
             string path=Argument("--frontier-output");if(path=="")path=Application.persistentDataPath+"/capture.png";
-            if(Argument("--frontier-scene")=="battle")
+            string scene=Argument("--frontier-scene");
+            if(scene=="terminal"||scene=="battle")
             {
-                world.Player.Bot=true;world.BeginCampaign();
+                world.BeginCampaign();world.TryOpenCommandTerminal();world.Credits=1000;
+                world.Squad.Hire();world.Squad.Hire();
+                if(scene=="battle"){world.Squad.Hire();world.SetPaused(false);}
+            }
+            if(scene=="battle")
+            {
+                world.Player.Bot=true;
                 for(int frame=0;frame<60;frame++)
                 {
                     for(int step=0;step<10;step++){Physics.SyncTransforms();world.Tick(.05f);world.Effects.Tick(.05f);}
@@ -137,6 +159,7 @@ namespace Frontier
             report.simulatedSeconds=world.SimTime;report.hqHealth=world.Command.Current;report.wave=world.Wave;
             report.spawned=world.TotalSpawned;report.kills=world.Kills;report.playerKills=world.PlayerKills;report.deaths=world.Deaths;
             report.peakEnemies=world.PeakEnemies;report.peakMarines=world.PeakMarines;
+            report.squadKills=world.Squad.Kills;report.squadHired=world.Squad.Hired;report.squadPeak=world.Squad.PeakCount;report.criticalHits=world.Player.CriticalHits;
             foreach(var h in world.Entities)if(h!=null&&h.Alive)report.actors.Add(h.Role+" "+h.transform.position+" hp="+h.Current+" moved="+(h.Brain!=null?h.Brain.Travelled:0)+" visible="+Combat.Visible(world.Player.Self,h));
             string path=Argument("--frontier-output");if(path=="")path=Application.persistentDataPath+"/"+mode+".json";
             File.WriteAllText(path,JsonUtility.ToJson(report,true));

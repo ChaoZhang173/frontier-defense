@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "date": "2026-09-15",
+  "project_id": "appgprj_6aa82bb02a90819180e7b21f3804da2b",
+  "version_id": "appgprj_6aa82bb02a90819180e7b21f3804da2b~appgver_1f0bbfbb76ec8191987c3d2a04e25e28",
+  "deployment_id": "appgdep_6aa8be7c050081919d5f3a0c0077484e",
+  "commit_sha": "8815dfec0cc9f711b97afeb3eec06608335d5e72",
+  "status": "succeeded",
+  "access": "public",
+  "url": "https://frontier-defense-outpost-07.fumeshroom.chatgpt.site",
+  "verified_at": "2026-09-15T03:42:23.463671+00:00",
+  "source": "Sites native deployment status",
+  "site_version_number": 2
+}

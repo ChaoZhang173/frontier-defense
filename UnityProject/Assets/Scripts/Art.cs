@@ -38,7 +38,8 @@ namespace Frontier
             go.transform.SetParent(parent, false); go.transform.localPosition = position;
             go.transform.localScale = scale; go.transform.localRotation = Quaternion.Euler(euler);
             go.GetComponent<Renderer>().sharedMaterial = Mat(material);
-            var collider = go.GetComponent<Collider>();
+            // The typed reference keeps the sphere's native collider in stripped Web builds.
+            Collider collider = primitive==PrimitiveType.Sphere?go.GetComponent<SphereCollider>():go.GetComponent<Collider>();
             if (!collision) Object.Destroy(collider); else go.layer = Combat.WorldLayer;
             return go.transform;
         }
@@ -73,21 +74,21 @@ namespace Frontier
             root.gameObject.layer = layer; foreach (Transform t in root) Layer(t, layer);
         }
 
-        public static ArtRig Marine(Transform parent, bool player)
+        public static ArtRig Marine(Transform parent, bool player,bool squad=false)
         {
             var rig = parent.gameObject.AddComponent<ArtRig>(); rig.Humanoid = true;
             rig.Body = Root("Armored upper body",parent,new Vector3(0,1.12f,0));
             Part(rig.Body,"Chest plating",new Vector3(0,.1f,0),new Vector3(.86f,.76f,.52f),0);
             Part(rig.Body,"Chest inset",new Vector3(0,.15f,.277f),new Vector3(.49f,.24f,.035f),1);
             Part(rig.Body,"Chest light",new Vector3(0,.21f,.301f),new Vector3(.27f,.035f,.035f),6);
-            Part(rig.Body,"Helmet",new Vector3(0,.73f,.015f),new Vector3(.56f,.52f,.54f),0,PrimitiveType.Sphere);
+            Part(rig.Body,"Helmet",new Vector3(0,.73f,.015f),new Vector3(.56f,.52f,.54f),squad?11:0,PrimitiveType.Sphere);
             Part(rig.Body,"Visor",new Vector3(0,.755f,.258f),new Vector3(.44f,.15f,.10f),6);
             Part(rig.Body,"Jaw",new Vector3(0,.54f,.225f),new Vector3(.34f,.15f,.13f),1);
             Part(rig.Body,"Backpack",new Vector3(0,.17f,-.38f),new Vector3(.64f,.67f,.30f),2);
             for(int i=-1;i<=1;i+=2)
             {
                 Part(rig.Body,"Shoulder armor",new Vector3(i*.57f,.30f,0),new Vector3(.42f,.48f,.58f),0,PrimitiveType.Cube,new Vector3(0,0,-i*12));
-                Part(rig.Body,"Shoulder stripe",new Vector3(i*.58f,.55f,.03f),new Vector3(.28f,.035f,.38f),player?7:11);
+                Part(rig.Body,"Shoulder stripe",new Vector3(i*.58f,.55f,.03f),new Vector3(.28f,.035f,.38f),squad?6:player?7:11);
                 Part(rig.Body,"Forearm",new Vector3(i*.44f,-.15f,.30f),new Vector3(.25f,.30f,.59f),1,PrimitiveType.Cube,new Vector3(-12,i*-18,0));
                 Transform leg = Root("Leg",parent,new Vector3(i*.25f,.70f,0));
                 Part(leg,"Thigh",new Vector3(0,-.18f,0),new Vector3(.31f,.46f,.35f),0);
@@ -103,6 +104,11 @@ namespace Frontier
             Part(rig.Gun,"Magazine",new Vector3(0,-.23f,.24f),new Vector3(.17f,.27f,.22f),2,PrimitiveType.Cube,new Vector3(-14,0,0));
             Part(rig.Gun,"Optic",new Vector3(0,.17f,.36f),new Vector3(.12f,.10f,.26f),6);
             rig.Muzzle = Root("Muzzle",rig.Gun,new Vector3(0,.015f,1.16f));
+            if(squad)
+            {
+                Part(rig.Body,"Squad beacon",new Vector3(.31f,.52f,-.40f),new Vector3(.06f,.62f,.06f),7);
+                Part(rig.Body,"Squad identification",new Vector3(0,.17f,-.54f),new Vector3(.42f,.25f,.025f),7);
+            }
             rig.Finish(); return rig;
         }
 

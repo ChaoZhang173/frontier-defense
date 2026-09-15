@@ -1,0 +1,20 @@
+[
+  {
+    "platform": "Mac",
+    "file": "Releases/FrontierDefense-0.2-Mac.zip",
+    "bytes": 45417955,
+    "sha256": "8c5e95e9b9a1fbbd3cdb87a0bb1eb965951874217751a164c8be2a0df31545c5"
+  },
+  {
+    "platform": "Windows",
+    "file": "Releases/FrontierDefense-0.2-Windows.zip",
+    "bytes": 66933305,
+    "sha256": "e68477b3ffc74d50c6a42b3ee02f2c8f78dd8d0c603da5dd83d54610f3b71fe1"
+  },
+  {
+    "platform": "Web",
+    "file": "Releases/FrontierDefense-0.2-Web.zip",
+    "bytes": 13975736,
+    "sha256": "fed74b7f09ed7031a40770562790ba8ee2be81984cf6c967e9dff01899755e31"
+  }
+]

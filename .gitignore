@@ -27,6 +27,6 @@
 
 # Separate static hosting checkout
 WebSite/
-Verification/*.log
+Verification/**/*.log
 
 Releases/

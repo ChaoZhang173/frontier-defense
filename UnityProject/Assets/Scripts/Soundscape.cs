@@ -3,25 +3,31 @@ using UnityEngine;
 
 namespace Frontier
 {
-    public enum SoundId { Rifle, Reload, Wave, Upgrade, Win, Down }
+    public enum SoundId { Rifle, Reload, Wave, Upgrade, Win, Down, Hit, Critical, Kill, Command, Ready }
     public sealed class Soundscape : MonoBehaviour
     {
-        readonly AudioClip[] clips=new AudioClip[6];
+        readonly AudioClip[] clips=new AudioClip[11];
         AudioSource effects, ambient;float lastDistant=-10;
         public void Setup()
         {
             effects=gameObject.AddComponent<AudioSource>();effects.spatialBlend=0;effects.playOnAwake=false;
             ambient=gameObject.AddComponent<AudioSource>();ambient.spatialBlend=0;ambient.playOnAwake=false;ambient.loop=true;
             var random=new System.Random(1731);
-            for(int k=0;k<6;k++)
+            for(int k=0;k<clips.Length;k++)
             {
-                float duration=k==0?.14f:k==1?.28f:k==4?2.2f:k==5?1.4f:.8f;
+                float duration=k==0?.17f:k==1?.28f:k==4?2.2f:k==5?1.4f:k>=6?(k==9?.32f:.13f):.8f;
                 int n=(int)(22050*duration);float[] data=new float[n];
                 for(int i=0;i<n;i++)
                 {
                     float t=i/22050f,u=t/duration,noise=(float)(random.NextDouble()*2-1),v;
-                    if(k==0)v=(noise*.55f+Mathf.Sin(t*2*Mathf.PI*(145-70*u))*.45f)*Mathf.Exp(-t*38);
+                    if(k==0)v=noise*.42f*Mathf.Exp(-t*55)+(Mathf.Sin(t*2*Mathf.PI*(170-100*u))*.58f+Mathf.Sin(t*2*Mathf.PI*820)*.12f)*Mathf.Exp(-t*28);
                     else if(k==1)v=noise*.25f*Mathf.Pow(Mathf.Abs(Mathf.Sin(t*55)),14)*Mathf.Exp(-t*7);
+                    else if(k>=6)
+                    {
+                        float freq=k==6?950:k==7?1450:k==8?650:k==9?500:1800;
+                        if(k==7||k==8||k==9)freq*=u>.45f?1.5f:1;
+                        v=Mathf.Sin(t*freq*2*Mathf.PI)*Mathf.Sin(u*Mathf.PI)*Mathf.Exp(-u*2)*.45f;
+                    }
                     else
                     {
                         float freq=k==2?220:k==3?440:k==4?330:150;
