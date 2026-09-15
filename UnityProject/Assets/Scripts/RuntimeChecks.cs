@@ -14,6 +14,8 @@ namespace Frontier
             public string mode, outcome, version;public bool passed;public float simulatedSeconds,hqHealth;
             public int wave,spawned,kills,playerKills,deaths,peakEnemies,peakMarines,squadKills,squadHired,squadPeak,criticalHits;
             public int barracksLevel,bunkerArmorLevel,bunkerFirepowerLevel,readySites,completedResearch;
+            public int mercenaryContracts,recruitedGuards,mercenaryRespawns,peakMarineCapacity;
+            public int[] spawnPointUses;
             public List<string> actors=new List<string>();public List<string> checks=new List<string>();public List<string> failures=new List<string>();
         }
         public static string Argument(string key)
@@ -38,7 +40,7 @@ namespace Frontier
             }
             if(frames==6)
             {
-                if(mode=="squad"||mode=="fortification"||mode=="construction")
+                if(mode=="squad"||mode=="fortification"||mode=="construction"||mode=="guards"||mode=="navigation"||mode=="interaction")
                 {
                     if(restartReport!=null)
                     {
@@ -46,12 +48,17 @@ namespace Frontier
                         Check(world.Squad.Count==0&&world.Squad.Kills==0&&world.Wave==1&&world.Credits==160,"Restart clears the previous squad, orders, credits and battle state");
                         if(mode=="fortification")FortificationChecks.CheckRestart(world,Check);
                         if(mode=="construction")ConstructionChecks.CheckRestart(world,Check);
+                        Check(world.Squad.Contracts==0&&world.Squad.RecruitedGuardCount==0&&world.Fort.GuardInside==0,"Restart clears mercenary contracts, recruited guards and automatic bunker occupants");
+                        Check(!world.Tech.IsComplete(Research.MercenaryTraining),"Restart clears mercenary-specific training");
                         Complete();return;
                     }
                     try
                     {
                         if(mode=="squad")SquadChecks.Run(world,Check);
                         else if(mode=="construction")ConstructionChecks.Run(world,Check);
+                        else if(mode=="guards")GuardBunkerChecks.Run(world,Check);
+                        else if(mode=="navigation")NavigationChecks.Run(world,Check);
+                        else if(mode=="interaction")InteractionChecks.Run(world,Check);
                         else FortificationChecks.Run(world,Check);
                     }
                     catch(Exception exception){Check(false,mode+" diagnostic exception: "+exception);Complete();return;}
@@ -89,6 +96,10 @@ namespace Frontier
                     }
                     world.StartWave();
                 }
+                if(mode=="victory"&&world.Phase==Phase.Assault&&world.Squad.RecruitedGuardCount<2)
+                {
+                    foreach(var guard in world.Entities.ToArray())if(world.Squad.CanRecruitGuard(guard)){world.Squad.RecruitGuard(guard);break;}
+                }
                 Physics.SyncTransforms();world.Tick(.05f);world.Effects.Tick(.05f);
                 if(world.SimTime>1500){Check(false,"Simulation finishes within 25 minutes");Complete();return;}
             }
@@ -97,14 +108,15 @@ namespace Frontier
                 Check(mode=="victory"?world.Phase==Phase.Victory:world.Phase==Phase.Defeat,"Expected "+mode+" outcome");
                 if(mode=="victory")
                 {
-                    Check(WavePlan.TotalCount==308&&world.TotalSpawned==WavePlan.TotalCount&&world.Kills==WavePlan.TotalCount,"All 308 scheduled invaders spawned and defeated");
+                    Check(WavePlan.TotalCount==408&&world.TotalSpawned==WavePlan.TotalCount&&world.Kills==WavePlan.TotalCount,"All 408 scheduled invaders spawned and defeated");
                     Check(world.Wave==5&&world.EnemiesAlive==0&&world.RemainingToSpawn==0,"Victory waits for the complete fifth wave");
                     Check(world.PlayerKills>20,"Player bot uses actual rifle hits");
-                    Check(world.Squad.Hired>=3&&world.Squad.PeakCount==3&&world.Squad.Kills>0,"A recruited three-person squad participates in the full five-wave campaign");
+                    Check(world.Squad.Contracts==2&&world.Squad.Recruited>=2&&world.Squad.PeakCount==4&&world.Squad.Kills>0,"Two contracted mercenaries and two free recruited guards participate in the full five-wave campaign");
+                    Check(System.Array.TrueForAll(world.SpawnPointUses,n=>n>0),"All six exterior rifts contribute attackers during the full campaign");
                     Check(world.Upgrades.BarracksLevel>0&&world.Upgrades.ArmorLevel>0&&world.Upgrades.FirepowerLevel>0,"Earned battle supplies fund all three building upgrade types during the real campaign");
                 }
-                Check(world.PeakMarines<=8,"Garrison respects eight-unit cap");
-                Check(world.PeakEnemies<=55,"Concurrent enemy count stays bounded");
+                Check(world.PeakMarines<=world.PeakMarineCapacity,"Garrison respects its operational capacity");
+                Check(world.PeakEnemies<=GameWorld.EnemyLimit,"Concurrent enemy count stays bounded");
                 Complete();
             }
         }
@@ -114,8 +126,8 @@ namespace Frontier
             Physics.SyncTransforms();
             Check(world.Entities.Count==8,"HQ, barracks, bunker, player and four initial defenders exist");
             int total=0;for(int i=1;i<=5;i++)total+=WavePlan.Create(i).Count;
-            Check(total==308&&total==WavePlan.TotalCount,"Five wave definitions contain exactly 308 invaders");
-            int[] expected={30,44,60,76,98};
+            Check(total==408&&total==WavePlan.TotalCount,"Five wave definitions contain exactly 408 invaders");
+            int[] expected={40,58,80,100,130};
             for(int i=0;i<expected.Length;i++)Check(WavePlan.Create(i+1).Count==expected[i]&&WavePlan.Counts[i]==expected[i],"Wave "+(i+1)+" schedules "+expected[i]+" invaders");
             for(int i=0;i<14;i++)world.SpawnMarine();
             Check(world.MarinesAlive==8,"Production refuses units beyond its cap");
@@ -155,16 +167,34 @@ namespace Frontier
             string path=Argument("--frontier-output");if(path=="")path=Application.persistentDataPath+"/capture.png";
             string scene=Argument("--frontier-scene");
             if(scene=="construction"||scene=="technology"||scene=="expanded")ConstructionChecks.PrepareCapture(world,scene);
-            if(scene=="terminal"||scene=="battle"||scene=="fort")
+            if(scene=="ramps")
+            {
+                world.BeginCampaign();world.WaveBannerLeft=0;
+                FortificationChecks.PlacePlayer(world,new Vector3(25.5f,-4,31));
+                world.Player.Yaw=-90;world.Player.Pitch=2;world.Player.UpdateCamera(1);
+            }
+            if(scene=="guards")
+            {
+                world.BeginCampaign();world.Phase=Phase.Intermission;world.IntermissionLeft=1000;world.Credits=1000;
+                world.Construction.Build(1);
+                for(int i=0;i<1600;i++){Physics.SyncTransforms();world.Tick(.05f);world.Effects.Tick(.05f);}
+                world.Phase=Phase.Assault;FortificationChecks.PlacePlayer(world,world.Fort.EntranceFor(world.Bunker));
+                world.Fort.TryTogglePlayer();world.WaveBannerLeft=0;world.Player.Pitch=3;world.Player.UpdateCamera(1);
+            }
+            if(scene=="terminal"||scene=="battle"||scene=="fort"||scene=="squad")
             {
                 world.BeginCampaign();world.TryOpenCommandTerminal();world.Credits=1000;
                 world.Squad.Hire();world.Squad.Hire();
-                if(scene=="battle"||scene=="fort"){world.Squad.Hire();world.SetPaused(false);}
+                if(scene=="battle"||scene=="fort"||scene=="squad")
+                {
+                    world.SetPaused(false);SquadChecks.FillSquad(world);
+                    if(scene=="squad"){FortificationChecks.PlacePlayer(world,new Vector3(0,0,3));world.TryOpenCommandTerminal();}
+                }
             }
             if(scene=="upgrade")
             {
                 world.BeginCampaign();world.Phase=Phase.Intermission;world.IntermissionLeft=45;world.Credits=1600;
-                world.Squad.Hire();world.Squad.Hire();world.Squad.Hire();
+                SquadChecks.FillSquad(world);
                 world.Upgrades.Buy(BaseUpgrade.BarracksProduction);world.Upgrades.Buy(BaseUpgrade.BunkerArmor);world.Upgrades.Buy(BaseUpgrade.BunkerFirepower);
                 world.Barracks.Damage(380,null);world.Bunker.Damage(460,null);world.WaveBannerLeft=0;
                 world.Player.ReleaseControl();world.Player.UpdateCamera(1);
@@ -176,7 +206,7 @@ namespace Frontier
                 for(int step=0;step<240;step++)
                 {
                     world.SimTime+=.05f;Physics.SyncTransforms();world.Fort.Tick(.05f);world.Squad.Tick(.05f);world.Effects.Tick(.05f);
-                    if(world.Fort.SquadInside==3)break;
+                    if(world.Fort.SquadInside==4)break;
                 }
                 world.Fort.TryTogglePlayer();
                 world.SpawnEnemy(Role.Runner,1,new Vector3(13,0,21));world.SpawnEnemy(Role.Spitter,1,new Vector3(16,0,23));
@@ -194,7 +224,9 @@ namespace Frontier
                 world.Player.Bot=false;world.Player.Yaw=-1;world.Player.Pitch=11;
                 world.Player.UpdateCamera(1);
             }
-            yield return null;yield return new WaitForEndOfFrame();
+            yield return null;
+            if(scene=="squad")typeof(GameHud).GetField("terminalPage",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic).SetValue(world.Hud,1);
+            yield return new WaitForEndOfFrame();
             ScreenCapture.CaptureScreenshot(path);
             for(int i=0;i<20;i++)yield return null;
             Debug.Log("FRONTIER_CAPTURE "+path);finished=true;Application.Quit(0);
@@ -205,6 +237,7 @@ namespace Frontier
             report.simulatedSeconds=world.SimTime;report.hqHealth=world.Command.Current;report.wave=world.Wave;
             report.spawned=world.TotalSpawned;report.kills=world.Kills;report.playerKills=world.PlayerKills;report.deaths=world.Deaths;
             report.peakEnemies=world.PeakEnemies;report.peakMarines=world.PeakMarines;
+            report.mercenaryContracts=world.Squad.Contracts;report.recruitedGuards=world.Squad.Recruited;report.mercenaryRespawns=world.Squad.MercenaryRespawns;report.peakMarineCapacity=world.PeakMarineCapacity;report.spawnPointUses=world.SpawnPointUses;
             report.squadKills=world.Squad.Kills;report.squadHired=world.Squad.Hired;report.squadPeak=world.Squad.PeakCount;report.criticalHits=world.Player.CriticalHits;
             report.barracksLevel=world.Upgrades.BarracksLevel;report.bunkerArmorLevel=world.Upgrades.ArmorLevel;report.bunkerFirepowerLevel=world.Upgrades.FirepowerLevel;
             foreach(var site in world.Construction.Sites)if(site.State==SiteState.Ready)report.readySites++;

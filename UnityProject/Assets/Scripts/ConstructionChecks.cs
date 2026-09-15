@@ -54,7 +54,7 @@ namespace Frontier
             w.Credits=319;
             check(!construction.CanBuild(0)&&!construction.Build(0)&&w.Credits==319&&site.State==SiteState.Empty,
                 "Insufficient building supplies cannot start construction or spend credits");
-            w.Credits=10000;w.Squad.Hire();w.Squad.Hire();w.Squad.Hire();w.Phase=Phase.Assault;
+            w.Credits=10000;check(SquadChecks.FillSquad(w),"Construction scenarios use two contracted soldiers and two genuinely recruited guards");w.Phase=Phase.Assault;
             // Prime a real route through a never-built site before adding its collision volume.
             FortificationChecks.PlacePlayer(w,site.Position+Vector3.forward*14);
             foreach(var member in w.Squad.Members)member.transform.position=site.Position+new Vector3(member.Slot-1,0,-9);
@@ -87,7 +87,10 @@ namespace Frontier
             float hp=foundation.Current;foundation.Damage(40,w.Player.Self);
             check(foundation.Current==hp,"Friendly fire cannot damage a construction foundation");
             Health attacker=w.SpawnEnemy(Role.Runner,0,site.Position+Vector3.left*4.2f);Physics.SyncTransforms();
-            bool acquired=w.FindTarget(attacker,15)==foundation;attacker.Brain.Tick(.1f);
+            Health acquiredTarget=w.FindTarget(attacker,15);bool acquired=acquiredTarget==foundation;attacker.Brain.Tick(.1f);
+            if(!acquired||foundation.Current>=hp)
+                Debug.Log("FOUNDATION_TARGET attacker="+attacker.transform.position+" selected="+(acquiredTarget!=null?acquiredTarget.Role.ToString():"none")+
+                    " targetPosition="+(acquiredTarget!=null?acquiredTarget.transform.position:Vector3.zero)+" hp="+foundation.Current+" before="+hp);
             check(acquired&&foundation.Current<hp,"An actual enemy selects the foundation as a building target and deals attack damage to it");
             foundation.Damage(10000,null);
             check(site.State==SiteState.Destroyed&&!foundation.Alive&&w.Credits==credits,"Destroyed construction loses the investment and leaves a rebuildable site");
@@ -95,7 +98,7 @@ namespace Frontier
 
             w.Upgrades.Buy(BaseUpgrade.BunkerArmor);w.Upgrades.Buy(BaseUpgrade.BunkerFirepower);
             var navigation=w.Squad.Navigation;PrepareIntermission(w);credits=w.Credits;
-            check(construction.Build(0)&&w.Credits==credits-320&&site.Structure!=foundation,
+            LogBlockedSite(w,0);check(construction.Build(0)&&w.Credits==credits-320&&site.Structure!=foundation,
                 "Rebuilding a lost foundation charges a new investment and creates a distinct health object");
             check(w.Squad.Navigation!=navigation&&!w.Squad.Navigation.Walkable(site.Position),
                 "Starting construction rebuilds navigation and marks the footprint as blocked");
@@ -149,6 +152,7 @@ namespace Frontier
             Health[] infantry={w.Player.Self,marine,w.Squad.Members[0].Self};
             foreach(Health unit in infantry)
             {
+                if(unit.Role==Role.Marine)w.Fort.ReleaseGuard(unit);
                 unit.Heal(unit.Maximum);float hp=unit.Current;unit.Damage(40,null);
                 check(Mathf.Abs(hp-unit.Current-40)<.01f,"Before research, "+unit.Role+" takes the full infantry damage amount");unit.Heal(unit.Maximum);
             }
@@ -165,7 +169,7 @@ namespace Frontier
             remaining=tech.SecondsLeft;StepWorld(w,3);
             check(tech.SecondsLeft==remaining&&!tech.IsComplete(Research.InfantryArmor)&&tech.ActiveResearch==(int)Research.InfantryArmor,
                 "Destroying the prerequisite barracks suspends research without discarding the queued work");
-            marine.Damage(10000,null);defenders=w.MarinesAlive;StepWorld(w,13);
+            w.Fort.ReleaseGuard(marine);marine.Damage(10000,null);defenders=w.MarinesAlive;StepWorld(w,13);
             check(w.MarinesAlive==defenders&&w.MarinesAlive>8,"With more than eight survivors, the original barracks cannot replace losses while the extra barracks is destroyed");
             credits=w.Credits;
             check(!w.Upgrades.Buy(BaseUpgrade.RepairBarracks,oldBarracks)&&w.Credits==credits,"A targeted repair cannot revive a destroyed reinforcement barracks");
@@ -182,10 +186,11 @@ namespace Frontier
             foreach(Health unit in infantry)
             {
                 if(unit==null||!unit.Alive)continue;
+                if(unit.Role==Role.Marine)w.Fort.ReleaseGuard(unit);
                 unit.Heal(unit.Maximum);float hp=unit.Current;unit.Damage(40,null);
                 check(Mathf.Abs(hp-unit.Current-34)<.01f,"Completed infantry armor reduces actual "+unit.Role+" damage by 15 percent");unit.Heal(unit.Maximum);
             }
-            marine=w.Entities.Find(h=>h!=null&&h.Alive&&h.Role==Role.Marine);float marineHp=marine.Current;marine.Damage(40,null);
+            marine=w.Entities.Find(h=>h!=null&&h.Alive&&h.Role==Role.Marine);w.Fort.ReleaseGuard(marine);float marineHp=marine.Current;marine.Damage(40,null);
             check(Mathf.Abs(marineHp-marine.Current-34)<.01f,"Surviving and newly produced marines also receive the completed infantry armor bonus");marine.Heal(1000);
             float buildingHp=w.Bunker.Current;w.Bunker.Damage(40,null);
             check(Mathf.Abs(buildingHp-w.Bunker.Current-40)<.01f,"Infantry armor does not incorrectly reduce damage to buildings");w.Bunker.Heal(1000);
@@ -215,11 +220,12 @@ namespace Frontier
         static void CheckIndependentBunkers(GameWorld w,Action<bool,string> check)
         {
             var fort=w.Fort;Health east=w.Bunker,west=w.Construction.Sites[0].Structure;
+            ReleaseGuards(w);
             w.Phase=Phase.Assault;FortificationChecks.PlacePlayer(w,fort.EntranceFor(west));
             check(fort.OrderSquadInside()&&fort.SquadBunker==west,"The west entrance binds the squad order to the west bunker");
             FortificationChecks.PlacePlayer(w,fort.EntranceFor(east));check(fort.TryTogglePlayer(),"The player independently enters the original east bunker");StepSquad(w,20);
-            check(fort.PlayerBunker==east&&fort.SquadBunker==west&&fort.SquadInsideFor(west)==3&&fort.OccupantsFor(west)==3&&fort.OccupantsFor(east)==1,
-                "The player's relocation never retargets the squad: east holds the player and west holds three squad members");
+            check(fort.PlayerBunker==east&&fort.SquadBunker==west&&fort.SquadInsideFor(west)==4&&fort.OccupantsFor(west)==4&&fort.OccupantsFor(east)==1,
+                "The player's relocation never retargets the squad: east holds the player and west holds four squad members");
             Health eastTarget=w.SpawnEnemy(Role.Spitter,1,east.transform.position+new Vector3(0,0,14));eastTarget.Current=eastTarget.Maximum=5000;eastTarget.WeakRadius=0;
             Health westTarget=w.SpawnEnemy(Role.Spitter,0,west.transform.position+new Vector3(0,0,14));westTarget.Current=westTarget.Maximum=5000;westTarget.WeakRadius=0;
             float eastHp=eastTarget.Current,westHp=westTarget.Current;w.Player.Tick(.3f);w.Player.AimPoint=eastTarget.Aim;Physics.SyncTransforms();
@@ -230,19 +236,19 @@ namespace Frontier
             bool released=true;foreach(var member in w.Squad.Members)released&=!member.Self.IsSheltered;
             check(fort.PlayerBunker==east&&fort.PlayerInside&&w.Player.Self.IsSheltered&&fort.OccupantsFor(east)==1&&fort.OccupantsFor(west)==0&&released,
                 "Destroying the west bunker evacuates its squad while leaving the east-bunker player protected and stationed");
-            PrepareIntermission(w);check(w.Construction.Build(0),"The west bunker can be rebuilt while the player remains sheltered in the east bunker");StepWorld(w,18.2f);
+            PrepareIntermission(w);LogBlockedSite(w,0);check(w.Construction.Build(0),"The west bunker can be rebuilt while the player remains sheltered in the east bunker");StepWorld(w,18.2f);ReleaseGuards(w);
             Health newWest=w.Construction.Sites[0].Structure;
             check(newWest!=west&&newWest.Alive&&fort.OccupantsFor(west)==0&&fort.OccupantsFor(newWest)==0&&newWest.Maximum==2000,
                 "A rebuilt west bunker uses a new health identity, inherits upgrades and never inherits obsolete occupants");
             w.Phase=Phase.Assault;fort.ExitPlayer();FortificationChecks.PlacePlayer(w,fort.EntranceFor(newWest));fort.OrderSquadInside();
             FortificationChecks.PlacePlayer(w,fort.EntranceFor(east));fort.TryTogglePlayer();StepSquad(w,20);
-            check(fort.SquadBunker==newWest&&fort.SquadInsideFor(newWest)==3,"The squad can bind and occupy the newly rebuilt west bunker");
+            check(fort.SquadBunker==newWest&&fort.SquadInsideFor(newWest)==4,"The squad can bind and occupy the newly rebuilt west bunker");
             east.Damage(10000,null);
-            check(!fort.PlayerInside&&!w.Player.Self.IsSheltered&&w.Player.GetComponent<CharacterController>().enabled&&fort.SquadBunker==newWest&&fort.SquadInsideFor(newWest)==3&&fort.OccupantsFor(east)==0,
+            check(!fort.PlayerInside&&!w.Player.Self.IsSheltered&&w.Player.GetComponent<CharacterController>().enabled&&fort.SquadBunker==newWest&&fort.SquadInsideFor(newWest)==4&&fort.OccupantsFor(east)==0,
                 "Destroying the east bunker evacuates only its player and preserves all west-bunker squad occupants");
-            PrepareIntermission(w);FortificationChecks.PlacePlayer(w,new Vector3(0,0,3));check(w.Construction.Build(3),"The destroyed original east-bunker site accepts a reconstruction order");StepWorld(w,18.2f);
+            PrepareIntermission(w);FortificationChecks.PlacePlayer(w,new Vector3(0,0,3));LogBlockedSite(w,3);check(w.Construction.Build(3),"The destroyed original east-bunker site accepts a reconstruction order");StepWorld(w,18.2f);ReleaseGuards(w);
             Health newEast=w.Construction.Sites[3].Structure;
-            check(newEast!=east&&newEast==w.Bunker&&newEast.Alive&&fort.OccupantsFor(east)==0&&fort.SquadInsideFor(newWest)==3,
+            check(newEast!=east&&newEast==w.Bunker&&newEast.Alive&&fort.OccupantsFor(east)==0&&fort.SquadInsideFor(newWest)==4,
                 "Rebuilding the original bunker replaces the world's original-bunker reference without disturbing the other garrison");
             w.Phase=Phase.Assault;FortificationChecks.PlacePlayer(w,fort.EntranceFor(newEast));
             check(fort.TryTogglePlayer()&&fort.PlayerBunker==newEast&&fort.OccupantsFor(newEast)==1,
@@ -252,13 +258,14 @@ namespace Frontier
                 "The original barracks also has its own rebuildable site and a 400-supply reconstruction cost");
             StepWorld(w,22.2f);
             check(w.Barracks!=originalBarracks&&w.Construction.Sites[2].Structure==w.Barracks&&w.Barracks.Alive&&w.BarracksBuildings.Contains(w.Barracks)&&
-                fort.PlayerBunker==newEast&&fort.SquadInsideFor(newWest)==3,
+                fort.PlayerBunker==newEast&&fort.SquadInsideFor(newWest)==4,
                 "Reconstructing the original barracks replaces its world reference and navigation without evicting either bunker garrison");
         }
 
         static void CheckReserveDeployment(GameWorld w,Action<bool,string> check)
         {
             PrepareIntermission(w);
+            ReleaseGuards(w);
             Health reserve=w.Construction.Sites[1].Structure;
             Health[] recruits=new Health[2];Vector3[] spawns=new Vector3[2];
             check(w.EnemiesAlive==0,"The reinforcement deployment route scenario begins without enemies interrupting movement");
@@ -277,9 +284,10 @@ namespace Frontier
                 check(spawned,"The reserve barracks itself produces a new "+(slot==0?"west":"east")+"-post defender at its physical exit");
             }
             bool[] clear={true,true},arrived={false,false};
+            ReleaseGuards(w);
             for(int step=0;step<800;step++)
             {
-                StepWorld(w,.05f);
+                StepGuardNavigation(w,.05f);
                 for(int slot=0;slot<2;slot++)
                 {
                     Health recruit=recruits[slot];if(recruit==null){clear[slot]=false;continue;}
@@ -304,7 +312,7 @@ namespace Frontier
         public static void PrepareCapture(GameWorld w,string scene)
         {
             w.BeginCampaign();PrepareIntermission(w);w.Credits=2200;
-            w.Squad.Hire();w.Squad.Hire();w.Squad.Hire();
+            SquadChecks.FillSquad(w);
             w.Construction.Build(0);w.Construction.Build(1);
             if(scene=="construction")StepWorld(w,5);
             else
@@ -327,9 +335,34 @@ namespace Frontier
             else w.TryOpenCommandTerminal();
         }
 
+        static void LogBlockedSite(GameWorld w,int id)
+        {
+            if(w.Construction.CanBuild(id))return;
+            var site=w.Construction.Sites[id];Vector3 size=ConstructionDirector.Size(site.Role);
+            Debug.Log("BLOCKED_BUILD site="+id+" state="+site.State+" manage="+w.Construction.CanManage+" clear="+w.Construction.SpaceClear(id)+" credits="+w.Credits);
+            foreach(var h in w.Entities)
+            {
+                if(h==null||!h.Alive||h.IsSheltered||h.IsBuilding)continue;
+                Vector3 d=h.transform.position-site.Position;
+                if(Mathf.Abs(d.x)<size.x*.5f+h.Radius+.2f&&Mathf.Abs(d.z)<size.z*.5f+h.Radius+.2f)
+                    Debug.Log("BLOCKED_BUILD unit="+h.Role+" slot="+h.Slot+" pos="+h.transform.position+" radius="+h.Radius);
+            }
+            foreach(var c in Physics.OverlapBox(site.Position+Vector3.up*(size.y*.5f+.1f),new Vector3(size.x*.5f,size.y*.5f-.05f,size.z*.5f),Quaternion.identity,Combat.WorldMask,QueryTriggerInteraction.Ignore))
+                if(c.GetComponentInParent<Health>()!=site.Structure)Debug.Log("BLOCKED_BUILD collider="+c.name+" pos="+c.transform.position);
+        }
         static void PrepareIntermission(GameWorld w)
         {
             if(w.Paused)w.SetPaused(false);w.Phase=Phase.Intermission;w.IntermissionLeft=1000;
+        }
+        static void ReleaseGuards(GameWorld w)
+        {
+            foreach(var h in w.Entities)if(h!=null&&h.Alive&&h.Role==Role.Marine)w.Fort.ReleaseGuard(h);
+        }
+        static void StepGuardNavigation(GameWorld w,float dt)
+        {
+            w.SimTime+=dt;Physics.SyncTransforms();
+            foreach(var h in w.Entities)if(h!=null&&h.Alive&&h.Role==Role.Marine&&h.Brain!=null)h.Brain.NavigateTo(h.Brain.Station,dt);
+            w.Effects.Tick(dt);Physics.SyncTransforms();
         }
         static void StepWorld(GameWorld w,float seconds)
         {

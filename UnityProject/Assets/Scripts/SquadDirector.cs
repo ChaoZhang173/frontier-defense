@@ -7,15 +7,26 @@ namespace Frontier
     public enum SquadOrder { Follow, Hold, Bunker }
     public sealed class SquadDirector : MonoBehaviour
     {
-        public const int Capacity=3,HireCost=120;
+        public const int Capacity=4,MercenaryCapacity=2,GuardCapacity=2,HireCost=120;
+        public const float MercenaryRespawnDelay=12;
         public readonly SquadMember[] Members=new SquadMember[Capacity];
-        public static readonly string[] Names={"猎隼","岩盾","脉冲"};
+        public static readonly string[] Names={"猎隼","岩盾","脉冲","游隼"};
+        readonly bool[] contracts=new bool[MercenaryCapacity];
+        readonly float[] respawnLeft=new float[MercenaryCapacity];
         public SquadOrder Order {get;private set;}
         public Health FocusTarget {get;private set;}
         public Vector3 HoldPoint {get;private set;}
-        public int Kills,Hired,Losses,PeakCount;
-        public int Count {get {int n=0;foreach(var m in Members)if(m!=null&&m.Self.Alive)n++;return n;}}
-        public bool CanHire=>GameWorld.I.Command.Alive&&GameWorld.I.Player.Self.Alive&&!GameWorld.I.Ended&&
+        public int Kills,Hired,Losses,PeakCount,Recruited,MercenaryRespawns;
+        public int Count {get {int n=0;foreach(var m in Members)if(m!=null&&m.Self!=null&&m.Self.Alive)n++;return n;}}
+        public int MercenaryCount {get {int n=0;for(int i=0;i<MercenaryCapacity;i++)if(LivingMember(i))n++;return n;}}
+        public int RecruitedGuardCount {get {int n=0;for(int i=MercenaryCapacity;i<Capacity;i++)if(LivingMember(i))n++;return n;}}
+        public int Contracts {get {int n=0;foreach(bool bought in contracts)if(bought)n++;return n;}}
+        public bool IsMercenarySlot(int slot)=>slot>=0&&slot<MercenaryCapacity;
+        public bool HasContract(int slot)=>IsMercenarySlot(slot)&&contracts[slot];
+        public float RespawnRemaining(int slot)=>HasContract(slot)&&!LivingMember(slot)?Mathf.Max(0,respawnLeft[slot]):0;
+        bool LivingMember(int slot)=>slot>=0&&slot<Members.Length&&Members[slot]!=null&&Members[slot].Self!=null&&Members[slot].Self.Alive;
+        public bool CanHire=>Contracts<MercenaryCapacity&&GameWorld.I.Command!=null&&GameWorld.I.Command.Alive&&
+            GameWorld.I.Player.Self.Alive&&!GameWorld.I.Ended&&
             ((GameWorld.I.Phase==Phase.Intermission&&!GameWorld.I.Paused)||GameWorld.I.CommandTerminalOpen);
         public SquadNavigation Navigation {get;private set;}
         float focusUntil,holdYaw;
@@ -37,25 +48,66 @@ namespace Frontier
         public bool Hire()
         {
             var w=GameWorld.I;
-            if(!CanHire||Count>=Capacity)return false;
-            if(w.Credits<HireCost){w.Notice("补给不足 · 雇佣队员需要 120 补给");return false;}
-            int slot=0;while(slot<Capacity&&Members[slot]!=null&&Members[slot].Self.Alive)slot++;
-            if(slot==Capacity)return false;
+            if(!CanHire)return false;
+            if(w.Credits<HireCost){w.Notice("补给不足 · 雇佣兵合同需要 120 补给");return false;}
+            int slot=0;while(slot<MercenaryCapacity&&contracts[slot])slot++;
+            if(slot==MercenaryCapacity)return false;
+            contracts[slot]=true;w.Credits-=HireCost;Hired++;
+            SpawnMercenary(slot,false);
+            w.Notice(Names[slot]+" 已签约 · 阵亡后 12 秒免费重返战场");return true;
+        }
+        void SpawnMercenary(int slot,bool respawn)
+        {
+            var w=GameWorld.I;
             Vector3 spawn=Navigation.Resolve(new Vector3(-2+slot*2,0,-.5f));
-            Transform root=Art.Root("Squad / "+Names[slot],w.transform,spawn);root.gameObject.layer=Combat.UnitLayer;
-            var health=root.gameObject.AddComponent<Health>();health.Setup(Role.Squad,Faction.Defense,220,1.25f,.5f);health.Slot=slot;
+            Transform root=Art.Root("Mercenary / "+Names[slot],w.transform,spawn);root.gameObject.layer=Combat.UnitLayer;
+            var health=root.gameObject.AddComponent<Health>();health.Setup(Role.Squad,Faction.Defense,280,1.25f,.5f);health.Slot=slot;
             health.Rig=Art.Marine(root,false,true);
             var collider=root.gameObject.AddComponent<CapsuleCollider>();collider.center=Vector3.up;collider.height=2;collider.radius=.42f;collider.isTrigger=true;
             var member=root.gameObject.AddComponent<SquadMember>();member.Setup(this,health,slot);Members[slot]=member;
-            w.Credits-=HireCost;Hired++;PeakCount=Mathf.Max(PeakCount,Count);
+            respawnLeft[slot]=0;PeakCount=Mathf.Max(PeakCount,Count);
             w.Effects.Burst(health.Aim,Art.Amber,.7f);w.Sounds.Play(SoundId.Command,.6f);
-            w.Notice(Names[slot]+" 已加入小队 · F 跟随 / G 驻守");return true;
+            if(respawn){MercenaryRespawns++;w.Notice(Names[slot]+" 已在指挥中心复活 · 合同继续生效");}
+        }
+        public bool CanRecruitGuard(Health guard)
+        {
+            var w=GameWorld.I;
+            if(w==null||!w.Active||w.Phase!=Phase.Assault||w.Player==null||!w.Player.Self.Alive||RecruitedGuardCount>=GuardCapacity)return false;
+            if(guard==null||!guard.Alive||guard.Role!=Role.Marine||guard.Faction!=Faction.Defense||!w.Entities.Contains(guard))return false;
+            if(guard.Rig==null||guard.GetComponent<SquadMember>()!=null)return false;
+            return Vector3.Distance(w.Player.transform.position,guard.transform.position)<=4&&Combat.Visible(w.Player.Self,guard);
+        }
+        public bool RecruitGuard(Health guard)
+        {
+            var w=GameWorld.I;
+            if(!CanRecruitGuard(guard))
+            {
+                if(w!=null&&RecruitedGuardCount>=GuardCapacity)w.Notice("招募守卫已满 · 最多 2 名普通守卫");
+                return false;
+            }
+            int slot=MercenaryCapacity;while(slot<Capacity&&LivingMember(slot))slot++;
+            if(slot==Capacity)return false;
+            // Transfer this exact guard: release its post, then preserve its health and model.
+            w.Fort?.ReleaseGuard(guard);
+            if(!w.DetachGuard(guard))return false;
+            var oldBrain=guard.Brain!=null?guard.Brain:guard.GetComponent<ActorBrain>();
+            if(oldBrain!=null){oldBrain.enabled=false;Destroy(oldBrain);}
+            guard.Brain=null;guard.Role=Role.Squad;guard.Slot=slot;
+            guard.gameObject.name="Recruited guard / "+Names[slot];
+            var member=guard.gameObject.AddComponent<SquadMember>();member.Setup(this,guard,slot);Members[slot]=member;
+            Recruited++;PeakCount=Mathf.Max(PeakCount,Count);
+            w.Effects.Burst(guard.Aim,Art.Amber,.6f);w.Sounds.Play(SoundId.Command,.6f);
+            w.Notice(Names[slot]+" 已免费加入小队 · 保留当前生命，阵亡后不复活");return true;
+        }
+        public void ApplyMercenaryTraining()
+        {
+            for(int i=0;i<MercenaryCapacity;i++)if(LivingMember(i))Members[i].ApplyMercenaryTraining();
         }
         public bool GiveOrder(SquadOrder order)
         {
             var w=GameWorld.I;
             if(w.Paused||w.Ended||w.Phase!=Phase.Assault||!w.Player.Self.Alive)return false;
-            if(Count==0){w.Notice("小队尚未组建 · 靠近指挥中心按 E 雇佣");return false;}
+            if(Count==0){w.Notice(Contracts>0?"雇佣兵正在复活 · 也可招募普通守卫":"小队尚未组建 · 可雇佣或招募普通守卫");return false;}
             if(order==SquadOrder.Bunker&&(w.Fort==null||!w.Fort.TryAssignSquadBunker()))return false;
             if(order!=SquadOrder.Bunker)w.Fort?.ReleaseSquad();
             Order=order;HoldPoint=Navigation.Resolve(w.Fort!=null&&w.Fort.PlayerInside?w.Fort.Entrance:w.Player.transform.position);holdYaw=w.Player.Yaw;
@@ -79,17 +131,27 @@ namespace Frontier
             if(Order==SquadOrder.Bunker&&fort!=null&&fort.SquadBunker!=null&&fort.SquadBunker.Alive)return fort.SquadEntrance;
             Vector3 center=Order==SquadOrder.Hold?HoldPoint:rally;
             float yaw=Order==SquadOrder.Hold?holdYaw:p.Yaw;
-            Vector3 offset=slot==0?new Vector3(-2.6f,0,-2.6f):slot==1?new Vector3(2.6f,0,-2.6f):new Vector3(0,0,-4.6f);
+            Vector3 offset=slot==0?new Vector3(-2.6f,0,-2.6f):slot==1?new Vector3(2.6f,0,-2.6f):slot==2?new Vector3(-1.65f,0,-4.8f):new Vector3(1.65f,0,-4.8f);
             Vector3 goal=center+Quaternion.Euler(0,yaw,0)*offset;
             goal.y=GameWorld.GroundHeight(goal.x,goal.z);return Navigation.Resolve(goal);
         }
         public void Tick(float dt)
         {
-            var w=GameWorld.I;if(w.Player.Self.Alive)rally=w.Fort!=null&&w.Fort.PlayerInside?w.Fort.Entrance:w.Player.transform.position;
+            var w=GameWorld.I;if(w==null||!w.Active||dt<=0)return;
+            if(w.Command!=null&&w.Command.Alive)
+            {
+                for(int i=0;i<MercenaryCapacity;i++)
+                {
+                    if(!contracts[i]||LivingMember(i))continue;
+                    respawnLeft[i]=Mathf.Max(0,respawnLeft[i]-dt);
+                    if(respawnLeft[i]<=0)SpawnMercenary(i,true);
+                }
+            }
+            if(w.Player.Self.Alive)rally=w.Fort!=null&&w.Fort.PlayerInside?w.Fort.Entrance:w.Player.transform.position;
             if(FocusTarget==null||!FocusTarget.Alive||w.SimTime>focusUntil)FocusTarget=null;
             foreach(var member in Members)
             {
-                if(member==null||!member.Self.Alive)continue;
+                if(member==null||member.Self==null||!member.Self.Alive)continue;
                 if(w.SimTime-member.Self.LastDamageTime>6)member.Self.Heal(7*dt);
                 member.Tick(dt);
             }
@@ -97,9 +159,17 @@ namespace Frontier
         }
         public void OnLost(Health h)
         {
-            GameWorld.I.Fort?.ForgetSquad(Members[h.Slot]);
-            Losses++;Members[h.Slot]=null;
-            GameWorld.I.Notice(Names[h.Slot]+" 阵亡 · 可在指挥中心补充队员");
+            if(h==null||h.Slot<0||h.Slot>=Capacity)return;
+            int slot=h.Slot;var member=Members[slot];
+            if(member==null||member.Self!=h)return;
+            GameWorld.I.Fort?.ForgetSquad(member);
+            Losses++;Members[slot]=null;
+            if(HasContract(slot))
+            {
+                respawnLeft[slot]=MercenaryRespawnDelay;
+                GameWorld.I.Notice(Names[slot]+" 阵亡 · 12 秒后在指挥中心免费复活");
+            }
+            else GameWorld.I.Notice(Names[slot]+" 阵亡 · 可重新招募一名普通守卫");
         }
         public void OnBunkerUnavailable(){OnBunkerUnavailable(GameWorld.I.Fort.SquadEntrance);}
         public void OnBunkerUnavailable(Vector3 entrance)
@@ -116,6 +186,8 @@ namespace Frontier
     {
         public Health Self {get;private set;}
         public Health Target {get;private set;}
+        public bool IsMercenary {get;private set;}
+        public float RifleDamage=>(IsMercenary?18:10)+3*GameWorld.I.DefenseLevel+(IsMercenary&&trainingApplied?6:0);
         public int Slot,Shots;
         public float Travelled,DamageDealt;
         SquadDirector director;
@@ -126,10 +198,17 @@ namespace Frontier
         Renderer[] armor;
         Collider[] colliders;
         bool[] colliderStates;
+        bool trainingApplied;
         public void Setup(SquadDirector squad,Health health,int slot)
         {
-            director=squad;Self=health;Slot=slot;replan=-1;
+            director=squad;Self=health;Slot=slot;IsMercenary=squad.IsMercenarySlot(slot);replan=-1;
             armor=Self.Rig.GetComponentsInChildren<Renderer>();colliders=GetComponentsInChildren<Collider>();colliderStates=new bool[colliders.Length];
+            if(IsMercenary&&GameWorld.I.Tech!=null&&GameWorld.I.Tech.IsComplete(Research.MercenaryTraining))ApplyMercenaryTraining();
+        }
+        public void ApplyMercenaryTraining()
+        {
+            if(!IsMercenary||trainingApplied||Self==null||!Self.Alive)return;
+            trainingApplied=true;Self.Maximum+=80;Self.Heal(80);
         }
         public void Replan(){replan=-1;path.Clear();waypoint=0;}
         public void Tick(float dt)
@@ -156,7 +235,7 @@ namespace Frontier
                 if(cooldown<=0&&ValidTarget(Target))
                 {
                     float hp=Target.Current;Vector3 muzzle=Self.Rig.Muzzle.position;
-                    Combat.Rifle(Self,muzzle,(Target.Aim-muzzle).normalized,13+3*w.DefenseLevel,false);Shots++;
+                    Combat.Rifle(Self,muzzle,(Target.Aim-muzzle).normalized,RifleDamage,false);Shots++;
                     if(Target!=null)DamageDealt+=Mathf.Max(0,hp-Target.Current);
                     cooldown=.68f;Self.Rig.Recoil();
                 }
@@ -199,23 +278,24 @@ namespace Frontier
             }
             if(w.Phase!=Phase.Assault||Target==null||cooldown>0||!ValidTarget(Target))return;
             float hp=Target.Current;
-            Combat.Rifle(Self,muzzle,(Target.Aim-muzzle).normalized,13+3*w.DefenseLevel,false);Shots++;
+            Combat.Rifle(Self,muzzle,(Target.Aim-muzzle).normalized,RifleDamage,false);Shots++;
             if(Target!=null)DamageDealt+=Mathf.Max(0,hp-Target.Current);
             cooldown=.68f;
         }
         void Move(float dt)
         {
+            const float bodyRadius=.42f;
             Vector3 goal=director.Destination(Slot);
             if(replan<=0&&(path.Count==0||Vector3.Distance(goal,plannedGoal)>1.3f||waypoint>=path.Count))
             {
-                replan=.6f+Slot*.07f;plannedGoal=goal;waypoint=0;director.Navigation.Plan(transform.position,goal,path);
+                replan=.6f+Slot*.07f;plannedGoal=goal;waypoint=0;director.Navigation.Plan(transform.position,goal,path,bodyRadius);
             }
             if(waypoint>=path.Count)return;
             if(Vector3.Distance(transform.position,path[waypoint])<.3f&&
-                (waypoint+1>=path.Count||director.Navigation.Clear(transform.position,path[waypoint+1])))
+                (waypoint+1>=path.Count||director.Navigation.Clear(transform.position,path[waypoint+1],bodyRadius)))
             {waypoint++;if(waypoint>=path.Count)return;}
             // String pulling keeps movement smooth while preserving corner clearance.
-            if(waypoint+1<path.Count&&director.Navigation.Clear(transform.position,path[waypoint+1]))waypoint++;
+            if(waypoint+1<path.Count&&director.Navigation.Clear(transform.position,path[waypoint+1],bodyRadius))waypoint++;
             Vector3 delta=path[waypoint]-transform.position;delta.y=0;
             float speed=director.Order==SquadOrder.Follow?7.6f:6;
             if(Vector3.Distance(transform.position,goal)>12)speed=9.1f;
@@ -228,10 +308,10 @@ namespace Frontier
                 if(length>.02f&&length<1.1f)separation+=away/length*(1.1f-length)*2*dt;
             }
             Vector3 next=transform.position+step+separation;next.y=GameWorld.GroundHeight(next.x,next.z);
-            if(!director.Navigation.Walkable(next)||director.Navigation.Blocked(transform.position,next))
+            if(!director.Navigation.Fits(next,bodyRadius)||!director.Navigation.Clear(transform.position,next,bodyRadius))
             {
                 next=transform.position+step;next.y=GameWorld.GroundHeight(next.x,next.z);
-                if(!director.Navigation.Walkable(next)||director.Navigation.Blocked(transform.position,next)){replan=-1;path.Clear();return;}
+                if(!director.Navigation.Fits(next,bodyRadius)||!director.Navigation.Clear(transform.position,next,bodyRadius)){replan=-1;path.Clear();return;}
             }
             transform.position=next;
         }

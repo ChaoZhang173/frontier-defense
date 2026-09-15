@@ -202,7 +202,6 @@ namespace Frontier
                 {
                     Part(world,"Gate pier",new Vector3(x+i*4.6f,2.2f,24.2f),new Vector3(.75f,4.4f,1.2f),1,collision:true);
                     Part(world,"Gate beacon",new Vector3(x+i*4.6f,4.48f,24.2f),new Vector3(.50f,.18f,.73f),6);
-                    Part(world,"Ramp guard",new Vector3(x+i*4.68f,-1.42f,33),new Vector3(.30f,.55f,14.5f),2,euler:new Vector3(15.94f,0,0));
                 }
                 Part(world,"Gate crossbeam",new Vector3(x,4.45f,24.2f),new Vector3(10,.46f,.75f),0,collision:true);
                 Part(world,"Gate light",new Vector3(x,4.18f,23.82f),new Vector3(7.6f,.06f,.08f),6);
@@ -229,7 +228,7 @@ namespace Frontier
             for(int i=0;i<65;i++)
             {
                 float x=UnityEngine.Random.Range(-110f,110f),z=UnityEngine.Random.Range(-55f,125f);
-                if(Mathf.Abs(x)<33 && z<73) continue;
+                if(Mathf.Abs(x)<33 && z<82) continue;
                 float h=UnityEngine.Random.Range(5f,24f),s=UnityEngine.Random.Range(5f,12f);
                 Part(world,"Canyon monolith",new Vector3(x,-4+h*.4f,z),new Vector3(s,h,s*.75f),i%3==0?13:4,PrimitiveType.Cube,new Vector3(UnityEngine.Random.Range(-12,12),UnityEngine.Random.Range(0,180),UnityEngine.Random.Range(-9,9)));
                 Part(world,"Eroded cap",new Vector3(x,-4+h*.84f,z),new Vector3(s*1.2f,h*.18f,s*.88f),5,PrimitiveType.Cube,new Vector3(0,UnityEngine.Random.Range(0,180),8));
@@ -238,6 +237,7 @@ namespace Frontier
             {
                 float x=UnityEngine.Random.Range(-65,65),z=UnityEngine.Random.Range(33,90);
                 if(Mathf.Min(Mathf.Abs(x-13.5f),Mathf.Abs(x+13.5f))<7)continue;
+                if(System.Array.Exists(GameWorld.EnemySpawnPoints,p=>new Vector2(p.x-x,p.z-z).sqrMagnitude<49))continue;
                 Part(world,"Basalt shard",new Vector3(x,-3.4f,z),new Vector3(2,1.8f,2.6f),4,PrimitiveType.Cube,new Vector3(14,UnityEngine.Random.Range(0,180),25));
             }
             for(int i=0;i<6;i++)
@@ -264,16 +264,34 @@ namespace Frontier
         static void Ramp(Transform world,float x)
         {
             var t=Root("Approach ramp",world,new Vector3(x,0,0));
-            var mesh=new Mesh {name="Highland access ramp"};
-            mesh.vertices=new [] {new Vector3(-4.5f,0,26),new Vector3(4.5f,0,26),new Vector3(-4.5f,-4,40),new Vector3(4.5f,-4,40)};
-            mesh.triangles=new [] {0,2,1,1,2,3};mesh.RecalculateNormals();
-            mesh.uv=new [] {Vector2.zero,Vector2.right,Vector2.up,Vector2.one};
+            float half=GroundSurface.RampHalfWidth,side=GroundSurface.SideWidth,top=GroundSurface.RampStart,bottom=GroundSurface.RampEnd;
+            var mesh=new Mesh {name="Three-sided highland access ramp"};
+            mesh.vertices=new [] {
+                new Vector3(-half,0,top),new Vector3(half,0,top),
+                new Vector3(-half,-4,bottom),new Vector3(half,-4,bottom),
+                new Vector3(-half-side,-4,top),new Vector3(half+side,-4,top),
+                new Vector3(-half,0,top-.2f),new Vector3(half,0,top-.2f)
+            };
+            // The small level landing overlaps the deck, which ends at z = 25.9.
+            // Central approach plus two side faces whose entire outer edge meets the canyon floor.
+            mesh.triangles=new [] {0,2,1,1,2,3,0,4,2,1,3,5,6,0,7,7,0,1};mesh.RecalculateNormals();
+            mesh.uv=new [] {Vector2.zero,Vector2.right,Vector2.up,Vector2.one,new Vector2(-1,0),new Vector2(2,0),new Vector2(0,-.02f),new Vector2(1,-.02f)};
             t.gameObject.AddComponent<MeshFilter>().sharedMesh=mesh;t.gameObject.AddComponent<MeshRenderer>().sharedMaterial=Mat(3);
             t.gameObject.AddComponent<MeshCollider>().sharedMesh=mesh;t.gameObject.layer=Combat.WorldLayer;
             for(int i=0;i<10;i++)
             {
                 float z=26.5f+i*1.35f;
-                Part(world,"Ramp tread",new Vector3(x,GameWorld.GroundHeight(x,z)+.02f,z),new Vector3(8.7f,.045f,.15f),i%3==0?7:2,euler:new Vector3(15.94f,0,0));
+                Part(world,"Ramp tread",new Vector3(x,GroundSurface.Height(x,z)+.02f,z),new Vector3(8.7f,.045f,.15f),i%3==0?7:2,euler:new Vector3(15.94f,0,0));
+            }
+            for(int sign=-1;sign<=1;sign+=2)
+            {
+                Vector3 normal=new Vector3(sign*4f/side,1,4f/(bottom-top)).normalized;
+                Vector3 rotation=Quaternion.FromToRotation(Vector3.up,normal).eulerAngles;
+                for(int mark=0;mark<5;mark++)
+                {
+                    float sideX=x+sign*(half+.65f+mark*.75f),z=29;
+                    Part(world,"Side ramp guidance",new Vector3(sideX,GroundSurface.Height(sideX,z)+.035f,z),new Vector3(.46f,.035f,.55f),mark%2==0?7:2,euler:rotation);
+                }
             }
         }
 

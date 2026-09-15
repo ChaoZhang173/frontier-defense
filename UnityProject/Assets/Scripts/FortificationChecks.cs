@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 namespace Frontier
@@ -50,7 +52,7 @@ namespace Frontier
             w.Barracks.Heal(10);w.Bunker.Heal(10);
 
             // Only the existing automatic turret ticks here, so damage is attributable to it.
-            Health target=w.SpawnEnemy(Role.Spitter,1,new Vector3(14.5f,0,20));target.Current=target.Maximum=5000;target.WeakRadius=0;
+            Health target=w.SpawnEnemy(Role.Spitter,1,w.Bunker.transform.position+new Vector3(0,0,14));target.Current=target.Maximum=5000;target.WeakRadius=0;
             Physics.SyncTransforms();float hp=target.Current;w.Bunker.Brain.Tick(.5f);
             float baseHit=hp-target.Current;
             check(Mathf.Abs(baseHit-15)<.01f,"The unmodified automatic bunker cannon deals its real 15-point hit");
@@ -108,7 +110,12 @@ namespace Frontier
         static void CheckGarrison(GameWorld w,Action<bool,string> check)
         {
             var fort=w.Fort;var player=w.Player;
-            w.Squad.Hire();w.Squad.Hire();w.Squad.Hire();w.Phase=Phase.Assault;
+            foreach(var guard in w.Entities)if(guard!=null&&guard.Role==Role.Marine)fort.ReleaseGuard(guard);
+            bool assembled=SquadChecks.FillSquad(w);
+            check(assembled,"Real hiring and guard recruitment prepare all four members for the bunker scenarios");
+            if(!assembled)return;
+            w.Phase=Phase.Assault;
+            PlacePlayer(w,new Vector3(0,0,3));
             check(!fort.NearEntrance&&!fort.TryTogglePlayer()&&!fort.PlayerInside,"The player cannot enter a bunker remotely");
             PlacePlayer(w,fort.Entrance);check(fort.NearEntrance,"The bunker entrance recognizes a nearby living player");
             w.SetPaused(true);check(!fort.TryTogglePlayer()&&!fort.PlayerInside,"A paused game cannot admit a player into the bunker");w.SetPaused(false);
@@ -116,7 +123,7 @@ namespace Frontier
                 "Entering the bunker activates shelter and the stationary player firing position");
             player.UpdateCamera(1);
             check(Vector3.Distance(player.View.transform.position,fort.PlayerMuzzle)<1,"Entering switches to the view at the bunker firing aperture");
-            Health foe=w.SpawnEnemy(Role.Spitter,1,new Vector3(14.5f,0,20));foe.Current=foe.Maximum=5000;foe.WeakRadius=0;
+            Health foe=w.SpawnEnemy(Role.Spitter,1,w.Bunker.transform.position+new Vector3(0,0,14));foe.Current=foe.Maximum=5000;foe.WeakRadius=0;
             float hp=player.Self.Current;player.Self.Damage(100,foe);player.Self.Damage(100,null);
             check(player.Self.Current==hp&&!Combat.Visible(foe,player.Self)&&w.FindTarget(foe,100)!=player.Self,
                 "Sheltered players resist incoming damage and are excluded from visibility and enemy targeting");
@@ -132,12 +139,14 @@ namespace Frontier
             obstacle.SetActive(false);UnityEngine.Object.Destroy(obstacle);foe.Damage(10000,null);
 
             check(fort.OrderSquadInside()&&fort.SquadInside==0,"The bunker order begins an approach without remotely teleporting the squad inside");
+            LogSquadApproach(w,"initial_start");
             StepSquad(w,18);
             bool protectedSquad=true;foreach(var member in w.Squad.Members)protectedSquad&=member!=null&&member.Self.IsSheltered;
-            check(fort.SquadInside==3&&fort.Occupants==4&&protectedSquad,"All three squad members navigate to the door and join the player within the four-person capacity");
+            if(fort.SquadInside!=4||fort.Occupants!=5||!protectedSquad)LogSquadApproach(w,"initial_failed");
+            check(fort.SquadInside==4&&fort.Occupants==5&&protectedSquad,"All four squad members navigate to the door and join the player within the five-person capacity");
             fort.OrderSquadInside();StepSquad(w,.2f);
-            check(fort.SquadInside==3&&fort.Occupants==4,"Repeating the bunker order never duplicates occupants or exceeds capacity");
-            foe=w.SpawnEnemy(Role.Spitter,1,new Vector3(14.5f,0,20));foe.Current=foe.Maximum=5000;foe.WeakRadius=0;
+            check(fort.SquadInside==4&&fort.Occupants==5,"Repeating the bunker order never duplicates occupants or exceeds capacity");
+            foe=w.SpawnEnemy(Role.Spitter,1,w.Bunker.transform.position+new Vector3(0,0,14));foe.Current=foe.Maximum=5000;foe.WeakRadius=0;
             protectedSquad=true;
             foreach(var member in w.Squad.Members)
             {
@@ -147,13 +156,13 @@ namespace Frontier
             check(protectedSquad,"Sheltered squad members resist damage and are excluded from enemy acquisition");
             hp=foe.Current;StepSquad(w,1.5f);
             check(foe.Current<hp,"Garrisoned squad members deal actual damage through their firing apertures");
-            foe.transform.position=new Vector3(14.5f,0,-2);hp=foe.Current;StepSquad(w,1);
+            foe.transform.position=w.Bunker.transform.position+new Vector3(0,0,-8);hp=foe.Current;StepSquad(w,1);
             check(foe.Current==hp,"Garrisoned squad members do not fire through the rear bunker wall");
-            foe.transform.position=new Vector3(14.5f,0,20);obstacle=CreateObstruction(fort.PlayerMuzzle);hp=foe.Current;StepSquad(w,1.5f);
+            foe.transform.position=w.Bunker.transform.position+new Vector3(0,0,14);obstacle=CreateObstruction(fort.PlayerMuzzle);hp=foe.Current;StepSquad(w,1.5f);
             check(foe.Current==hp,"An obstacle in front of bunker apertures also blocks squad fire");
             obstacle.SetActive(false);UnityEngine.Object.Destroy(obstacle);foe.Damage(10000,null);
 
-            check(fort.TryTogglePlayer()&&!fort.PlayerInside&&!player.Self.IsSheltered&&player.GetComponent<CharacterController>().enabled&&fort.Occupants==3,
+            check(fort.TryTogglePlayer()&&!fort.PlayerInside&&!player.Self.IsSheltered&&player.GetComponent<CharacterController>().enabled&&fort.Occupants==4,
                 "Exiting restores player movement and vulnerability while the squad remains inside");
             player.UpdateCamera(1);
             check(Vector3.Distance(player.View.transform.position,fort.PlayerMuzzle)>2,"Exiting restores the player's shoulder camera");
@@ -163,7 +172,8 @@ namespace Frontier
             protectedSquad=false;foreach(var member in w.Squad.Members)protectedSquad|=member.Self.IsSheltered;
             check(fort.Occupants==0&&!protectedSquad,"Recalling the squad clears every sheltered slot");
             PlacePlayer(w,fort.Entrance);fort.TryTogglePlayer();fort.OrderSquadInside();StepSquad(w,8);
-            check(fort.Occupants==4,"The player and recalled squad can enter the bunker again");
+            if(fort.Occupants!=5)LogSquadApproach(w,"reentry_failed");
+            check(fort.Occupants==5,"The player and recalled squad can enter the bunker again");
             w.Bunker.Damage(10000,null);
             protectedSquad=false;bool allAlive=player.Self.Alive;
             foreach(var member in w.Squad.Members){protectedSquad|=member.Self.IsSheltered;allAlive&=member.Self.Alive;}
@@ -181,6 +191,30 @@ namespace Frontier
             var obstacle=new GameObject("Diagnostic aperture obstruction");obstacle.layer=Combat.WorldLayer;
             obstacle.transform.position=new Vector3(muzzle.x,2,muzzle.z+4);
             var collider=obstacle.AddComponent<BoxCollider>();collider.size=new Vector3(7,4,.8f);return obstacle;
+        }
+        static void LogSquadApproach(GameWorld w,string stage)
+        {
+            var fort=w.Fort;var navigation=w.Squad.Navigation;Vector3 door=fort.SquadEntrance;
+            Debug.Log("FORT_APPROACH stage="+stage+" player="+fort.PlayerInside+" squad="+fort.SquadInside+" guards="+fort.GuardInside+
+                " occupants="+fort.Occupants+" entrance="+door.ToString("F3")+" order="+w.Squad.Order);
+            // Read the live route for diagnostics without replanning or moving a tested member.
+            const BindingFlags fields=BindingFlags.Instance|BindingFlags.NonPublic;
+            foreach(var member in w.Squad.Members)if(member!=null)
+            {
+                Vector3 position=member.transform.position,goal=w.Squad.Destination(member.Slot);
+                var route=typeof(SquadMember).GetField("path",fields)?.GetValue(member) as List<Vector3>;
+                int waypoint=(int)(typeof(SquadMember).GetField("waypoint",fields)?.GetValue(member)??-1);
+                object planned=typeof(SquadMember).GetField("plannedGoal",fields)?.GetValue(member);
+                Vector3 next=route!=null&&waypoint>=0&&waypoint<route.Count?route[waypoint]:goal;
+                string routeText=route==null?"unavailable":string.Join(" > ",route.ConvertAll(point=>point.ToString("F3")));
+                Debug.Log("FORT_ROUTE stage="+stage+" slot="+member.Slot+" position="+position.ToString("F3")+" goal="+goal.ToString("F3")+
+                    " plannedGoal="+planned+" waypoint="+waypoint+" next="+next.ToString("F3")+" inside="+fort.IsSquadInside(member)+
+                    " alive="+member.Self.Alive+" approaching="+fort.IsSquadApproaching(member)+" sheltered="+member.Self.IsSheltered+
+                    " moved="+member.Travelled.ToString("F3")+" doorDistance="+Vector3.Distance(position,door).ToString("F3")+
+                    " fits42="+navigation.Fits(position,.42f)+" fits43="+navigation.Fits(position,.43f)+
+                    " doorBlocked="+navigation.Blocked(position,door)+" nextBlocked36="+navigation.Blocked(position,next,.36f)+
+                    " nextBlocked43="+navigation.Blocked(position,next,.43f)+" route="+routeText);
+            }
         }
         public static void PlacePlayer(GameWorld w,Vector3 point)
         {

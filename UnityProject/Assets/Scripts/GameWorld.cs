@@ -27,7 +27,7 @@ namespace Frontier
         public SquadDirector Squad;
         public BunkerDirector Fort;
         public BaseUpgrades Upgrades;
-        public const int EnemyLimit = 55;
+        public const int EnemyLimit = 65;
         public float ProductionInterval => 12 - 2 * (Upgrades == null ? 0 : Upgrades.BarracksLevel);
         public float BunkerDamage => 15 + 4 * DefenseLevel + 5 * (Upgrades == null ? 0 : Upgrades.FirepowerLevel);
         public bool CommandTerminalOpen {get;private set;}
@@ -72,9 +72,10 @@ namespace Frontier
             Diagnostic = RuntimeChecks.Requested;
             ConfigureLighting();
             Art.BuildEnvironment(transform);
+            EnemyFronts.Build(transform);
             Command = CreateBuilding(Role.Command, new Vector3(0,0,-7), 2300, new Vector3(9.5f,5.3f,8.2f));
             Barracks = CreateBuilding(Role.Barracks, new Vector3(-14,0,-9), 1100, new Vector3(7.5f,4.2f,8.3f));
-            Bunker = CreateBuilding(Role.Bunker, new Vector3(14.5f,0,6), 1200, new Vector3(7.4f,3,6.1f));
+            Bunker = CreateBuilding(Role.Bunker, new Vector3(20.5f,0,6), 1200, new Vector3(7.4f,3,6.1f));
             Effects = gameObject.AddComponent<Effects>(); Effects.Setup();
             Sounds = gameObject.AddComponent<Soundscape>(); Sounds.Setup();
             SpawnPlayer();
@@ -166,10 +167,30 @@ namespace Frontier
             return h;
         }
 
+        public bool DetachGuard(Health guard)
+        {
+            if(guard==null||!guard.Alive||guard.Role!=Role.Marine||!Entities.Contains(guard))return false;
+            int slot=guard.Slot;
+            if(slot<0||slot>=garrison.Length||garrison[slot]!=guard)return false;
+            garrison[slot]=null;MarinesAlive=Mathf.Max(0,MarinesAlive-1);return true;
+        }
+        public static readonly Vector3[] EnemySpawnPoints={
+            new Vector3(-13.5f,-4,64),new Vector3(13.5f,-4,64),
+            new Vector3(-29,-4,58),new Vector3(29,-4,58),
+            new Vector3(-5,-4,74),new Vector3(5,-4,74)
+        };
+        readonly int[] laneSpawns=new int[2];
+        public readonly int[] SpawnPointUses=new int[6];
         public Health SpawnEnemy(Role role,int lane,Vector3? overridePosition=null)
         {
-            float laneX=lane==0?-13.5f:13.5f;
-            Vector3 p=overridePosition??new Vector3(laneX+UnityEngine.Random.Range(-2f,2f),-4,62+UnityEngine.Random.Range(-1f,1f));
+            lane=Mathf.Clamp(lane,0,1);
+            Vector3 p;
+            if(overridePosition.HasValue)p=overridePosition.Value;
+            else
+            {
+                int site=lane+2*(laneSpawns[lane]++%3);SpawnPointUses[site]++;
+                p=EnemySpawnPoints[site]+new Vector3(UnityEngine.Random.Range(-1.5f,1.5f),0,UnityEngine.Random.Range(-1f,1f));
+            }
             Transform root=Art.Root(role.ToString(),transform,p);root.rotation=Quaternion.Euler(0,180,0);
             float hp=role==Role.Colossus?790:role==Role.Spitter?160:95;
             float height=role==Role.Colossus?1.8f:role==Role.Spitter?.95f:.6f;
@@ -184,7 +205,7 @@ namespace Frontier
             return h;
         }
 
-        public static float GroundHeight(float x,float z) => z<=26?0: z>=40?-4:-(z-26)*4f/14f;
+        public static float GroundHeight(float x,float z) => GroundSurface.Height(x,z);
         public Vector3 EnemyWaypoint(int lane,int index,float spread)
         {
             float x=(lane==0?-13.5f:13.5f)+spread;
@@ -217,7 +238,7 @@ namespace Frontier
             if(!Diagnostic && Input.GetKeyDown(KeyCode.Escape) && Phase!=Phase.Briefing && !Ended)SetPaused(!Paused);
             if(!Diagnostic && Input.GetKeyDown(KeyCode.E))
             {
-                if(CommandTerminalOpen)SetPaused(false);else if(!Fort.TryTogglePlayer())TryOpenCommandTerminal();
+                Interact();
             }
             if(!Diagnostic && !Paused && Phase==Phase.Assault && Player.LostControl)SetPaused(true);
             float dt=Time.deltaTime;
@@ -325,7 +346,7 @@ namespace Frontier
                 Credits+=victim.Role==Role.Colossus?36:victim.Role==Role.Spitter?13:7;
                 Effects.Burst(victim.Aim,Art.Pink,victim.Role==Role.Colossus?1.6f:.65f);
             }
-            else if(victim.Role==Role.Marine) { MarinesAlive=Mathf.Max(0,MarinesAlive-1);Effects.Burst(victim.Aim,Art.Cyan,.6f); }
+            else if(victim.Role==Role.Marine) { Fort.ReleaseGuard(victim);MarinesAlive=Mathf.Max(0,MarinesAlive-1);Effects.Burst(victim.Aim,Art.Cyan,.6f); }
             else if(victim.Role==Role.Squad) { Squad.OnLost(victim);Effects.Burst(victim.Aim,Art.Amber,.6f); }
             else
             {
@@ -368,6 +389,30 @@ namespace Frontier
             Paused=pause;Time.timeScale=pause?0:1;
             if(!pause)CommandTerminalOpen=false;
             if(pause)Player.ReleaseControl();else if(Phase==Phase.Assault)Player.RequestControl();
+        }
+        public Health GuardRecruitTarget
+        {
+            get
+            {
+                if(Player==null||!Player.Self.Alive||Player.View==null||Paused||Phase!=Phase.Assault||Fort.PlayerInside)return null;
+                Ray ray=Player.View.ViewportPointToRay(new Vector3(.5f,.5f,0));
+                if(!Combat.Trace(ray.origin,ray.direction,14,Player.Self,out var hit))return null;
+                var guard=hit.collider.GetComponentInParent<Health>();
+                return guard!=null&&guard.Alive&&!guard.IsSheltered&&guard.Role==Role.Marine&&
+                    Vector3.Distance(Player.transform.position,guard.transform.position)<=4?guard:null;
+            }
+        }
+        public bool Interact()
+        {
+            if(CommandTerminalOpen){SetPaused(false);return true;}
+            if(Fort.PlayerInside)return Fort.TryTogglePlayer();
+            Health guard=GuardRecruitTarget;
+            if(guard!=null)
+            {
+                if(!Squad.RecruitGuard(guard))Notice(Squad.RecruitedGuardCount>=SquadDirector.GuardCapacity?"随行守卫已满 · 最多招募 2 人":"无法招募 · 靠近并瞄准守卫");
+                return true;
+            }
+            return Fort.TryTogglePlayer()||TryOpenCommandTerminal();
         }
         public bool NearCommand=>Command!=null&&Command.Alive&&Player.Self.Alive&&Vector3.Distance(Player.transform.position,new Vector3(0,0,-1.3f))<6;
         public int LaneEnemies(int lane)

@@ -1,0 +1,23 @@
+[
+  {
+    "platform": "Mac",
+    "archive": "Releases/FrontierDefense-0.5-Mac.zip",
+    "bytes": 45476358,
+    "files": 378,
+    "integrity": "passed"
+  },
+  {
+    "platform": "Windows",
+    "archive": "Releases/FrontierDefense-0.5-Windows.zip",
+    "bytes": 66920360,
+    "files": 170,
+    "integrity": "passed"
+  },
+  {
+    "platform": "Web",
+    "archive": "Releases/FrontierDefense-0.5-Web.zip",
+    "bytes": 14066626,
+    "files": 8,
+    "integrity": "passed"
+  }
+]

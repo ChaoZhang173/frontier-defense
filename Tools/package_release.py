@@ -3,31 +3,32 @@ from pathlib import Path
 import json, plistlib, subprocess, zipfile
 
 root = Path(__file__).resolve().parents[1]
-version = "0.4"
-readme = """边境防线 v0.4 · 建造与科技
+version = "0.5"
+readme = """边境防线 v0.5 · 四人小队与驻防
 
-五波共308个敌人，沿用v0.3的敌群规模。守住指挥中心，清除全部敌人。
+五波共408个敌人，从基地外围6处敌巢生成。守住指挥中心，清除全部敌人。
 
-WASD 移动；Shift冲刺；鼠标转向；左键射击；右键瞄准；R换弹。
-E：靠近指挥中心正门打开建造、研究与小队终端；靠近地堡后门进入地堡，驻守时再次按E退出。
-B：靠近后门或已在地堡内时命令小队入驻；队员会走到门口再进入。
-F：小队跟随 / 撤出跟随。G：小队驻守 / 撤出驻守。Esc暂停。
-小队命令及地堡进出在开战后使用。
+WASD移动；Shift冲刺；鼠标转向；左键射击；右键瞄准；R换弹；Esc暂停。
+E：瞄准4米内的守卫免费招募；靠近指挥中心打开终端；靠近地堡后门进入，驻守时再次按E退出。
+B：靠近目标地堡后门或已驻堡时命令小队入驻；队员实际走到门口再进入。
+F：小队跟随/撤出跟随。G：小队驻守/撤出驻守。小队指令和地堡进出在开战后使用。
 
-地堡有四个席位（玩家+三名小队队员）。正面射界左右各70度。
-入驻时地堡承受伤害，地堡摧毁后从后门撤出。
+小队最多4人：2名精英雇佣兵、2名免费招募守卫。
+雇佣兵120补给签约，基础280耐久/18伤害，阵亡12秒后在指挥中心免费复活。
+招募守卫基础170耐久/10伤害，保留当前生命，不占基地驻军上限，兵营会补员；阵亡后需重新招募。
 
-45秒波间整备可查看下一波情报、雇佣队员、升级武器及建筑、维修基地。
-兵营补员：12→10→8秒；地堡装甲：每级+400；地堡自动炮：每级每发+5。
-建筑被毁后可以在原址重建。队员阵亡后需要重新雇佣。
-西侧地堡320补给/18秒；增援兵营400补给/22秒。工地可被攻击，施工随战场时间推进。
-增援兵营投产后独立补员，驻军上限从8提高到12，并解锁研究。
-步兵复合装甲240补给/16秒，玩家、小队和驻军受伤降低15%。
-穿甲弹280补给/20秒，友军对重甲目标伤害提高25%。一次研究一项，兵营被毁时暂停，重建后继续。
+每座地堡5席。守卫优先寻找本侧16米内地堡，实际走到后门入驻；玩家和小队进门时按所需席位让出守卫。
+地堡正面水平射界左右各70度。入驻由地堡承伤，地堡被毁后人员从后门撤出。
+东侧初始地堡向东移动，驻军使用共享寻路；两处基地入口为正面和左右侧可通行的三面坡。
 
-开局160补给，队员每人120补给，最多3人，与兵营8名驻军分开计算。
-玩家阵亡6秒后重生；指挥中心被毁则失败。
+45秒波间整备可查看下一波情报、雇佣、升级和维修。战斗中打开终端会暂停全局，返回后继续施工/研究/复活。
+西侧地堡320补给/18秒，增援兵营400补给/22秒。工地可被攻击；主兵营和两座地堡被毁后可原址重建。
+增援兵营投产后独立补员，基地驻军上限8→12，并解锁3项科技：
+复合装甲240补给/16秒，全体步兵受伤降低15%；穿甲弹280补给/20秒，对重甲目标伤害提高25%。
+精英雇佣兵训练300补给/22秒，仅雇佣兵耐久+80、伤害+6，复活后保留。
+一次研究一项。增援兵营被毁时未完成研究暂停，重建后继续；已完成科技本局持续。
 
+开局160补给；玩家阵亡6秒后重生，指挥中心被毁则失败。
 电脑键鼠试玩，手机触屏未适配。Windows已构建，尚未Windows真机验证。
 在线试玩：https://frontier-defense-outpost-07.fumeshroom.chatgpt.site
 字体许可见Licenses目录。
@@ -48,7 +49,7 @@ for platform in ("Mac", "Windows", "Web"):
     if platform == "Mac":
         app = folder / "Frontier Defense.app"
         info=plistlib.loads((app/"Contents/Info.plist").read_bytes())
-        assert info["CFBundleShortVersionString"] == "0.4.0", info
+        assert info["CFBundleShortVersionString"] == "0.5.0", info
         subprocess.run(["/usr/bin/ditto","-c","-k","--keepParent",str(app),str(archive)],check=True)
         with zipfile.ZipFile(archive,"a",compression=zipfile.ZIP_DEFLATED) as z:
             for p in folder.rglob("*"):
@@ -65,5 +66,5 @@ for platform in ("Mac", "Windows", "Web"):
         assert z.testzip() is None
         assert not any("DoNotShip" in n for n in z.namelist())
         reports.append({"platform":platform,"archive":str(archive.relative_to(root)),"bytes":archive.stat().st_size,"files":len(z.namelist()),"integrity":"passed"})
-(root/"Verification/v0.4/releases.json").write_text(json.dumps(reports,ensure_ascii=False,indent=2))
+(root/"Verification/v0.5/releases.json").write_text(json.dumps(reports,ensure_ascii=False,indent=2))
 print(json.dumps(reports,ensure_ascii=False,indent=2))

@@ -119,6 +119,7 @@ namespace Frontier
         float think, attackCooldown, strafeSeed;
         int waypoint;
         Vector3 lastPosition;
+        GuardNavigation guardNavigation;
         public Vector3 Station;
         public float Travelled;
 
@@ -128,12 +129,15 @@ namespace Frontier
             think = UnityEngine.Random.Range(0, .3f);
             strafeSeed = UnityEngine.Random.Range(-1.5f, 1.5f);
             lastPosition = transform.position;
+            if(Self.Role==Role.Marine)guardNavigation=new GuardNavigation();
         }
 
         public void Tick(float dt)
         {
             if (!Self.Alive) return;
             var world = GameWorld.I;
+            if(Self.Role==Role.Marine)lastPosition=transform.position;
+            if(Self.Role==Role.Marine&&world.Fort!=null&&world.Fort.TickGuard(this,dt))return;
             attackCooldown -= dt; think -= dt;
             bool friendly = Self.Faction == Faction.Defense;
             float range = Self.Role == Role.Bunker ? 28 : Self.Role == Role.Marine ? 25 : Self.Role == Role.Spitter ? 16 : Self.Role == Role.Colossus ? 3.4f : 1.85f;
@@ -164,7 +168,11 @@ namespace Frontier
             {
                 float speed = Self.Role == Role.Marine ? 3.7f : Self.Role == Role.Runner ? 4.5f : Self.Role == Role.Spitter ? 2.8f : 1.75f;
                 if (canAttack) speed = 0;
-                Move(destination, speed, dt);
+                if(Self.Role==Role.Marine)
+                {
+                    if(speed>0)NavigateTo(destination,dt);else RecordMotion(dt);
+                }
+                else Move(destination, speed, dt);
             }
             if (target != null && canAttack)
             {
@@ -194,10 +202,26 @@ namespace Frontier
                     Self.Rig?.Recoil();
                 }
             }
-            float moved = Vector3.Distance(transform.position, lastPosition);
-            Travelled += moved;
-            Self.Rig?.Animate(moved / Mathf.Max(dt, .0001f), dt);
-            lastPosition = transform.position;
+            if(Self.Role!=Role.Marine)RecordMotion(dt);
+        }
+
+        public void NavigateTo(Vector3 goal,float dt)
+        {
+            if(Self==null||!Self.Alive||Self.Role!=Role.Marine||Self.IsSheltered||dt<=0)return;
+            if(guardNavigation==null)guardNavigation=new GuardNavigation();
+            Vector3 before=transform.position;
+            // Entering and leaving a bunker relocates an actor; only actual walking counts.
+            lastPosition=before;
+            transform.position=guardNavigation.Step(Self,goal,dt);
+            Vector3 motion=transform.position-before;
+            if(motion.sqrMagnitude>.000001f)Face(transform.position+motion,dt);
+            RecordMotion(dt);
+        }
+
+        void RecordMotion(float dt)
+        {
+            float moved=Vector3.Distance(transform.position,lastPosition);Travelled+=moved;
+            Self.Rig?.Animate(moved/Mathf.Max(dt,.0001f),dt);lastPosition=transform.position;
         }
 
         void Shoot(float damage)
@@ -254,8 +278,8 @@ namespace Frontier
 
     public static class WavePlan
     {
-        public static readonly int[] Counts = { 30, 44, 60, 76, 98 };
-        public static readonly float[] Intervals = { 1.5f, 1.7f, 1.45f, 1.5f, 1.4f };
+        public static readonly int[] Counts = { 40, 58, 80, 100, 130 };
+        public static readonly float[] Intervals = { 1.2f, 1.35f, 1.2f, 1.2f, 1.15f };
         public static readonly string[] Titles = { "接触", "酸雨", "双线告急", "铁甲冲锋", "守住黎明" };
         public static int TotalCount { get { int total=0;foreach(int n in Counts)total+=n;return total; } }
         public static string Preview(int wave)

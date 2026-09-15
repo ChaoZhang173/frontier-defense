@@ -26,54 +26,70 @@ namespace Frontier
                 walkable[i]=OnTerrain(p)&&!Physics.CheckCapsule(p+Vector3.up*.65f,p+Vector3.up*1.5f,.43f,Combat.WorldMask,QueryTriggerInteraction.Ignore);
             }
         }
-        static bool OnTerrain(Vector3 p)
-        {
-            if(p.z<=25.5f)return Mathf.Abs(p.x)<=26.5f&&p.z>=-21;
-            // Leave room at the ramp edge for the agent radius and waypoint arrival tolerance.
-            if(p.z<40)return Mathf.Min(Mathf.Abs(p.x-13.5f),Mathf.Abs(p.x+13.5f))<=3.2f;
-            return p.z<=80&&Mathf.Abs(p.x)<=38;
-        }
+        static bool OnTerrain(Vector3 p)=>GroundSurface.WalkableTerrain(p.x,p.z);
         static Vector3 Point(int id)
         {
             float x=id%Width+MinX,z=id/Width+MinZ;
-            return new Vector3(x,GameWorld.GroundHeight(x,z),z);
+            return new Vector3(x,GroundSurface.Height(x,z),z);
         }
         static int Index(Vector3 p)
         {
             int x=Mathf.RoundToInt(p.x)-MinX,z=Mathf.RoundToInt(p.z)-MinZ;
             return x<0||x>=Width||z<0||z>=Height?-1:z*Width+x;
         }
-        public bool Walkable(Vector3 p){int id=Index(p);return OnTerrain(p)&&id>=0&&walkable[id];}
-        int Nearest(Vector3 p,bool reachable=false)
+        public bool Walkable(Vector3 p)
         {
-            int id=Index(p);if(id>=0&&walkable[id]&&(!reachable||Clear(p,Point(id))))return id;
+            int id=Index(p);if(!OnTerrain(p)||id<0)return false;
+            Vector3 node=Point(id);
+            if(new Vector2(node.x-p.x,node.z-p.z).sqrMagnitude<.000001f)return walkable[id];
+            // Grid occupancy describes node centres, not every point in their square.
+            // Continuous motion around a corner must use the actor's real clearance.
+            return Fits(p,.43f);
+        }
+        int Nearest(Vector3 p,bool reachable=false,float radius=.36f)
+        {
+            int id=Index(p);if(id>=0&&walkable[id]&&(!reachable||Clear(p,Point(id),radius)))return id;
             float best=float.MaxValue;int chosen=-1;
             for(int i=0;i<Count;i++)if(walkable[i])
             {
                 Vector3 d=Point(i)-p;float score=d.x*d.x+d.z*d.z;
-                if(score<best&&(!reachable||Clear(p,Point(i)))){best=score;chosen=i;}
+                if(score<best&&(!reachable||Clear(p,Point(i),radius))){best=score;chosen=i;}
             }
             return chosen;
         }
         public Vector3 Resolve(Vector3 p){int id=Nearest(p);return id<0?p:Point(id);}
-        public bool Clear(Vector3 a,Vector3 b)
+        public bool Clear(Vector3 a,Vector3 b,float radius=.36f)
         {
-            float length=Vector3.Distance(a,b);int steps=Mathf.CeilToInt(length/.45f);
-            for(int i=1;i<=steps;i++)if(!Walkable(Vector3.Lerp(a,b,(float)i/steps)))return false;
-            return !Blocked(a,b);
+            float length=new Vector2(b.x-a.x,b.z-a.z).magnitude;int steps=Mathf.Max(1,Mathf.CeilToInt(length/.35f));
+            Vector3 previous=a;previous.y=GroundSurface.Height(a.x,a.z);
+            for(int i=1;i<=steps;i++)
+            {
+                Vector3 point=Vector3.Lerp(a,b,(float)i/steps);point.y=GroundSurface.Height(point.x,point.z);
+                if(!Fits(point,radius)||!GroundSurface.Traversable(previous,point))return false;
+                previous=point;
+            }
+            return !Blocked(a,b,radius);
         }
-        public bool Blocked(Vector3 a,Vector3 b)
+        public bool Blocked(Vector3 a,Vector3 b,float radius=.36f)
         {
             Vector3 d=b-a;if(d.sqrMagnitude<.00001f)return false;
-            int count=Physics.SphereCastNonAlloc(a+Vector3.up,.36f,d.normalized,hits,d.magnitude,Combat.WorldMask,QueryTriggerInteraction.Ignore);
+            int count=Physics.CapsuleCastNonAlloc(a+Vector3.up*.65f,a+Vector3.up*1.5f,radius,d.normalized,hits,d.magnitude,Combat.WorldMask,QueryTriggerInteraction.Ignore);
+            if(count>=hits.Length)return true;
             for(int i=0;i<count;i++)if(hits[i].normal.y<.55f)return true;
             return false;
         }
-        public bool Plan(Vector3 from,Vector3 goal,List<Vector3> output)
+        public bool Fits(Vector3 point,float radius=.42f)
         {
-            output.Clear();int start=Nearest(from,true),end=Nearest(goal);if(start<0||end<0)return false;
+            if(!OnTerrain(point)||Index(point)<0)return false;
+            point.y=GroundSurface.Height(point.x,point.z);
+            return !Physics.CheckCapsule(point+Vector3.up*.65f,point+Vector3.up*1.5f,radius,Combat.WorldMask,QueryTriggerInteraction.Ignore);
+        }
+
+        public bool Plan(Vector3 from,Vector3 goal,List<Vector3> output,float radius=.36f)
+        {
+            output.Clear();int start=Nearest(from,true,radius),end=Nearest(goal);if(start<0||end<0)return false;
             Vector3 target=Point(end);
-            if(Clear(from,target)){output.Add(target);return true;}
+            if(Clear(from,target,radius)){output.Add(target);return true;}
             search++;heap.Clear();seen[start]=search;distance[start]=0;parent[start]=-1;Push(start,Heuristic(start,end));
             bool found=false;
             while(heap.Count>0)
@@ -87,6 +103,7 @@ namespace Frontier
                     if(nx<0||nx>=Width||nz<0||nz>=Height)continue;
                     int next=nz*Width+nx;if(!walkable[next]||closed[next]==search)continue;
                     if(dx!=0&&dz!=0&&(!walkable[z*Width+nx]||!walkable[nz*Width+x]))continue;
+                    if(!GroundSurface.Traversable(Point(current),Point(next))||Blocked(Point(current),Point(next),radius))continue;
                     float cost=distance[current]+(dx!=0&&dz!=0?1.414214f:1);
                     if(seen[next]==search&&distance[next]<=cost)continue;
                     seen[next]=search;distance[next]=cost;parent[next]=current;Push(next,cost+Heuristic(next,end));

@@ -15,9 +15,9 @@
 <body>
   <main id="game">
     <canvas id="unity-canvas" tabindex="0" aria-label="边境防线 3D 基地防守游戏"></canvas>
-    <div id="loading"><div class="tag">FRONTIER / 07</div><h1>边境防线</h1><p>守住基地，直到黎明。<br>三人小队 · 两处入口 · 五波攻势</p><div id="track"><div id="bar"></div></div><div id="status">正在连接前哨基地…</div><p style="font-size:12px">首次加载需要下载游戏文件，请稍候。<br>电脑浏览器试玩 · 建议使用键盘和鼠标</p><div id="error" role="alert"></div></div>
+    <div id="loading"><div class="tag">FRONTIER / 07</div><h1>边境防线</h1><p>守住基地，直到黎明。<br>四人小队 · 六处敌巢 · 五波攻势</p><div id="track"><div id="bar"></div></div><div id="status">正在连接前哨基地…</div><p style="font-size:12px">首次加载需要下载游戏文件，请稍候。<br>电脑浏览器试玩 · 建议使用键盘和鼠标</p><div id="error" role="alert"></div></div>
   </main>
-  <footer><span>边境防线 v0.4 · 建造与科技</span><span class="hint">WASD 移动 · E 交互 · B 小队入堡 · F 跟随 · G 驻守 · Esc 暂停</span><button id="fullscreen">全屏试玩 ↗</button></footer>
+  <footer><span>边境防线 v0.5 · 四人小队与驻防</span><span class="hint">WASD 移动 · E 交互 · B 小队入堡 · F 跟随 · G 驻守 · Esc 暂停</span><button id="fullscreen">全屏试玩 ↗</button></footer>
   <script>
     const canvas=document.getElementById('unity-canvas'), status=document.getElementById('status');let instance;
     // Pointer lock can be declined after Escape, focus changes or a quick menu transition.
@@ -32,7 +32,7 @@
     const script=document.createElement('script');script.src='Build/{{{ LOADER_FILENAME }}}';
     script.onerror=()=>fail('下载中断，请检查网络连接。');
     script.onload=()=>createUnityInstance(canvas,{
-      dataUrl:'Build/{{{ DATA_FILENAME }}}',frameworkUrl:'Build/{{{ FRAMEWORK_FILENAME }}}',codeUrl:'Build/{{{ CODE_FILENAME }}}',streamingAssetsUrl:'StreamingAssets',companyName:'Frontier Workshop',productName:'Frontier Defense',productVersion:'0.4.0',
+      dataUrl:'Build/{{{ DATA_FILENAME }}}',frameworkUrl:'Build/{{{ FRAMEWORK_FILENAME }}}',codeUrl:'Build/{{{ CODE_FILENAME }}}',streamingAssetsUrl:'StreamingAssets',companyName:'Frontier Workshop',productName:'Frontier Defense',productVersion:'0.5.0',
       devicePixelRatio:Math.min(window.devicePixelRatio||1,1.5),
       showBanner:(message,type)=>{if(type==='error')fail(message);else console.warn(message)}
     },progress=>{document.getElementById('bar').style.width=(progress*100)+'%';status.textContent=progress<.9?'正在装载前哨基地… '+Math.round(progress*100)+'%':'正在启动装甲系统…';}).then(game=>{instance=game;document.getElementById('loading').style.display='none';canvas.focus();}).catch(error=>fail(String(error)));

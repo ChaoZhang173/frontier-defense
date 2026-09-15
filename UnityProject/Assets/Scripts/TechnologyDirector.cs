@@ -2,11 +2,11 @@ using UnityEngine;
 
 namespace Frontier
 {
-    public enum Research { InfantryArmor, ArmorPiercing }
+    public enum Research { InfantryArmor, ArmorPiercing, MercenaryTraining }
     public sealed class TechnologyDirector
     {
         readonly GameWorld world;
-        readonly bool[] completed=new bool[2];
+        readonly bool[] completed=new bool[3];
         public int ActiveResearch { get; private set; }=-1;
         public float SecondsLeft { get; private set; }
         public float Duration { get; private set; }
@@ -14,13 +14,14 @@ namespace Frontier
         public TechnologyDirector(GameWorld owner){world=owner;}
         bool Valid(Research kind)=>(int)kind>=0&&(int)kind<completed.Length;
         public bool IsComplete(Research kind)=>Valid(kind)&&completed[(int)kind];
-        public int Cost(Research kind)=>!Valid(kind)?0:kind==Frontier.Research.InfantryArmor?240:280;
+        public int Cost(Research kind)=>!Valid(kind)?0:kind==Frontier.Research.InfantryArmor?240:kind==Frontier.Research.ArmorPiercing?280:300;
+        public string Name(Research kind)=>kind==Frontier.Research.InfantryArmor?"步兵复合装甲":kind==Frontier.Research.ArmorPiercing?"穿甲弹药":"精英雇佣兵训练";
         public bool CanResearch(Research kind)=>Valid(kind)&&world.Construction.CanManage&&Available&&ActiveResearch<0&&!IsComplete(kind)&&world.Credits>=Cost(kind);
         public bool Research(Research kind)
         {
             if(!CanResearch(kind))return false;
             world.Credits-=Cost(kind);ActiveResearch=(int)kind;
-            Duration=SecondsLeft=kind==Frontier.Research.InfantryArmor?16:20;
+            Duration=SecondsLeft=kind==Frontier.Research.InfantryArmor?16:kind==Frontier.Research.ArmorPiercing?20:22;
             world.Notice("研究已开始 · 返回战场后继续推进");world.Sounds.Play(SoundId.Command,.6f);return true;
         }
         public void Tick(float dt)
@@ -29,12 +30,14 @@ namespace Frontier
             SecondsLeft=Mathf.Max(0,SecondsLeft-dt);
             if(SecondsLeft>0)return;
             completed[ActiveResearch]=true;
-            world.Notice(ActiveResearch==0?"复合装甲研究完成 · 全体步兵受伤降低 15%":"穿甲弹研究完成 · 全军对重甲目标更有效");
+            if(ActiveResearch==(int)Frontier.Research.MercenaryTraining)world.Squad.ApplyMercenaryTraining();
+            world.Notice(ActiveResearch==0?"复合装甲研究完成 · 全体步兵受伤降低 15%":ActiveResearch==1?"穿甲弹研究完成 · 全军对重甲目标更有效":"精英训练完成 · 雇佣兵耐久 +80，伤害 +6");
             ActiveResearch=-1;world.Sounds.Play(SoundId.Upgrade,.7f);
         }
         public string Description(Research kind)=>kind==Frontier.Research.InfantryArmor?
             "玩家、小队和驻军受伤降低 15%\n研究 16 秒 · 本局持续生效":
-            "友军对重甲敌人的伤害提高 25%\n护甲减伤 28% → 10% · 研究 20 秒";
+            kind==Frontier.Research.ArmorPiercing?"友军对重甲敌人的伤害提高 25%\n护甲减伤 28% → 10% · 研究 20 秒":
+            "仅雇佣兵：耐久 +80，伤害 +6\n研究 22 秒 · 免费复活后保留";
         public string Status(Research kind)
         {
             if(!Valid(kind))return "无效科技";

@@ -1,0 +1,57 @@
+{
+  "version": "0.5.0",
+  "passed": true,
+  "totalChecks": 372,
+  "modes": [
+    {
+      "mode": "interaction",
+      "passed": true,
+      "checks": 14
+    },
+    {
+      "mode": "guards",
+      "passed": true,
+      "checks": 29
+    },
+    {
+      "mode": "navigation",
+      "passed": true,
+      "checks": 60
+    },
+    {
+      "mode": "construction",
+      "passed": true,
+      "checks": 111
+    },
+    {
+      "mode": "mechanics",
+      "passed": true,
+      "checks": 22
+    },
+    {
+      "mode": "fortification",
+      "passed": true,
+      "checks": 60
+    },
+    {
+      "mode": "squad",
+      "passed": true,
+      "checks": 61
+    },
+    {
+      "mode": "victory",
+      "passed": true,
+      "checks": 9
+    },
+    {
+      "mode": "afk",
+      "passed": true,
+      "checks": 3
+    },
+    {
+      "mode": "defeat",
+      "passed": true,
+      "checks": 3
+    }
+  ]
+}
