@@ -1,0 +1,41 @@
+{
+    "mode": "defeat",
+    "outcome": "Defeat",
+    "version": "0.1.0",
+    "passed": true,
+    "simulatedSeconds": 48.2995491027832,
+    "hqHealth": 0.0,
+    "wave": 1,
+    "spawned": 18,
+    "kills": 0,
+    "playerKills": 0,
+    "deaths": 3,
+    "peakEnemies": 18,
+    "peakMarines": 4,
+    "actors": [
+        "Runner (0.51, 0.00, -1.30) hp=95 moved=80.65645 visible=True",
+        "Runner (-0.44, 0.00, -1.44) hp=95 moved=93.25826 visible=True",
+        "Runner (0.24, 0.00, -1.41) hp=95 moved=104.5082 visible=False",
+        "Runner (-2.32, 0.00, -1.99) hp=95 moved=69.183 visible=False",
+        "Runner (-2.98, 0.00, -2.23) hp=95 moved=68.50814 visible=False",
+        "Runner (-0.93, 0.00, -1.68) hp=95 moved=80.88215 visible=False",
+        "Runner (-1.45, 0.00, -2.18) hp=95 moved=72.33344 visible=False",
+        "Runner (-0.81, 0.00, -2.16) hp=95 moved=74.35644 visible=False",
+        "Runner (-3.20, 0.00, -2.24) hp=95 moved=120.708 visible=False",
+        "Runner (-2.62, 0.00, -2.03) hp=95 moved=67.60705 visible=False",
+        "Runner (-1.83, 0.00, -1.91) hp=95 moved=72.33353 visible=False",
+        "Runner (-1.17, 0.00, -2.02) hp=95 moved=73.45631 visible=False",
+        "Runner (-1.52, 0.00, -1.42) hp=95 moved=80.20866 visible=True",
+        "Runner (-3.75, 0.00, -2.14) hp=95 moved=70.08339 visible=True",
+        "Runner (-7.85, 0.00, 4.59) hp=95 moved=59.9566 visible=True",
+        "Runner (-13.85, 0.00, 12.42) hp=95 moved=49.83112 visible=True",
+        "Runner (-13.96, 0.00, 22.58) hp=95 moved=39.70664 visible=True",
+        "Runner (-14.68, -1.79, 32.26) hp=95 moved=29.33226 visible=False"
+    ],
+    "checks": [
+        "Expected defeat outcome",
+        "Garrison respects eight-unit cap",
+        "Concurrent enemy count stays bounded"
+    ],
+    "failures": []
+}

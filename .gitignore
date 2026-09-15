@@ -1,0 +1,32 @@
+# Unity generated directories at any project depth
+**/[Ll]ibrary/
+**/[Tt]emp/
+**/[Oo]bj/
+**/[Ll]ogs/
+**/[Uu]ser[Ss]ettings/
+**/[Mm]emoryCaptures/
+**/[Rr]ecordings/
+**/[Bb]uild/
+**/[Bb]uilds/
+.DS_Store
+*.csproj
+*.sln
+*.slnx
+*.user
+.vs/
+.idea/
+
+# Local credentials and crash dumps
+.env
+.env.*
+*.pfx
+*.p12
+*.jks
+*.keystore
+*.dmp
+
+# Separate static hosting checkout
+WebSite/
+Verification/*.log
+
+Releases/

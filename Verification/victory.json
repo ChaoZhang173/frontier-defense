@@ -1,0 +1,38 @@
+{
+    "mode": "victory",
+    "outcome": "Victory",
+    "version": "0.1.0",
+    "passed": true,
+    "simulatedSeconds": 450.1636047363281,
+    "hqHealth": 2300.0,
+    "wave": 5,
+    "spawned": 198,
+    "kills": 198,
+    "playerKills": 155,
+    "deaths": 0,
+    "peakEnemies": 7,
+    "peakMarines": 8,
+    "actors": [
+        "Command (0.00, 0.00, -7.00) hp=2300 moved=0 visible=True",
+        "Barracks (-14.00, 0.00, -9.00) hp=1100 moved=0 visible=False",
+        "Bunker (14.50, 0.00, 6.00) hp=1200 moved=0 visible=True",
+        "Player (-9.76, 0.08, 21.62) hp=180 moved=0 visible=True",
+        "Marine (-13.50, 0.00, 15.50) hp=153 moved=0 visible=True",
+        "Marine (13.50, 0.00, 15.50) hp=153 moved=0 visible=True",
+        "Marine (-16.20, 0.00, 12.50) hp=170 moved=0 visible=True",
+        "Marine (16.20, 0.00, 12.50) hp=170 moved=0 visible=True",
+        "Marine (-11.09, 0.00, 12.03) hp=170 moved=16.09498 visible=True",
+        "Marine (10.53, 0.00, 12.19) hp=170 moved=28.85999 visible=True",
+        "Marine (-14.99, 0.00, 18.02) hp=17 moved=21.83 visible=True",
+        "Marine (14.60, 0.00, 18.19) hp=136 moved=36.07497 visible=True"
+    ],
+    "checks": [
+        "Expected victory outcome",
+        "All 198 scheduled invaders spawned and defeated",
+        "Victory waits for the complete fifth wave",
+        "Player bot uses actual rifle hits",
+        "Garrison respects eight-unit cap",
+        "Concurrent enemy count stays bounded"
+    ],
+    "failures": []
+}

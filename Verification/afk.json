@@ -1,0 +1,42 @@
+{
+    "mode": "afk",
+    "outcome": "Defeat",
+    "version": "0.1.0",
+    "passed": true,
+    "simulatedSeconds": 340.0404968261719,
+    "hqHealth": 0.0,
+    "wave": 4,
+    "spawned": 134,
+    "kills": 118,
+    "playerKills": 0,
+    "deaths": 3,
+    "peakEnemies": 19,
+    "peakMarines": 8,
+    "actors": [
+        "Barracks (-14.00, 0.00, -9.00) hp=998 moved=0 visible=False",
+        "Bunker (14.50, 0.00, 6.00) hp=483 moved=0 visible=True",
+        "Player (0.00, 0.10, 3.00) hp=146 moved=0 visible=True",
+        "Colossus (-6.44, 0.00, -3.05) hp=303.9994 moved=70.99606 visible=True",
+        "Spitter (-7.77, 0.00, 3.76) hp=115 moved=60.05626 visible=True",
+        "Spitter (-11.87, 0.00, 9.44) hp=160 moved=54.17801 visible=True",
+        "Spitter (-12.77, 0.00, 8.88) hp=160 moved=53.05867 visible=True",
+        "Runner (-5.52, 0.00, -5.92) hp=25 moved=75.032 visible=False",
+        "Runner (-5.57, 0.00, -5.74) hp=95 moved=116.8819 visible=False",
+        "Colossus (12.24, 0.00, 12.13) hp=628.0002 moved=49.73388 visible=True",
+        "Runner (-5.43, 0.00, -5.23) hp=45 moved=75.70618 visible=True",
+        "Runner (-5.49, 0.00, -5.47) hp=95 moved=77.05659 visible=False",
+        "Spitter (-12.45, 0.00, 9.36) hp=160 moved=54.73877 visible=False",
+        "Colossus (-14.44, -1.14, 29.98) hp=790 moved=32.07508 visible=True",
+        "Runner (-6.59, 0.00, -3.99) hp=85 moved=72.78123 visible=False",
+        "Runner (-7.88, 0.00, 2.94) hp=95 moved=63.55581 visible=True",
+        "Runner (12.71, 0.00, 10.05) hp=20.75 moved=52.08247 visible=False",
+        "Spitter (13.77, -2.11, 33.37) hp=160 moved=27.98403 visible=False",
+        "Runner (12.68, -0.17, 26.59) hp=95 moved=35.85937 visible=True"
+    ],
+    "checks": [
+        "Expected afk outcome",
+        "Garrison respects eight-unit cap",
+        "Concurrent enemy count stays bounded"
+    ],
+    "failures": []
+}

@@ -1,0 +1,81 @@
+{
+  "date": "2026-09-15T00:07:52.906046",
+  "removed": [
+    {
+      "path": "/Applications/Unity Hub.app (China 3.3.6)",
+      "approx_disk_bytes": 571473920
+    },
+    {
+      "path": "/Applications/Tuanjie Hub.app",
+      "approx_disk_bytes": 532676608
+    },
+    {
+      "path": "/Applications/Unity/Hub/Editor/2022.3.62f3c1",
+      "disk_bytes": 11703119872
+    },
+    {
+      "path": "/Users/czhang/Library/Application Support/TuanjieWebGLHost",
+      "disk_bytes": 283734016
+    },
+    {
+      "path": "/Users/czhang/Library/Caches/dev.codelycowork.desktop",
+      "disk_bytes": 65536
+    }
+  ],
+  "trashed": [
+    {
+      "path": "/Users/czhang/Library/Application Support/TuanjieHub",
+      "trash_path": "/Users/czhang/.Trash/Unity-China-removal-20260915/TuanjieHub"
+    },
+    {
+      "path": "/Users/czhang/Library/Preferences/com.unity3d.tuanjiehub.plist",
+      "trash_path": "/Users/czhang/.Trash/Unity-China-removal-20260915/com.unity3d.tuanjiehub.plist"
+    },
+    {
+      "path": "/Users/czhang/Library/Logs/Tuanjie",
+      "trash_path": "/Users/czhang/.Trash/Unity-China-removal-20260915/Tuanjie"
+    }
+  ],
+  "needs_administrator": [],
+  "global_hub_path": "/Applications/Unity Hub.app",
+  "temporary_installers_removed": [
+    {
+      "path": "/private/tmp/frontier-unity-global/editor.pkg",
+      "bytes": 5112562922
+    },
+    {
+      "path": "/private/tmp/frontier-unity-global/webgl.pkg",
+      "bytes": 1610399718
+    },
+    {
+      "path": "/private/tmp/frontier-unity-global/windows-mono.pkg",
+      "bytes": 384323082
+    },
+    {
+      "path": "/private/tmp/frontier-unity-global/UnityHub-Global-arm64.dmg",
+      "bytes": 156265777
+    },
+    {
+      "path": "/private/tmp/FrontierDefense-UnityHub-arm64.dmg",
+      "bytes": 183559096
+    }
+  ],
+  "download_segment_bytes_removed": 6025089035,
+  "pending_permanent_trash_removal": [],
+  "permanent_removal_verified": [
+    "/Users/czhang/.Trash/Tuanjie Cowork.app",
+    "/Users/czhang/.Trash/Tuanjie Cowork",
+    "/Users/czhang/.Trash/Unity-China-removal-20260915"
+  ],
+  "cleanup_complete": true,
+  "temporary_checks_removed": [
+    {
+      "path": "/private/tmp/frontier-unity-environment-check",
+      "disk_bytes": 1608876032
+    },
+    {
+      "path": "/private/tmp/frontier-unity-global",
+      "disk_bytes": 2203648
+    }
+  ]
+}
