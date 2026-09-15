@@ -47,7 +47,7 @@ namespace Frontier
             for(int i=Feedback.Count-1;i>=0;i--){Feedback[i].Life-=dt;if(Feedback[i].Life<=0)Feedback.RemoveAt(i);}
             DamageFlash=Mathf.MoveTowards(DamageFlash,0,dt*1.3f);recoil=Mathf.MoveTowards(recoil,0,dt*4);
             if(ReloadLeft>0){ReloadLeft-=dt;if(ReloadLeft<=0){ReloadLeft=0;Ammo=30;GameWorld.I.Sounds.Play(SoundId.Ready,.32f);}}
-            if(Bot){BotTick(dt);return;}
+            if(Bot){if(GameWorld.I.Fort!=null&&GameWorld.I.Fort.PlayerInside)BotBunkerTick(dt);else BotTick(dt);return;}
             if(GameWorld.I.Phase!=Phase.Assault){horizontalVelocity=Vector3.zero;Self.Rig.Animate(0,dt);return;}
             if(Cursor.lockState!=CursorLockMode.Locked)return;
             Aiming=Input.GetMouseButton(1);Sprinting=Input.GetKey(KeyCode.LeftShift)&&!Aiming;
@@ -56,6 +56,16 @@ namespace Frontier
             Pitch=Mathf.Clamp(Pitch-Input.GetAxisRaw("Mouse Y")*sensitivity,-35,65);
             if(Input.GetKeyDown(KeyCode.F))GameWorld.I.Squad.GiveOrder(SquadOrder.Follow);
             if(Input.GetKeyDown(KeyCode.G))GameWorld.I.Squad.GiveOrder(SquadOrder.Hold);
+            if(Input.GetKeyDown(KeyCode.B))GameWorld.I.Fort.OrderSquadInside();
+            if(GameWorld.I.Fort.PlayerInside)
+            {
+                Sprinting=false;horizontalVelocity=Vector3.zero;
+                GameWorld.I.Fort.ClampPlayerAim(ref Yaw,ref Pitch);
+                UpdateCamera(dt);UpdateAim();
+                if(Input.GetKeyDown(KeyCode.R))StartReload();
+                if(Input.GetMouseButton(0))Fire();
+                return;
+            }
             Vector3 input=new Vector3(Input.GetAxisRaw("Horizontal"),0,Input.GetAxisRaw("Vertical"));
             input=Vector3.ClampMagnitude(input,1);
             Vector3 direction=Quaternion.Euler(0,Yaw,0)*input;
@@ -80,6 +90,7 @@ namespace Frontier
                 AimPoint=hit.point;var h=hit.collider.GetComponentInParent<Health>();
                 if(h!=null&&h.Alive&&h.Faction==Faction.Invaders)AimTarget=h;
             }
+            if(GameWorld.I.Fort!=null&&GameWorld.I.Fort.PlayerInside){BarrelBlocked=false;return;}
             Vector3 reach=Self.Rig.Muzzle.position-Self.Aim;
             BarrelBlocked=Physics.Raycast(Self.Aim,reach.normalized,reach.magnitude,Combat.WorldMask,QueryTriggerInteraction.Ignore);
         }
@@ -87,13 +98,16 @@ namespace Frontier
         public bool Fire()
         {
             if(!Self.Alive||!GameWorld.I.Active||GameWorld.I.Phase!=Phase.Assault||cooldown>0||ReloadLeft>0)return false;
+            var fort=GameWorld.I.Fort;
+            bool stationed=fort!=null&&fort.PlayerInside;
+            Vector3 muzzle=stationed?fort.PlayerMuzzle:Self.Rig.Muzzle.position;
+            if(stationed&&!fort.WithinArc(AimPoint-muzzle))return false;
             if(Ammo<=0){StartReload();return false;}
             Ammo--;TotalShots++;cooldown=.115f;recoil=1;
             if(AimTarget!=null)GameWorld.I.Squad.MarkTarget(AimTarget);
-            Vector3 muzzle=Self.Rig.Muzzle.position;
             // Check the short segment too: the barrel must never shoot through a wall.
             Vector3 start=Self.Aim, reach=muzzle-start;
-            if(Physics.Raycast(start,reach.normalized,out var obstruction,reach.magnitude,Combat.WorldMask,QueryTriggerInteraction.Ignore))
+            if(!stationed&&Physics.Raycast(start,reach.normalized,out var obstruction,reach.magnitude,Combat.WorldMask,QueryTriggerInteraction.Ignore))
                 muzzle=obstruction.point-reach.normalized*.06f;
             Vector3 shot=(AimPoint-muzzle).normalized;
             if(!Bot)
@@ -115,8 +129,9 @@ namespace Frontier
 
         public void UpdateCamera(float dt)
         {
-            if(View==null)return;
+            if(View==null||Self==null)return;
             var w=GameWorld.I;
+            if(w==null)return;
             if(w.Phase==Phase.Briefing || w.Ended)
             {
                 Vector3 position=new Vector3(-33,25,-30);
@@ -133,6 +148,13 @@ namespace Frontier
             {
                 ads=Mathf.MoveTowards(ads,Aiming?1:0,dt*6);cameraFrame=Time.frameCount;
             }
+            if(w.Fort!=null&&w.Fort.PlayerInside)
+            {
+                float stationYaw=Yaw+recoilYaw,stationPitch=Pitch-RecoilPitch-recoil*.12f;
+                w.Fort.ClampPlayerAim(ref stationYaw,ref stationPitch);
+                View.transform.SetPositionAndRotation(w.Fort.PlayerMuzzle,Quaternion.Euler(stationPitch,stationYaw,0));
+                View.fieldOfView=Mathf.Lerp(66,49,ads);SetArmorVisible(false);return;
+            }
             Quaternion rotation=Quaternion.Euler(Pitch-RecoilPitch-recoil*.12f,Yaw+recoilYaw,0);
             Vector3 pivot=transform.position+Vector3.up*1.55f;
             Vector3 desired=pivot+rotation*new Vector3(Mathf.Lerp(.68f,.57f,ads),.22f,Mathf.Lerp(-4.9f,-2.8f,ads));
@@ -144,7 +166,7 @@ namespace Frontier
             SetArmorVisible((desired-pivot).sqrMagnitude>.65f);
         }
 
-        void SetArmorVisible(bool visible){foreach(var r in armor)if(r!=null)r.enabled=visible;}
+        void SetArmorVisible(bool visible){if(armor==null)return;if(Self!=null&&Self.IsSheltered)visible=false;foreach(var r in armor)if(r!=null)r.enabled=visible;}
         public void Hurt(float amount){DamageFlash=Mathf.Clamp01(DamageFlash+amount/75);}
         public void HitConfirm(bool killed,bool critical,float damage,Vector3 position,int targetId)
         {
@@ -158,9 +180,26 @@ namespace Frontier
                 Feedback.Add(new HitFeedback{Position=position,Damage=damage,Life=.7f,Critical=critical,TargetId=targetId});
             }
         }
-        public void PlayerKilled(){controller.enabled=false;SetArmorVisible(false);Aiming=false;ReloadLeft=0;}
+        public void EnterBunker(Vector3 position)
+        {
+            controller.enabled=false;Self.IsSheltered=true;transform.position=position;
+            Yaw=GameWorld.I.Bunker.transform.eulerAngles.y;Pitch=2;RecoilPitch=0;recoilYaw=0;recoil=0;
+            gravity=0;horizontalVelocity=Vector3.zero;Aiming=false;Sprinting=false;AimTarget=null;BarrelBlocked=false;
+            AimPoint=GameWorld.I.Fort.PlayerMuzzle+Quaternion.Euler(Pitch,Yaw,0)*Vector3.forward*100;
+            SetArmorVisible(false);UpdateCamera(1);
+        }
+        public void LeaveBunker(Vector3 position)
+        {
+            if(Self==null)return;
+            if(controller!=null)controller.enabled=false;Self.IsSheltered=false;transform.position=position;
+            gravity=0;horizontalVelocity=Vector3.zero;Aiming=false;Sprinting=false;AimTarget=null;
+            if(controller!=null)controller.enabled=Self.Alive;SetArmorVisible(Self.Alive);
+            if(Self.Alive)UpdateCamera(1);
+        }
+        public void PlayerKilled(){GameWorld.I.Fort?.ExitPlayer();Self.IsSheltered=false;controller.enabled=false;SetArmorVisible(false);Aiming=false;ReloadLeft=0;}
         public void Respawn()
         {
+            GameWorld.I.Fort?.ExitPlayer();Self.IsSheltered=false;
             controller.enabled=false;transform.position=new Vector3(0,.1f,3);transform.rotation=Quaternion.identity;
             Self.Alive=true;Self.Current=Self.Maximum;Self.LastDamageTime=GameWorld.I.SimTime;
             controller.enabled=true;Ammo=30;ReloadLeft=0;gravity=0;Yaw=0;Pitch=9;DamageFlash=0;RecoilPitch=0;recoilYaw=0;ads=0;horizontalVelocity=Vector3.zero;AimTarget=null;Feedback.Clear();
@@ -189,6 +228,22 @@ namespace Frontier
                 if(Combat.Visible(Self,botTarget))Fire();
             }
             Self.Rig.Animate(direction.magnitude>1?5:0,dt);
+        }
+        void BotBunkerTick(float dt)
+        {
+            var w=GameWorld.I;if(w.Phase!=Phase.Assault)return;
+            var fort=w.Fort;botThink-=dt;
+            if(botThink<=0||!fort.CanSeeFromPort(Self,fort.PlayerMuzzle,botTarget,90))
+            {
+                botThink=.35f;botTarget=null;float nearest=90;
+                foreach(var h in w.Entities)if(fort.CanSeeFromPort(Self,fort.PlayerMuzzle,h,nearest))
+                {nearest=Vector3.Distance(fort.PlayerMuzzle,h.Aim);botTarget=h;}
+            }
+            if(botTarget==null)return;
+            AimPoint=botTarget.Aim;AimTarget=botTarget;
+            Vector3 delta=AimPoint-fort.PlayerMuzzle;Yaw=Mathf.Atan2(delta.x,delta.z)*Mathf.Rad2Deg;
+            Pitch=-Mathf.Atan2(delta.y,new Vector2(delta.x,delta.z).magnitude)*Mathf.Rad2Deg;
+            fort.ClampPlayerAim(ref Yaw,ref Pitch);UpdateCamera(dt);Fire();
         }
     }
 }

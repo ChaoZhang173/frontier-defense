@@ -19,6 +19,11 @@ namespace Frontier
         public GameHud Hud;
         public RuntimeChecks Checks;
         public SquadDirector Squad;
+        public BunkerDirector Fort;
+        public BaseUpgrades Upgrades;
+        public const int EnemyLimit = 55;
+        public float ProductionInterval => 12 - 2 * (Upgrades == null ? 0 : Upgrades.BarracksLevel);
+        public float BunkerDamage => 15 + 4 * DefenseLevel + 5 * (Upgrades == null ? 0 : Upgrades.FirepowerLevel);
         public bool CommandTerminalOpen {get;private set;}
         public Phase Phase = Phase.Briefing;
         public bool Paused, Diagnostic;
@@ -67,6 +72,8 @@ namespace Frontier
             SpawnPlayer();
             for(int i=0;i<4;i++) SpawnMarine(i, false);
             Squad=gameObject.AddComponent<SquadDirector>();Squad.Setup();
+            Upgrades=new BaseUpgrades(this);
+            Fort=gameObject.AddComponent<BunkerDirector>();Fort.Setup();
             Hud = gameObject.AddComponent<GameHud>();
             ApplyQuality(Quality);
             if(Diagnostic) { Checks = gameObject.AddComponent<RuntimeChecks>(); Checks.Setup(this); }
@@ -179,7 +186,7 @@ namespace Frontier
             Health best=null;float scoreBest=float.MaxValue;
             foreach(var h in Entities)
             {
-                if(h==null||!h.Alive||h.Faction==from.Faction)continue;
+                if(h==null||!h.Alive||h.IsSheltered||h.Faction==from.Faction)continue;
                 float distance=Vector3.Distance(h.Aim,from.Aim)-h.Radius;
                 if(distance>range)continue;
                 float score=distance;
@@ -199,7 +206,7 @@ namespace Frontier
             if(!Diagnostic && Input.GetKeyDown(KeyCode.Escape) && Phase!=Phase.Briefing && !Ended)SetPaused(!Paused);
             if(!Diagnostic && Input.GetKeyDown(KeyCode.E))
             {
-                if(CommandTerminalOpen)SetPaused(false);else TryOpenCommandTerminal();
+                if(CommandTerminalOpen)SetPaused(false);else if(!Fort.TryTogglePlayer())TryOpenCommandTerminal();
             }
             if(!Diagnostic && !Paused && Phase==Phase.Assault && Player.LostControl)SetPaused(true);
             float dt=Time.deltaTime;
@@ -229,8 +236,9 @@ namespace Frontier
             if(Barracks.Alive && MarinesAlive<8)
             {
                 ProductionLeft-=dt;
-                if(ProductionLeft<=0){SpawnMarine();ProductionLeft=12;}
+                if(ProductionLeft<=0){SpawnMarine();ProductionLeft=ProductionInterval;}
             }
+            Fort.Tick(dt);
             Squad.Tick(dt);
             for(int i=0;i<Entities.Count;i++)
             {
@@ -242,7 +250,7 @@ namespace Frontier
             if(Phase==Phase.Assault)
             {
                 spawnLeft-=dt;
-                if(EnemiesAlive<55 && nextSpawn<orders.Count && spawnLeft<=0)
+                if(EnemiesAlive<EnemyLimit && nextSpawn<orders.Count && spawnLeft<=0)
                 {
                     var order=orders[nextSpawn++];SpawnEnemy(order.Role,order.Lane);SpawnedThisWave++;
                     spawnLeft=WavePlan.Intervals[Wave-1];
@@ -275,7 +283,7 @@ namespace Frontier
             orders=WavePlan.Create(Wave);nextSpawn=0;SpawnedThisWave=0;spawnLeft=3.5f;
             Phase=Phase.Assault;Paused=false;Time.timeScale=1;
             Banner="第 "+Wave+" 波 / "+WavePlan.Titles[Wave-1];
-            Subtitle=Wave==1?"西侧入口出现信号 · 支援自动防线":Wave==2?"东侧接敌 · 优先处理酸脊兽":Wave>=4?"重甲单位逼近 · 集中火力攻击核心":"两侧同时接敌 · 留意战术地图";
+            Subtitle=WavePlan.Preview(Wave);
             WaveBannerLeft=5;
             Player.RequestControl();Sounds.Play(SoundId.Wave,.55f);
         }
@@ -284,7 +292,7 @@ namespace Frontier
         {
             Credits+=80+Wave*25;
             if(Wave==5) { Phase=Phase.Victory;Player.ReleaseControl();Sounds.Play(SoundId.Win,.8f);return; }
-            Phase=Phase.Intermission;IntermissionLeft=30;
+            Phase=Phase.Intermission;IntermissionLeft=45;
             Player.ReleaseControl();Player.Self.Heal(180);
             Squad.Regroup();
             Notice("防线稳住了 · 获得 "+(80+Wave*25)+" 补给");
@@ -309,6 +317,7 @@ namespace Frontier
             else if(victim.Role==Role.Squad) { Squad.OnLost(victim);Effects.Burst(victim.Aim,Art.Amber,.6f); }
             else
             {
+                if(victim.Role==Role.Bunker)Fort.OnDestroyed();
                 Effects.Burst(victim.Aim,Art.Amber,4);
                 if(victim.Role==Role.Command)
                 {
@@ -329,7 +338,7 @@ namespace Frontier
         public int UpgradeCost(int kind) => kind==0?90+WeaponLevel*80:kind==1?110+DefenseLevel*90:120;
         public bool Buy(int kind)
         {
-            if(Phase!=Phase.Intermission||kind<0||kind>2)return false;
+            if(Phase!=Phase.Intermission||Paused||kind<0||kind>2)return false;
             if((kind==0&&WeaponLevel>=4)||(kind==1&&DefenseLevel>=4))return false;
             if(kind==2&&Command.Current>=Command.Maximum)return false;
             int cost=UpgradeCost(kind);if(Credits<cost){Notice("补给不足");return false;}
@@ -348,6 +357,18 @@ namespace Frontier
             if(pause)Player.ReleaseControl();else if(Phase==Phase.Assault)Player.RequestControl();
         }
         public bool NearCommand=>Command!=null&&Command.Alive&&Player.Self.Alive&&Vector3.Distance(Player.transform.position,new Vector3(0,0,-1.3f))<6;
+        public int LaneEnemies(int lane)
+        {
+            int count=0;
+            foreach(var h in Entities)if(h!=null&&h.Alive&&h.Faction==Faction.Invaders&&h.Lane==lane)count++;
+            return count;
+        }
+        public bool LaneUnderAttack(int lane)
+        {
+            foreach(var h in Entities)
+                if(h!=null&&h.Alive&&h.Faction==Faction.Invaders&&h.Lane==lane&&h.transform.position.z<23)return true;
+            return false;
+        }
         public bool TryOpenCommandTerminal()
         {
             if(Paused||Phase!=Phase.Assault||!NearCommand)return false;

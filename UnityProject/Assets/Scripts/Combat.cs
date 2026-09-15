@@ -14,6 +14,7 @@ namespace Frontier
         public Role Role;
         public float Maximum, Current, AimHeight = 1f, Radius = .6f;
         public bool Alive = true;
+        public bool IsSheltered;
         public float LastDamageTime = -100;
         public int Lane, Slot = -1;
         public ActorBrain Brain;
@@ -31,7 +32,7 @@ namespace Frontier
 
         public void Damage(float amount, Health source, bool critical = false)
         {
-            if (!Alive || GameWorld.I.Ended || (source != null && source.Faction == Faction)) return;
+            if (!Alive || IsSheltered || GameWorld.I.Ended || (source != null && source.Faction == Faction)) return;
             if (Role == Role.Colossus) amount *= .72f;
             if (critical) amount *= 1.65f;
             float applied=Mathf.Min(Current,amount);
@@ -58,7 +59,7 @@ namespace Frontier
 
     public static class Combat
     {
-        static readonly RaycastHit[] Hits = new RaycastHit[40];
+        static readonly RaycastHit[] Hits = new RaycastHit[128];
         public const int WorldLayer = 8, UnitLayer = 9, PlayerLayer = 10;
         public const int WorldMask = 1 << WorldLayer;
         public const int ShotMask = (1 << WorldLayer) | (1 << UnitLayer) | (1 << PlayerLayer);
@@ -71,7 +72,7 @@ namespace Frontier
             for (int i = 0; i < count; i++)
             {
                 Health health = Hits[i].collider.GetComponentInParent<Health>();
-                if ((ignore!=null&&health==ignore) || (health != null && !health.Alive&&!health.IsBuilding)) continue;
+                if ((ignore!=null&&health==ignore) || (health != null && (health.IsSheltered || !health.Alive&&!health.IsBuilding))) continue;
                 if(passFriendlyUnits&&ignore!=null&&health!=null&&health.Faction==ignore.Faction&&!health.IsBuilding)continue;
                 if (Hits[i].distance >= closest) continue;
                 hit = Hits[i]; closest = hit.distance;
@@ -81,6 +82,7 @@ namespace Frontier
 
         public static bool Visible(Health from, Health target)
         {
+            if(target==null||target.IsSheltered)return false;
             Vector3 delta = target.Aim - from.Aim;
             if (delta.sqrMagnitude < .01f) return true;
             if (!Trace(from.Aim, delta.normalized, delta.magnitude + .1f, from, out var hit,from.Role==Role.Squad||from.Role==Role.Player)) return true;
@@ -131,13 +133,13 @@ namespace Frontier
             attackCooldown -= dt; think -= dt;
             bool friendly = Self.Faction == Faction.Defense;
             float range = Self.Role == Role.Bunker ? 28 : Self.Role == Role.Marine ? 25 : Self.Role == Role.Spitter ? 16 : Self.Role == Role.Colossus ? 3.4f : 1.85f;
-            if (think <= 0 || target == null || !target.Alive)
+            if (think <= 0 || target == null || !target.Alive || target.IsSheltered)
             {
                 think = .22f + UnityEngine.Random.value * .16f;
                 target = world.FindTarget(Self, friendly ? range + 3 : (Self.Role == Role.Colossus ? 12 : 15));
             }
 
-            bool canAttack = target != null && target.Alive && Vector3.Distance(Self.Aim, target.Aim) < range + target.Radius;
+            bool canAttack = target != null && target.Alive && !target.IsSheltered && Vector3.Distance(Self.Aim, target.Aim) < range + target.Radius;
             if (canAttack)
                 canAttack = Combat.Visible(Self, target);
             Vector3 destination = transform.position;
@@ -173,7 +175,7 @@ namespace Frontier
                             Shoot(10 + 3 * world.DefenseLevel); break;
                         case Role.Bunker:
                             attackCooldown = .25f;
-                            Shoot(15 + 4 * world.DefenseLevel); break;
+                            Shoot(world.BunkerDamage); break;
                         case Role.Spitter:
                             attackCooldown = 1.55f;
                             world.Effects.Bolt(Self.Aim + (target.Aim-Self.Aim).normalized * .9f, target.Aim, Self, 17, 19); break;
@@ -208,7 +210,7 @@ namespace Frontier
             Vector3 separation = Vector3.zero;
             foreach (Health other in GameWorld.I.Entities)
             {
-                if (other == null || other == Self || !other.Alive || other.IsBuilding || other.Role == Role.Player) continue;
+                if (other == null || other == Self || !other.Alive || other.IsSheltered || other.IsBuilding || other.Role == Role.Player) continue;
                 Vector3 d = transform.position - other.transform.position; d.y = 0;
                 float sq = d.sqrMagnitude, spacing = (Self.Radius + other.Radius) * .8f;
                 if (sq > .005f && sq < spacing * spacing) separation += d.normalized * (1 - Mathf.Sqrt(sq) / spacing);
@@ -246,9 +248,22 @@ namespace Frontier
 
     public static class WavePlan
     {
-        public static readonly int[] Counts = { 18, 28, 40, 48, 64 };
-        public static readonly float[] Intervals = { 2.2f, 2.4f, 2f, 2f, 1.8f };
+        public static readonly int[] Counts = { 30, 44, 60, 76, 98 };
+        public static readonly float[] Intervals = { 1.5f, 1.7f, 1.45f, 1.5f, 1.4f };
         public static readonly string[] Titles = { "接触", "酸雨", "双线告急", "铁甲冲锋", "守住黎明" };
+        public static int TotalCount { get { int total=0;foreach(int n in Counts)total+=n;return total; } }
+        public static string Preview(int wave)
+        {
+            if(wave<1||wave>Counts.Length)return "五波攻势全部清除";
+            int runners=0,spitters=0,armor=0;
+            foreach(var order in Create(wave))
+                if(order.Role==Role.Runner)runners++;else if(order.Role==Role.Spitter)spitters++;else armor++;
+            string side=wave==1?"西侧入口":wave==2?"东侧入口":"东西双线";
+            string units="迅行兽 "+runners;
+            if(spitters>0)units+=" · 酸脊兽 "+spitters;
+            if(armor>0)units+=" · 铁甲兽 "+armor;
+            return side+" / 共 "+Counts[wave-1]+" 敌人 / "+units;
+        }
         public static List<SpawnOrder> Create(int wave)
         {
             var orders = new List<SpawnOrder>();

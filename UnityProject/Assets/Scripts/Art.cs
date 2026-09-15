@@ -286,6 +286,15 @@ namespace Frontier
             Part(root,"Bunker roof",new Vector3(0,2.6f,0),new Vector3(7.3f,.50f,6),0);
             Part(root,"Firing slit",new Vector3(0,1.8f,2.73f),new Vector3(5.6f,.30f,.10f),1);
             for(int i=-1;i<=1;i++)Part(root,"Slit light",new Vector3(i*1.8f,1.8f,2.79f),new Vector3(.55f,.09f,.03f),6);
+            Part(root,"Garrison hatch",new Vector3(0,1.15f,-2.76f),new Vector3(1.7f,2.1f,.13f),1);
+            Part(root,"Hatch inset",new Vector3(0,1.17f,-2.85f),new Vector3(1.32f,1.73f,.08f),12);
+            for(int side=-1;side<=1;side+=2)
+                Part(root,"Hatch guide",new Vector3(side*.98f,1.1f,-2.91f),new Vector3(.11f,2.14f,.14f),6);
+            Part(root,"Hatch header",new Vector3(0,2.24f,-2.9f),new Vector3(2.05f,.16f,.17f),7);
+            for(int i=0;i<4;i++)
+                Part(root,"Four-seat marker",new Vector3(-.48f+i*.32f,2.25f,-3.01f),new Vector3(.14f,.07f,.03f),1);
+            for(int i=0;i<3;i++)
+                Part(root,"Boarding floor guide",new Vector3(0,.025f,-3.3f-i*.55f),new Vector3(1.25f,.04f,.16f),7);
             var rig=root.gameObject.AddComponent<ArtRig>();
             rig.Body=Root("Turret swivel",root,new Vector3(0,3.1f,0));
             Part(rig.Body,"Turret armor",Vector3.zero,new Vector3(1.6f,.58f,1.8f),1);
