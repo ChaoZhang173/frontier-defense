@@ -40,6 +40,7 @@ namespace Frontier
                 source!=null && source.Faction==Faction.Defense ? .90f : .72f;
             if (critical) amount *= 1.65f;
             float applied=Mathf.Min(Current,amount);
+            GameWorld.I.Stats?.RecordDamage(this,applied);
             Current = Mathf.Max(0, Current - amount);
             LastDamageTime = GameWorld.I.SimTime;
             Rig?.Flash();
@@ -122,6 +123,12 @@ namespace Frontier
         GuardNavigation guardNavigation;
         public Vector3 Station;
         public float Travelled;
+        public AssaultGroup Group { get; private set; }
+        public AssaultGroupState GroupState => Group==null ? AssaultGroupState.Engaged : Group.State;
+        public Health Target => target;
+        public static float MovementSpeed(Role role) => role==Role.Marine ? 3.7f : role==Role.Runner ? 4.5f : role==Role.Spitter ? 2.8f : 1.75f;
+
+        public void AssignAssault(AssaultGroup group) { Group=group; }
 
         public void Setup(Health health, Vector3 station)
         {
@@ -144,20 +151,34 @@ namespace Frontier
             if (think <= 0 || target == null || !target.Alive || target.IsSheltered)
             {
                 think = .22f + UnityEngine.Random.value * .16f;
-                target = world.FindTarget(Self, friendly ? range + 3 : (Self.Role == Role.Colossus ? 12 : 15));
+                target = Self.Role==Role.Colossus ? FindSiegeTarget() : world.FindTarget(Self, friendly ? range + 3 : 15);
             }
 
             bool canAttack = target != null && target.Alive && !target.IsSheltered && Vector3.Distance(Self.Aim, target.Aim) < range + target.Radius;
             if (canAttack)
                 canAttack = Combat.Visible(Self, target);
+            if(!friendly&&Group!=null&&Group.State!=AssaultGroupState.Engaged)
+            {
+                if(canAttack)Group.Engage();
+                else
+                {
+                    Move(Group.MemberGoal(Self),MovementSpeed(Self.Role),dt);
+                    RecordMotion(dt);
+                    return;
+                }
+            }
             Vector3 destination = transform.position;
             if (!canAttack)
             {
                 if (friendly) destination = Station;
+                else if(Self.Role==Role.Colossus&&target!=null&&target.IsBuilding&&Combat.Visible(Self,target))
+                    destination=target.transform.position;
                 else if (target != null && !target.IsBuilding && Vector3.Distance(transform.position, target.transform.position) < 12 && Combat.Visible(Self, target))
                     destination = target.transform.position;
                 else
                 {
+                    // A formation may have advanced beyond the first route marker already.
+                    while(waypoint<3&&transform.position.z<world.EnemyWaypoint(Self.Lane,waypoint,strafeSeed).z+1f)waypoint++;
                     Vector3 route = world.EnemyWaypoint(Self.Lane, waypoint, strafeSeed);
                     if (FlatDistance(transform.position, route) < 2.2f && waypoint < 3) waypoint++;
                     destination = world.EnemyWaypoint(Self.Lane, waypoint, strafeSeed);
@@ -166,7 +187,7 @@ namespace Frontier
             }
             if (Self.Role != Role.Bunker)
             {
-                float speed = Self.Role == Role.Marine ? 3.7f : Self.Role == Role.Runner ? 4.5f : Self.Role == Role.Spitter ? 2.8f : 1.75f;
+                float speed = MovementSpeed(Self.Role);
                 if (canAttack) speed = 0;
                 if(Self.Role==Role.Marine)
                 {
@@ -203,6 +224,21 @@ namespace Frontier
                 }
             }
             if(Self.Role!=Role.Marine)RecordMotion(dt);
+        }
+
+        Health FindSiegeTarget()
+        {
+            Health closest=null;float best=24;
+            foreach(var h in GameWorld.I.Entities)
+            {
+                if(h==null||!h.Alive||!h.IsBuilding||h.Faction==Self.Faction||h.IsSheltered)continue;
+                // Only the local entrance's defenses and the central command are siege objectives.
+                if(h.Role!=Role.Command&&h.transform.position.x*(Self.Lane==0?-1:1)<-2)continue;
+                float distance=Vector3.Distance(Self.Aim,h.Aim)-h.Radius;
+                if(distance>=best||!Combat.Visible(Self,h))continue;
+                best=distance;closest=h;
+            }
+            return closest!=null?closest:GameWorld.I.FindTarget(Self,12);
         }
 
         public void NavigateTo(Vector3 goal,float dt)

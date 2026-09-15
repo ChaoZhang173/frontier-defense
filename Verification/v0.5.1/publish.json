@@ -1,0 +1,19 @@
+{
+  "id": "appgdep_6aa9127f52dc81918650896219b40b21",
+  "project_id": "appgprj_6aa82bb02a90819180e7b21f3804da2b",
+  "title": "边境防线 · Frontier Defense",
+  "version_id": "appgprj_6aa82bb02a90819180e7b21f3804da2b~appgver_c82f2a3186848191a73ff3b819353051",
+  "type": "publish",
+  "status": "succeeded",
+  "url": "https://frontier-defense-outpost-07.fumeshroom.chatgpt.site",
+  "screenshot_asset_pointer": "sediment://file_00000000dcb4822f97ccf4d97ea1d3cf",
+  "provider_deployment_id": "site---6aa82bb02a90819180e7b21f3804da2b",
+  "failure_message": null,
+  "env_set_revision": 0,
+  "updated_at": "2026-09-15T09:41:08.976896+00:00",
+  "game_version": "0.5.1",
+  "site_version_number": 6,
+  "commit_sha": "1202f8e004ebe477f60df6659ff776c144ee8495",
+  "access_mode": "public",
+  "archive_hash": "sha256:aaf15f65bbc507f9cc68b9cf8894ac01294d14898c96747fb65f538817e5024d"
+}

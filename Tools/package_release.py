@@ -3,10 +3,10 @@ from pathlib import Path
 import json, plistlib, subprocess, zipfile
 
 root = Path(__file__).resolve().parents[1]
-version = "0.5"
-readme = """边境防线 v0.5 · 四人小队与驻防
+version = "0.5.1"
+readme = """边境防线 v0.5.1 · 敌军攻势
 
-五波共408个敌人，从基地外围6处敌巢生成。守住指挥中心，清除全部敌人。
+五波共408个敌人，从基地外围6处敌巢成组出击。查看顶部进攻预警，第三波起注意东西线重叠攻势。重甲与护卫在坡脚集结后一起推进。守住指挥中心，清除全部敌人。
 
 WASD移动；Shift冲刺；鼠标转向；左键射击；右键瞄准；R换弹；Esc暂停。
 E：瞄准4米内的守卫免费招募；靠近指挥中心打开终端；靠近地堡后门进入，驻守时再次按E退出。
@@ -49,7 +49,7 @@ for platform in ("Mac", "Windows", "Web"):
     if platform == "Mac":
         app = folder / "Frontier Defense.app"
         info=plistlib.loads((app/"Contents/Info.plist").read_bytes())
-        assert info["CFBundleShortVersionString"] == "0.5.0", info
+        assert info["CFBundleShortVersionString"] == "0.5.1", info
         subprocess.run(["/usr/bin/ditto","-c","-k","--keepParent",str(app),str(archive)],check=True)
         with zipfile.ZipFile(archive,"a",compression=zipfile.ZIP_DEFLATED) as z:
             for p in folder.rglob("*"):
@@ -66,5 +66,5 @@ for platform in ("Mac", "Windows", "Web"):
         assert z.testzip() is None
         assert not any("DoNotShip" in n for n in z.namelist())
         reports.append({"platform":platform,"archive":str(archive.relative_to(root)),"bytes":archive.stat().st_size,"files":len(z.namelist()),"integrity":"passed"})
-(root/"Verification/v0.5/releases.json").write_text(json.dumps(reports,ensure_ascii=False,indent=2))
+(root/"Verification/v0.5.1/releases.json").write_text(json.dumps(reports,ensure_ascii=False,indent=2))
 print(json.dumps(reports,ensure_ascii=False,indent=2))

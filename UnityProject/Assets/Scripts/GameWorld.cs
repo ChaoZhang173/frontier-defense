@@ -17,6 +17,8 @@ namespace Frontier
         public readonly List<Health> BarracksBuildings = new List<Health>();
         public ConstructionDirector Construction;
         public TechnologyDirector Tech;
+        public BattleStats Stats;
+        public AssaultDirector Assault;
         public int MarineCapacity => 8 + (Construction != null && Construction.ReserveOperational ? 4 : 0);
         public int PeakMarineCapacity = 8;
         public PlayerMotor Player;
@@ -40,15 +42,13 @@ namespace Frontier
         public string Toast = "", Banner = "", Subtitle = "";
         public bool Ended => Phase == Phase.Victory || Phase == Phase.Defeat;
         public bool Active => !Paused && Phase != Phase.Briefing && !Ended;
-        public int RemainingToSpawn => orders == null ? 0 : orders.Count - nextSpawn;
+        public int RemainingToSpawn => Assault==null?0:Assault.Remaining;
         public int EnemyCountForWave => Wave > 0 ? WavePlan.Counts[Wave - 1] : 0;
         public float RifleDamage => 25 + WeaponLevel * 6;
         public float MasterVolume = .55f;
         public float Sensitivity = 1.5f;
         public int Quality = 1;
-        List<SpawnOrder> orders;
-        int nextSpawn;
-        float spawnLeft, missionDuration;
+        float missionDuration;
         readonly Health[] garrison = new Health[12];
         public static readonly Vector3[] DefensePosts = {
             new Vector3(-13.5f,0,15.5f),new Vector3(13.5f,0,15.5f),
@@ -70,6 +70,7 @@ namespace Frontier
             Sensitivity = PlayerPrefs.GetFloat("Frontier.Sensitivity", 1.5f);
             Quality = PlayerPrefs.GetInt("Frontier.Quality", 1);
             Diagnostic = RuntimeChecks.Requested;
+            Stats=new BattleStats(this);
             ConfigureLighting();
             Art.BuildEnvironment(transform);
             EnemyFronts.Build(transform);
@@ -84,6 +85,7 @@ namespace Frontier
             Upgrades=new BaseUpgrades(this);
             Fort=gameObject.AddComponent<BunkerDirector>();Fort.Setup();
             Construction=new ConstructionDirector(this);Tech=new TechnologyDirector(this);
+            Assault=new AssaultDirector(this);
             Hud = gameObject.AddComponent<GameHud>();
             ApplyQuality(Quality);
             if(Diagnostic) { Checks = gameObject.AddComponent<RuntimeChecks>(); Checks.Setup(this); }
@@ -181,14 +183,14 @@ namespace Frontier
         };
         readonly int[] laneSpawns=new int[2];
         public readonly int[] SpawnPointUses=new int[6];
-        public Health SpawnEnemy(Role role,int lane,Vector3? overridePosition=null)
+        public Health SpawnEnemy(Role role,int lane,Vector3? overridePosition=null,int sourceSite=-1)
         {
             lane=Mathf.Clamp(lane,0,1);
             Vector3 p;
             if(overridePosition.HasValue)p=overridePosition.Value;
             else
             {
-                int site=lane+2*(laneSpawns[lane]++%3);SpawnPointUses[site]++;
+                int site=sourceSite>=0&&sourceSite<EnemySpawnPoints.Length&&sourceSite%2==lane?sourceSite:lane+2*(laneSpawns[lane]++%3);SpawnPointUses[site]++;
                 p=EnemySpawnPoints[site]+new Vector3(UnityEngine.Random.Range(-1.5f,1.5f),0,UnityEngine.Random.Range(-1f,1f));
             }
             Transform root=Art.Root(role.ToString(),transform,p);root.rotation=Quaternion.Euler(0,180,0);
@@ -282,13 +284,9 @@ namespace Frontier
             Physics.SyncTransforms();
             if(Phase==Phase.Assault)
             {
-                spawnLeft-=dt;
-                if(EnemiesAlive<EnemyLimit && nextSpawn<orders.Count && spawnLeft<=0)
-                {
-                    var order=orders[nextSpawn++];SpawnEnemy(order.Role,order.Lane);SpawnedThisWave++;
-                    spawnLeft=WavePlan.Intervals[Wave-1];
-                }
-                if(nextSpawn==orders.Count && EnemiesAlive==0)FinishWave();
+                Assault.Tick(dt);
+                Stats.Tick(dt);
+                if(RemainingToSpawn==0 && EnemiesAlive==0)FinishWave();
             }
             else if(Phase==Phase.Intermission)
             {
@@ -313,7 +311,8 @@ namespace Frontier
         {
             if(Ended || (Phase==Phase.Assault))return;
             Wave++;if(Wave>5)return;
-            orders=WavePlan.Create(Wave);nextSpawn=0;SpawnedThisWave=0;spawnLeft=3.5f;
+            SpawnedThisWave=0;
+            Assault.StartWave(Wave);Stats.StartWave();
             Phase=Phase.Assault;Paused=false;Time.timeScale=1;
             Banner="第 "+Wave+" 波 / "+WavePlan.Titles[Wave-1];
             Subtitle=WavePlan.Preview(Wave);
@@ -323,7 +322,7 @@ namespace Frontier
 
         void FinishWave()
         {
-            Credits+=80+Wave*25;
+            int reward=80+Wave*25;Credits+=reward;Stats.Earn(reward);Stats.Snapshot(true);
             if(Wave==5) { Phase=Phase.Victory;Player.ReleaseControl();Sounds.Play(SoundId.Win,.8f);return; }
             Phase=Phase.Intermission;IntermissionLeft=45;
             Player.ReleaseControl();Player.Self.Heal(180);
@@ -334,6 +333,7 @@ namespace Frontier
 
         public void OnKilled(Health victim,Health source)
         {
+            Stats?.RecordLoss(victim);
             if(victim.Role==Role.Player)
             {
                 Deaths++;RespawnLeft=6;Player.PlayerKilled();Sounds.Play(SoundId.Down,.75f);return;
@@ -343,7 +343,7 @@ namespace Frontier
                 EnemiesAlive=Mathf.Max(0,EnemiesAlive-1);Kills++;
                 if(source!=null && source.Role==Role.Player)PlayerKills++;
                 if(source!=null && source.Role==Role.Squad)Squad.Kills++;
-                Credits+=victim.Role==Role.Colossus?36:victim.Role==Role.Spitter?13:7;
+                int reward=KillReward(victim.Role);Credits+=reward;Stats.Earn(reward);
                 Effects.Burst(victim.Aim,Art.Pink,victim.Role==Role.Colossus?1.6f:.65f);
             }
             else if(victim.Role==Role.Marine) { Fort.ReleaseGuard(victim);MarinesAlive=Mathf.Max(0,MarinesAlive-1);Effects.Burst(victim.Aim,Art.Cyan,.6f); }
@@ -368,6 +368,8 @@ namespace Frontier
             }
             victim.gameObject.SetActive(false);Destroy(victim.gameObject);
         }
+
+        public static int KillReward(Role role)=>role==Role.Colossus?36:role==Role.Spitter?13:7;
 
         public int UpgradeCost(int kind) => kind==0?90+WeaponLevel*80:kind==1?110+DefenseLevel*90:120;
         public bool Buy(int kind)

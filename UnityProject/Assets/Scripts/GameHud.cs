@@ -41,7 +41,7 @@ namespace Frontier
             if(W.CommandTerminalOpen)CommandTerminal();else if(W.Paused)Pause();
             if(W.ToastLeft>0&&!W.Paused)
             {
-                float toastY=W.Phase==Phase.Intermission?height-64:118;
+                float toastY=W.Phase==Phase.Intermission?height-64:W.Assault!=null?216:118;
                 Panel(new Rect(width/2-290,toastY,580,43));
                 Label(width/2-275,toastY+10,550,25,W.Toast,16,Art.Amber,TextAnchor.UpperCenter);
             }
@@ -54,13 +54,13 @@ namespace Frontier
             Label(58,height*.24f,600,90,"边境防线",66,white);
             Label(63,height*.24f+94,540,30,"守住基地，直到黎明。",23,Art.Amber);
             Label(63,height*.24f+156,570,40,"一名装甲步兵。两处入口。五波敌潮。",18,white);
-            Label(63,height*.24f+195,570,60,"在指挥中心建设防线，扩建兵营、研究科技。\n雇佣精英、招募守卫，带领四人小队协同防守。",17,muted);
+            Label(63,height*.24f+195,570,60,"敌军集结成组突击，注意东西两路进攻预警。\n建设防线、调动四人小队，抓住攻势间隙整备。",17,muted);
             if(Button(new Rect(62,height-226,300,58),"部署到防线  →",Art.Cyan))W.BeginCampaign();
             if(Button(new Rect(378,height-226,144,58),"设置",new Color(.39f,.50f,.55f)))settings=true;
             Label(62,height-142,650,27,"W A S D  移动     鼠标  视角     左键  射击",16,white);
             Label(62,height-109,650,27,"右键  瞄准     R  换弹     Shift  冲刺     Esc  暂停",16,muted);
             Label(62,height-78,650,24,"E  招募守卫 / 交互     B  小队入驻     F  撤出跟随",15,Art.Amber);
-            Label(62,height-39,750,24,"单人试玩  v0.5   /   四人小队与驻防   /   键盘与鼠标",13,muted);
+            Label(62,height-39,750,24,"单人试玩  v0.5.1   /   敌军攻势与难度   /   键盘与鼠标",13,muted);
             Label(width-355,52,295,28,"峡谷前哨 / 清晨 05:47",16,white,TextAnchor.UpperRight);
             Label(width-405,86,345,25,"五波共 "+WavePlan.TotalCount+" 名敌人 · 守住两路",14,muted,TextAnchor.UpperRight);
             if(settings){Box(new Rect(0,0,width,height),new Color(0,0,0,.55f));SettingsCard(true);}
@@ -74,6 +74,7 @@ namespace Frontier
             Panel(new Rect(width/2-180,26,360,84));
             Label(width/2-160,38,320,25,"第 "+W.Wave+" / 5 波  ·  "+WavePlan.Titles[Mathf.Max(0,W.Wave-1)],20,white,TextAnchor.UpperCenter);
             Label(width/2-160,76,320,22,W.Phase==Phase.Intermission?"波间整备":"场上 "+W.EnemiesAlive+"   /   增援待抵达 "+W.RemainingToSpawn,14,Art.Amber,TextAnchor.UpperCenter);
+            AssaultPanel();
             MiniMap();
             SquadPanel();
             BunkerPanel();
@@ -129,10 +130,40 @@ namespace Frontier
                 }
                 if(W.WaveBannerLeft>0)
                 {
-                    Label(x-400,178,800,40,W.Banner,29,white,TextAnchor.UpperCenter);
-                    Label(x-400,223,800,25,W.Subtitle,16,Art.Amber,TextAnchor.UpperCenter);
+                    Label(x-400,274,800,40,W.Banner,29,white,TextAnchor.UpperCenter);
+                    Label(x-400,319,800,25,W.Subtitle,16,Art.Amber,TextAnchor.UpperCenter);
                 }
             }
+        }
+        void AssaultPanel()
+        {
+            if(W.Phase!=Phase.Assault||W.Assault==null)return;
+            AssaultDirector assault=W.Assault;
+            float x=width/2-270,y=118;
+            Panel(new Rect(x,y,540,86));
+            Color accent=assault.WarningLaneMask==3?Art.Pink:Art.Amber;
+            Label(x+16,y+9,310,23,"进攻情报 · 已出动 "+assault.LaunchedBatches+" / "+assault.BatchCount+" 批",14,white);
+            string status=assault.LaunchedBatches<assault.BatchCount&&assault.Countdown>0
+                ?Mathf.CeilToInt(assault.Countdown)+" 秒后出动":assault.PhaseText;
+            Label(x+330,y+9,194,23,status,14,accent,TextAnchor.UpperRight);
+            Label(x+16,y+35,508,23,assault.WarningText,14,accent,TextAnchor.UpperCenter);
+            Label(x+16,y+61,508,22,AssaultLaneStatus(assault,0)+"     /     "+AssaultLaneStatus(assault,1),13,muted,TextAnchor.UpperCenter);
+        }
+        string AssaultLaneStatus(AssaultDirector assault,int lane)
+        {
+            int forming=0,advancing=0,engaged=0;
+            foreach(var group in assault.Groups)
+            {
+                if(group.Batch.Lane!=lane||group.AliveCount<=0)continue;
+                if(group.State==AssaultGroupState.Forming)forming+=group.AliveCount;
+                else if(group.State==AssaultGroupState.Advancing)advancing+=group.AliveCount;
+                else engaged+=group.AliveCount;
+            }
+            string status="";
+            if(forming>0)status="集结 "+forming;
+            if(advancing>0)status+=(status.Length>0?" · ":"")+"推进 "+advancing;
+            if(engaged>0)status+=(status.Length>0?" · ":"")+"交战 "+engaged;
+            return (lane==0?"西侧 ":"东侧 ")+(status.Length==0?"暂无部队":status);
         }
         void MiniMap()
         {
@@ -236,12 +267,21 @@ namespace Frontier
             Label(left+398,top+72,698,24,"整备剩余 "+Mathf.CeilToInt(W.IntermissionLeft)+" 秒 · 施工与研究持续推进",14,Art.Amber,TextAnchor.UpperRight);
             Box(new Rect(left+24,top+111,1072,79),new Color(.055f,.14f,.17f));
             int next=Mathf.Min(W.Wave+1,WavePlan.Counts.Length);
-            Label(left+40,top+120,1038,27,"下一波  "+next+" / 5  ·  "+WavePlan.Titles[next-1],18,Art.Cyan);
+            Label(left+40,top+120,510,27,"下一波  "+next+" / 5  ·  "+WavePlan.Titles[next-1],18,Art.Cyan);
+            Label(left+550,top+124,530,25,WaveAdvice(next),14,Art.Amber,TextAnchor.UpperRight);
             Paragraph(left+40,top+152,1036,34,WavePlan.Preview(next),16,white);
             if(intermissionPage==0)DefenseUpgrades(left,top);else ConstructionPage(left,top);
             Label(left+25,top+654,696,24,intermissionPage==0?"开战后：B 小队入堡 · F 撤出跟随 · G 驻守":"增援兵营完工后解锁科技 · 每次研究一项",15,white);
             Label(left+25,top+686,696,23,intermissionPage==0?"更多建筑维修与重建，见“建造科技”页":"已开工项目跨波次保留进度 · 科技完成后持续生效",13,muted);
             if(Button(new Rect(left+748,top+653,348,51),"部署下一波  →",Art.Cyan))W.StartWave();
+        }
+        string WaveAdvice(int wave)
+        {
+            if(wave==1)return "守住西路，利用进攻间隙补强小队";
+            if(wave==2)return "留意远程压制，先稳住东路火力";
+            if(wave==3)return "两路重叠进攻，提前分配驻防";
+            if(wave==4)return "重甲先行攻城，集中火力击破先头";
+            return "双线连续突击，及时支援受压入口";
         }
         void PageTabs(float left,float top,ref int page,string first,string second)
         {
@@ -400,7 +440,7 @@ namespace Frontier
             string[] nums={W.Kills.ToString(),W.PlayerKills.ToString(),W.DurationText()};string[] labels={"防线总击杀","你的击杀","坚守时间"};
             for(int i=0;i<3;i++){float x=width/2-405+i*280;Panel(new Rect(x,top,250,110));Label(x,top+15,250,46,nums[i],34,accent,TextAnchor.UpperCenter);Label(x,top+73,250,23,labels[i],16,muted,TextAnchor.UpperCenter);}
             if(Button(new Rect(width/2-180,height-169,360,59),"重新部署  →",accent))W.Restart();
-            Label(width/2-450,height-70,900,24,"小队击杀 "+W.Squad.Kills+"  ·  弱点命中 "+W.Player.CriticalHits+"  ·  边境防线 v0.5",14,muted,TextAnchor.UpperCenter);
+            Label(width/2-450,height-70,900,24,"小队击杀 "+W.Squad.Kills+"  ·  弱点命中 "+W.Player.CriticalHits+"  ·  边境防线 v0.5.1",14,muted,TextAnchor.UpperCenter);
         }
         string MemberStatus(int slot)
         {

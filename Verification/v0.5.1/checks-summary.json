@@ -1,0 +1,86 @@
+{
+  "version": "0.5.1",
+  "modes": 13,
+  "checks": 466,
+  "passed": true,
+  "results": [
+    {
+      "mode": "assault",
+      "checks": 87,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "mode": "balance_rifle",
+      "checks": 3,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "mode": "balance_squad",
+      "checks": 3,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "mode": "interaction",
+      "checks": 14,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "mode": "guards",
+      "checks": 29,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "mode": "navigation",
+      "checks": 60,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "mode": "construction",
+      "checks": 111,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "mode": "mechanics",
+      "checks": 22,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "mode": "fortification",
+      "checks": 60,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "mode": "squad",
+      "checks": 61,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "mode": "victory",
+      "checks": 10,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "mode": "afk",
+      "checks": 3,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "mode": "defeat",
+      "checks": 3,
+      "passed": true,
+      "failures": []
+    }
+  ]
+}

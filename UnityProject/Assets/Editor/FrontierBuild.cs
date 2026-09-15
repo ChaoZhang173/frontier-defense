@@ -46,7 +46,7 @@ namespace Frontier.Editor
             for(int i=0;i<QualitySettings.names.Length;i++){QualitySettings.SetQualityLevel(i);QualitySettings.renderPipeline=pipeline;QualitySettings.vSyncCount=0;}
             QualitySettings.SetQualityLevel(1);
             PlayerSettings.companyName="Frontier Workshop";PlayerSettings.productName="Frontier Defense";
-            PlayerSettings.bundleVersion="0.5.0";
+            PlayerSettings.bundleVersion="0.5.1";
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Standalone,"com.frontierworkshop.defense");
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.WebGL,"com.frontierworkshop.defense.web");
             PlayerSettings.defaultScreenWidth=1440;PlayerSettings.defaultScreenHeight=900;
@@ -77,7 +77,7 @@ namespace Frontier.Editor
         }
         static void Build(BuildTarget target,string path)
         {
-            PlayerSettings.bundleVersion="0.5.0";
+            PlayerSettings.bundleVersion="0.5.1";
             Directory.CreateDirectory(Path.GetDirectoryName(path));
             var result=BuildPipeline.BuildPlayer(new BuildPlayerOptions{scenes=new[]{Scene},locationPathName=path,target=target,options=BuildOptions.None});
             var summary=result.summary;

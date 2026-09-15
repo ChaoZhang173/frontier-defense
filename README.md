@@ -1,15 +1,15 @@
-# 边境防线 · Frontier Defense v0.5
+# 边境防线 · Frontier Defense v0.5.1
 
-原创 3D 第三人称基地防守试玩：v0.5 五波共 408 个敌人、六处敌巢、两处基地入口，最多两名雇佣兵加两名随行守卫。使用全球版 Unity 6000.3.24f1 / URP 17.3.0，电脑键鼠操作。
+原创 3D 第三人称基地防守试玩：v0.5.1 五波共 408 个敌人、六处敌巢、两处基地入口，最多两名雇佣兵加两名随行守卫。使用全球版 Unity 6000.3.24f1 / URP 17.3.0，电脑键鼠操作。
 
-v0.5「四人小队与驻防」已完成，372 项实际运行检查通过。Mac / Windows / Web 已构建并打包，原公开试玩站点已更新。验证范围和平台限制见 [测试报告](Docs/测试报告.md)。
+v0.5.1「敌军攻势」机制已完成，466 项实际运行检查通过。前两波为单线学习期，第三波起成组集结、双线重叠推进。Mac / Windows / Web已构建并打包，原公开试玩站点已更新。验证范围和平台限制见 [测试报告](Docs/测试报告.md)。
 
-## 开始试玩（v0.5）
+## 开始试玩（v0.5.1）
 
 - **网页：** [在线试玩](https://frontier-defense-outpost-07.fumeshroom.chatgpt.site)。
-- **Mac：** 解压 `Releases/FrontierDefense-0.5-Mac.zip`，打开其中的 `Frontier Defense.app`。
-- **Windows：** 完整解压 `Releases/FrontierDefense-0.5-Windows.zip`，打开其中的 `Frontier Defense.exe`。
-- `Releases/FrontierDefense-0.5-Web.zip` 可用于其他静态 HTTP(S) 托管，不能双击 index.html 直接运行。
+- **Mac：** 解压 `Releases/FrontierDefense-0.5.1-Mac.zip`，打开其中的 `Frontier Defense.app`。
+- **Windows：** 完整解压 `Releases/FrontierDefense-0.5.1-Windows.zip`，打开其中的 `Frontier Defense.exe`。
+- `Releases/FrontierDefense-0.5.1-Web.zip` 可用于其他静态 HTTP(S) 托管，不能双击 index.html 直接运行。
 
 | 操作 | 按键 |
 | --- | --- |
@@ -26,7 +26,17 @@ v0.5「四人小队与驻防」已完成，372 项实际运行检查通过。Mac
 
 小队指令、守卫招募和地堡进出在开战后使用。指挥中心默认打开“建造科技”，可切换到小队页；波间整备可切换“防线升级 / 建造科技”。战斗中打开终端会暂停战场，返回后才继续施工与研究；波间整备正常计时。
 
-## v0.5 新增
+## v0.5.1 新增
+
+- **成组进攻：** 五波总数408不变，按4 / 5 / 8 / 8 / 8批出兵；六处敌巢按批次轮换，达到65人在场上限时排队等待。
+- **混编协同：** 重甲在前、远程在后，部队实际到坡脚集结后一起推进，领队阵亡后换人；超时继续进攻，避免永远等不到队员。
+- **双线压力：** 第三波起两路错峰4秒进攻；顶部显示真实倒计时、方向、兵种和两线集结/推进状态，整备页增加战术提示。
+- **策略对照：** 同一自动射击控制下，基础防线与射击在第五波失守，小队能通关，扩建与研究后建筑损伤更小；这些结果用于调参，真人难度仍需试玩反馈。
+- **经济保留：** 前四次整备已有资源取舍，大量余额主要来自最后一波；本轮保持奖励与价格、免费招募和合同复活规则。
+
+详细参数见 [v0.5.1 设计](Docs/v0.5.1设计.md)。
+
+## v0.5 新增（历史）
 
 - **四人混编小队：** 固定两个雇佣兵名额、两个随行守卫名额。雇佣兵每份合同 120 补给，基础耐久 280、每发伤害 18；普通守卫可免费转编，基础耐久 170、每发伤害 10，保留原对象、模型和当前生命。
 - **永久合同与免费复活：** 雇佣兵合同本局保留，阵亡后 12 秒在指挥中心免费复活；暂停停止计时，玩家阵亡不阻止复活。普通守卫阵亡不复活，可以重新招募；转编释放基地驻军名额，由兵营补员。
@@ -70,10 +80,10 @@ v0.5「四人小队与驻防」已完成，372 项实际运行检查通过。Mac
 
 Unity 工程：`UnityProject/`，场景：`Assets/Scenes/Frontier.unity`。用全球版 Hub 添加工程并选择 6000.3.24f1。
 
-构建入口：`Assets/Editor/FrontierBuild.cs`。程序参数 `--frontier-check=construction|fortification|squad|guards|navigation|interaction|mechanics|victory|afk|defeat` 和 `--frontier-output=/绝对路径/报告.json` 可运行诊断；正常启动不启用。截图使用 `--frontier-check=capture --frontier-scene=construction|technology|expanded|fort|upgrade|battle|terminal`。
+构建入口：`Assets/Editor/FrontierBuild.cs`。程序参数 `--frontier-check=assault|balance_rifle|balance_squad|construction|fortification|squad|guards|navigation|interaction|mechanics|victory|afk|defeat` 和 `--frontier-output=/绝对路径/报告.json` 可运行诊断；正常启动不启用。截图使用 `--frontier-check=capture --frontier-scene=assault-warning|assault-battle|construction|technology|expanded|fort|upgrade|battle|terminal`。
 
 在工程根目录运行 `python3 Tools/serve_web.py`，访问 `http://127.0.0.1:8765` 可本机复测。在线试玩无需本机服务。
 
-发布沿用已有 Sites 站点，静态目录为 `WebSite/dist`。0.1、0.2、0.3、0.4 试玩包保留用于回退。当前机制及数值见 [v0.5 设计](Docs/v0.5设计.md)，历史机制见 [v0.4 设计](Docs/v0.4设计.md) 和 [v0.3 设计](Docs/v0.3设计.md)。
+发布沿用已有 Sites 站点，静态目录为 `WebSite/dist`。0.1、0.2、0.3、0.4、0.5 试玩包保留用于回退。当前攻势见 [v0.5.1 设计](Docs/v0.5.1设计.md)，小队与驻防见 [v0.5 设计](Docs/v0.5设计.md)，历史机制见 [v0.4 设计](Docs/v0.4设计.md) 和 [v0.3 设计](Docs/v0.3设计.md)。
 
 字体 Frontier Sans 是 Noto Sans SC 的重命名精简衍生版本，许可见 `UnityProject/Assets/ThirdParty/` 与试玩包的 Licenses。字体更新工具为 `Tools/update_font.py`。模型和音效没有使用星际争霸素材。
