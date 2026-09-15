@@ -6,7 +6,7 @@
 
 - **Mac：** 打开 [Frontier Defense.app](Builds/Mac/Frontier%20Defense.app)，点击“部署到防线”。这是已经实际运行和检查过的版本。
 - **Windows：** 将 [Windows 试玩包](Releases/FrontierDefense-0.1-Windows.zip) 发给朋友，完整解压后打开 `Frontier Defense.exe`。已经成功构建，尚未在 Windows 实机运行。
-- **网页：** [Web 构建包](Releases/FrontierDefense-0.1-Web.zip) 已生成并在本机浏览器实际进入战斗。当前没有可分享的线上链接，原因见下文。
+- **网页：** [点击在线试玩](https://frontier-defense-outpost-07.fumeshroom.chatgpt.site)，可直接把链接发给朋友。电脑浏览器、键盘和鼠标即可；[Web 构建包](Releases/FrontierDefense-0.1-Web.zip) 也保留在本机。
 
 | 操作 | 按键 |
 | --- | --- |
@@ -40,11 +40,11 @@
 
 网页游戏约 14 MB，来自同一 Unity 工程，已包含压缩解码回退，普通静态 HTTP(S) 服务即可托管。不能直接双击 `index.html` 用 file:// 运行。
 
-Sites 中已创建一个仅所有者可访问的空站点，**尚未上传或发布游戏**。公开访问及上传到 Sites 源仓库分别被自动审批拒绝，原因是当前授权未明确覆盖“向任何持有链接的人公开”和“上传到指定外部托管服务”。没有绕过拒绝，也没有向朋友发送消息。
+已于 2026-09-15 发布：[边境防线在线试玩](https://frontier-defense-outpost-07.fumeshroom.chatgpt.site)。项目拥有者已明确同意上传至 Sites 并向任何持有链接的人开放，之前的审批阻挡已解除。发布服务返回成功，当前为第 1 个线上版本。
 
-后续需要项目拥有者明确确认：是否允许把试玩文件上传到 Sites，并让任何持有链接的人游玩。确认后可以继续已有站点，不必重新创建或重新编译游戏。
+网页版沿用已在本机浏览器验证的游戏文件；这次只调整静态文件目录以适配托管，不涉及玩法修改。
 
-本机网页复测：在项目目录运行 `python3 Tools/serve_web.py`，然后访问 `http://127.0.0.1:8765`；该服务只监听本机，收尾时已安排停止。
+本机网页复测：在项目目录运行 `python3 Tools/serve_web.py`，然后访问 `http://127.0.0.1:8765`；该服务只监听本机；在线试玩无需在电脑上启动它。
 
 ## 继续开发
 

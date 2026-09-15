@@ -3,8 +3,8 @@
   "mac": "built and run",
   "windows": "built, not run on Windows",
   "web": "built and run locally",
-  "published": false,
-  "publishing_blocker": "Automatic approval rejected public access and upload to Sites source repository; needs explicit user authorization.",
+  "published": true,
+  "publishing_blocker": null,
   "tests_passed": [
     "mechanics",
     "victory",
@@ -12,5 +12,8 @@
     "afk"
   ],
   "test_processes": "terminated",
-  "next_action": "system sleep requested by user"
+  "next_action": "Ready for user playtest",
+  "updated_at_utc": "2026-09-15T01:59:46.684270+00:00",
+  "public_url": "https://frontier-defense-outpost-07.fumeshroom.chatgpt.site",
+  "overnight_sleep": "pmset sleepnow succeeded after the previous development turn"
 }
