@@ -1,0 +1,22 @@
+{
+  "version": "0.6.0",
+  "date": "2026-09-16",
+  "verificationType": "User-reported local-file acceptance",
+  "status": "User confirmed game entry and controls",
+  "userReply": "能进入游戏并操作",
+  "requestedSteps": "在 Finder 中打开 Builds/OfflineWeb，双击边境防线.html，确认能否进入游戏。",
+  "platformScope": "Mac desktop browser",
+  "browserName": null,
+  "testedHtmlBytes": 67563439,
+  "testedHtmlSha256": "e12929fd5c81fe29c925506ae431a21c2ab99caf6a959db606f66153ae6a06b9",
+  "finalHtmlBytes": 67569872,
+  "finalHtmlSha256": "d016c560427ba85e962fdb12c2cb977450f6c87c561c23e4f00c3ca4ac462ad2",
+  "changeAfterAcceptance": "Added readable attribution and font-license panel, footer button and closing controls; updated instructions. The four Unity resource payloads and game loading flow are unchanged. Final HTML was statically checked; its license UI has no separate user acceptance.",
+  "agentFileNavigation": "Blocked by Browser Use URL security policy; no alternate browser or policy bypass attempted.",
+  "limitations": [
+    "No claim of automated file-origin browser verification.",
+    "User did not identify the browser or provide a complete-match result.",
+    "The confirmation does not establish compatibility with all browsers, Windows or mobile devices.",
+    "User was not asked to disconnect the network; offline independence is supported by the embedded-asset implementation and static checks, not a reported network-disabled test."
+  ]
+}

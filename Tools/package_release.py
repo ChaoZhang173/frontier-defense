@@ -1,6 +1,7 @@
 """Package an already built release and verify archive integrity."""
 from pathlib import Path
 import json, plistlib, subprocess, zipfile
+from build_offline_web import build as build_offline_web
 
 root = Path(__file__).resolve().parents[1]
 version = "0.6"
@@ -27,21 +28,21 @@ B命令小队实际走到目标地堡后门入驻；F跟随/撤出；G驻守。
 每处敌巢后方有防御塔，共6座：650耐久、22米射程，会攻击靠近的玩家方单位。每摧毁一座额外获得220补给，本局不重生。防御塔属于可选进攻目标，不影响波次清场与胜利。
 
 开局160补给；玩家阵亡6秒后重生，指挥中心被毁则失败。
-电脑键鼠试玩，手机触屏未适配。Windows已构建，尚未Windows真机验证。
+当前维护Mac原生版、网页分享版与Sites在线版，使用电脑键盘和鼠标。Windows和手机版本暂缓开发。
 在线试玩：https://frontier-defense-outpost-07.fumeshroom.chatgpt.site
 字体许可见Licenses目录。
 """
-for platform in ("Mac", "Windows", "Web"):
+for platform in ("Mac", "Web"):
     folder = root / "Builds" / platform
     (folder / "试玩说明.txt").write_text(readme)
-    if platform != "Web":
-        launch = "打开 Frontier Defense.app。" if platform == "Mac" else "完整解压本文件夹，然后打开 Frontier Defense.exe。不要只复制exe，旁边的数据与动态库都是运行所需文件。"
+    if platform == "Mac":
+        launch = "打开 Frontier Defense.app。"
         (folder / "开始试玩.txt").write_text(f"边境防线 v{version}\n\n{launch}\n操作详见试玩说明.txt。\n")
 
 out = root / "Releases"
 out.mkdir(exist_ok=True)
 reports=[]
-for platform in ("Mac", "Windows", "Web"):
+for platform in ("Mac", "Web"):
     folder = root / "Builds" / platform
     archive = out / f"FrontierDefense-{version}-{platform}.zip"
     if platform == "Mac":
@@ -64,5 +65,11 @@ for platform in ("Mac", "Windows", "Web"):
         assert z.testzip() is None
         assert not any("DoNotShip" in n for n in z.namelist())
         reports.append({"platform":platform,"archive":str(archive.relative_to(root)),"bytes":archive.stat().st_size,"files":len(z.namelist()),"integrity":"passed"})
+offline = build_offline_web(root / "Builds/Web", root / "Builds/OfflineWeb",
+    out / f"FrontierDefense-{version}-OfflineWeb.zip",
+    root / f"Verification/v{version}/offline-web-static.json")
+reports.append({"platform": "OfflineWeb", "archive": str(Path(offline["archive"]).relative_to(root)),
+                "bytes": offline["archiveBytes"], "integrity": "passed",
+                "staticChecksPassed": offline["staticChecksPassed"]})
 (root/"Verification/v0.6/releases.json").write_text(json.dumps(reports,ensure_ascii=False,indent=2))
 print(json.dumps(reports,ensure_ascii=False,indent=2))

@@ -2,14 +2,22 @@
 
 原创3D第三人称基地防守试玩。v0.6加入自动生产的一辆坦克、中央矮墙阵地和六座敌巢防御塔；五波共460名进攻敌人。使用Unity 6000.3.24f1 / URP17.3，电脑键鼠操作。
 
-v0.6已完成：17个模式、583项Mac实跑检查全部通过；三个平台试玩包已生成，原公开站点已更新。详细数据和平台范围见[测试报告](Docs/测试报告.md)，发布记录见[开发进度](Docs/开发进度.md)。
+v0.6已完成：17个模式、583项Mac实跑检查全部通过，原公开站点已更新。详细数据和平台范围见[测试报告](Docs/测试报告.md)，发布记录见[开发进度](Docs/开发进度.md)。
+
+**当前维护范围（2026-09-16）：Mac 原生版、网页分享版和 Sites 在线版。** 优先完成游戏内容；Windows 与手机版本暂缓开发，已有 Windows 包只作为历史留档。三个出口共用同一份游戏代码，网页分享包与 Sites 使用同一份 Web 构建。
 
 ## 开始试玩（v0.6）
 
-- **网页：** [在线试玩](https://frontier-defense-outpost-07.fumeshroom.chatgpt.site)。
+- **Sites 在线版：** [在线试玩](https://frontier-defense-outpost-07.fumeshroom.chatgpt.site)。继续维护原站点；中国大陆部分网络无法打开。
 - **Mac：** 解压 `Releases/FrontierDefense-0.6-Mac.zip`，打开其中的 `Frontier Defense.app`。
-- **Windows：** 完整解压 `Releases/FrontierDefense-0.6-Windows.zip`，打开其中的 `Frontier Defense.exe`。
+- **网页分享版：** 解压 `Releases/FrontierDefense-0.6-OfflineWeb.zip`，在 Mac 桌面浏览器中打开 `边境防线.html`。游戏文件与字体均已内嵌，不需要账号或本地服务器；用户已确认能直接打开并操作。
 - `Releases/FrontierDefense-0.6-Web.zip` 可用于其他静态 HTTP(S) 托管，不能双击 index.html 直接运行。
+
+### 网页分享包
+
+将整个 OfflineWeb 压缩包发给朋友，保留其中的说明与 Licenses。朋友先保存并解压，再用桌面浏览器打开 HTML，聊天软件的文件预览不能代替运行游戏。分享包约 19.6 MiB，解压后的单 HTML 约 64.4 MiB。
+
+本包保持 v0.6 游戏资源字节不变，仅将加载方式改为读取内嵌资源。资源还原和压缩包完整性检查已通过。2026-09-16，用户按本机文件打开步骤确认“能进入游戏并操作”；具体浏览器与完整对局未提供，不能扩大为全部浏览器兼容性结论。证据见 `Verification/v0.6/offline-web-static.json` 与 `offline-web-browser.json`。
 
 | 操作 | 按键 |
 | --- | --- |
@@ -87,13 +95,15 @@ v0.6已完成：17个模式、583项Mac实跑检查全部通过；三个平台�
 
 ## 验证与继续开发
 
-实际验证结果和设备限制见 [测试报告](Docs/测试报告.md)，版本与发布状态见 [开发进度](Docs/开发进度.md)。Windows 构建成功不等于 Windows 真机验证；手机尚未适配。
+实际验证结果和设备限制见 [测试报告](Docs/测试报告.md)，版本与发布状态见 [开发进度](Docs/开发进度.md)。当前不安排 Windows 真机验证与手机适配。
 
 Unity 工程：`UnityProject/`，场景：`Assets/Scenes/Frontier.unity`。用全球版 Hub 添加工程并选择 6000.3.24f1。
 
 构建入口：`Assets/Editor/FrontierBuild.cs`。程序参数 `--frontier-check=tank|enemy_defense|central|balance_prepared|assault|balance_rifle|balance_squad|construction|fortification|squad|guards|navigation|interaction|mechanics|victory|afk|defeat` 和 `--frontier-output=/绝对路径/报告.json` 可运行诊断；正常启动不启用。截图使用 `--frontier-check=capture --frontier-scene=v06-central|v06-intermission|v06-terminal|v06-factory|v06-squad|v06-enemy`。
 
-在工程根目录运行 `python3 Tools/serve_web.py`，访问 `http://127.0.0.1:8765` 可本机复测。在线试玩无需本机服务。
+默认 `BuildAll` 只构建 Mac 与 Web；`Tools/package_release.py` 打包 Mac、Web，并从同一份 Web 构建生成 OfflineWeb 分享包，不更新历史 Windows 包。也可单独运行 `python3 Tools/build_offline_web.py` 生成离线包与静态校验报告。离线封装不改动原 Web 构建或 Sites 文件。
+
+开发时运行 `python3 Tools/serve_web.py`，访问 `http://127.0.0.1:8765` 可本机复测。在线试玩与离线单文件分享包均无需朋友自行启动服务。
 
 发布沿用已有 Sites 站点，静态目录为 `WebSite/dist`。0.1、0.2、0.3、0.4、0.5、0.5.1 试玩包保留用于回退。当前规则见 [v0.6 设计](Docs/v0.6设计.md)，上一版攻势见 [v0.5.1 设计](Docs/v0.5.1设计.md)，小队与驻防见 [v0.5 设计](Docs/v0.5设计.md)，历史机制见 [v0.4 设计](Docs/v0.4设计.md) 和 [v0.3 设计](Docs/v0.3设计.md)。
 

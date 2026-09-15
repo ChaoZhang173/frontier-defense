@@ -69,7 +69,7 @@ namespace Frontier.Editor
         }
         public static void BuildMac(){Build(BuildTarget.StandaloneOSX,Root+"/Builds/Mac/Frontier Defense.app");}
         public static void BuildWindows(){Build(BuildTarget.StandaloneWindows64,Root+"/Builds/Windows/Frontier Defense.exe");}
-        public static void BuildAll(){BuildMac();BuildWindows();BuildWeb();}
+        public static void BuildAll(){BuildMac();BuildWeb();}
         public static void BuildWeb()
         {
             PlayerSettings.WebGL.compressionFormat=WebGLCompressionFormat.Gzip;PlayerSettings.WebGL.decompressionFallback=true;

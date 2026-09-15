@@ -1,0 +1,64 @@
+{
+  "version": "0.6.0",
+  "source": "/Users/czhang/Documents/Games/FrontierDefense/Builds/Web",
+  "html": "/Users/czhang/Documents/Games/FrontierDefense/Builds/OfflineWeb/边境防线.html",
+  "archive": "/Users/czhang/Documents/Games/FrontierDefense/Releases/FrontierDefense-0.6-OfflineWeb.zip",
+  "htmlBytes": 67569872,
+  "archiveBytes": 20579168,
+  "htmlSha256": "d016c560427ba85e962fdb12c2cb977450f6c87c561c23e4f00c3ca4ac462ad2",
+  "archiveSha256": "d5c64f62afb6c6c35e2125135465988beec3f6c6fb8b3686d94c9a45eb77fb34",
+  "assets": [
+    {
+      "key": "loader",
+      "source": "Web.loader.js",
+      "mime": "application/javascript",
+      "sourceBytes": 47867,
+      "bytes": 47867,
+      "sourceSha256": "9b3ae0a71b8a7b8dd5bf2953a2d7be44e067fc7577218531626a0f42e54cf56c",
+      "sha256": "9b3ae0a71b8a7b8dd5bf2953a2d7be44e067fc7577218531626a0f42e54cf56c"
+    },
+    {
+      "key": "framework",
+      "source": "Web.framework.js.unityweb",
+      "mime": "application/javascript",
+      "sourceBytes": 87586,
+      "bytes": 446776,
+      "sourceSha256": "76d8282599d0d499faa15b317b86f57c450a3db82616d00b9b31524971564a00",
+      "sha256": "c5c40049fc7c380ffd28bf68e3dea35cbef681cc811d8c3b4b1cd88ec8a35c58"
+    },
+    {
+      "key": "data",
+      "source": "Web.data.unityweb",
+      "mime": "application/octet-stream",
+      "sourceBytes": 4272968,
+      "bytes": 10015683,
+      "sourceSha256": "a680001044200279c79bb9fb1caba27402c4fa800cb898fa555baeb2336bfa0a",
+      "sha256": "ba8f9f2bc111d4aa580f61c14312944e17927d539f3e2fa195d63d3aee9f5ac4"
+    },
+    {
+      "key": "code",
+      "source": "Web.wasm.unityweb",
+      "mime": "application/wasm",
+      "sourceBytes": 10143221,
+      "bytes": 40156205,
+      "sourceSha256": "29319c5e8e911c72f8b7870c77548f9484ef25bdf06f8e2f8d6c14c023be2b43",
+      "sha256": "eda11f7a7b9c8c2e292c96bee6b7099bd88f69157c8a8f5aab7408638d6f432d"
+    }
+  ],
+  "staticChecksPassed": 12,
+  "checks": [
+    "loader: complete decoded bytes match the source build",
+    "framework: complete decoded bytes match the source build",
+    "data: complete decoded bytes match the source build",
+    "code: complete decoded bytes match the source build",
+    "The single HTML retains complete readable attribution and font-license text",
+    "No external DOM resource URLs",
+    "All Unity payload URLs are generated Blob URLs",
+    "Gzip is fully decompressed before embedding",
+    "Unity runtime bytes are unchanged",
+    "No local server or browser setting changes",
+    "No StreamingAssets remain outside the HTML",
+    "ZIP integrity and contained HTML match the verified standalone file"
+  ],
+  "browserVerification": "This tool performs no browser execution. Separate acceptance evidence, when present, is in offline-web-browser.json and must be matched to its artifact hash."
+}
