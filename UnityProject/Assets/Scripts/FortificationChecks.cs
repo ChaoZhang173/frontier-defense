@@ -12,7 +12,7 @@ namespace Frontier
         {
             CheckRestart(w,check);
             w.BeginCampaign();w.Phase=Phase.Intermission;w.IntermissionLeft=1000;
-            CheckUpgrades(w,check);
+            CheckCommand.Enter(w);CheckUpgrades(w,check);
             CheckGarrison(w,check);
         }
 
@@ -40,15 +40,15 @@ namespace Frontier
             }
             w.Credits=10000;int before=w.Credits;
             w.Barracks.Damage(10,null);w.Bunker.Damage(10,null);
-            w.Phase=Phase.Assault;
+            CheckCommand.Leave(w);w.Phase=Phase.Assault;
             bool rejected=true;
             foreach(BaseUpgrade kind in Enum.GetValues(typeof(BaseUpgrade)))rejected&=!upgrades.CanBuy(kind)&&!upgrades.Buy(kind);
             check(rejected&&w.Credits==before&&w.Barracks.Current==w.Barracks.Maximum-10&&w.Bunker.Current==w.Bunker.Maximum-10,
-                "Every building purchase, including repairs to damaged buildings, is rejected during an assault");
+                "Every building purchase requires the terminal during an assault");
             w.Phase=Phase.Intermission;w.SetPaused(true);rejected=true;
             foreach(BaseUpgrade kind in kinds)rejected&=!upgrades.Buy(kind);
             check(rejected&&w.Credits==before,"Paused building purchases do not spend supplies");w.SetPaused(false);
-            check(!upgrades.Buy((BaseUpgrade)(-1))&&!upgrades.Buy((BaseUpgrade)99)&&w.Credits==before,"Invalid building upgrade identifiers are rejected");
+            CheckCommand.Enter(w);check(!upgrades.Buy((BaseUpgrade)(-1))&&!upgrades.Buy((BaseUpgrade)99)&&w.Credits==before,"Invalid building upgrade identifiers are rejected");
             w.Barracks.Heal(10);w.Bunker.Heal(10);
 
             // Only the existing automatic turret ticks here, so damage is attributable to it.
@@ -109,7 +109,7 @@ namespace Frontier
 
         static void CheckGarrison(GameWorld w,Action<bool,string> check)
         {
-            var fort=w.Fort;var player=w.Player;
+            CheckCommand.Leave(w);var fort=w.Fort;var player=w.Player;
             foreach(var guard in w.Entities)if(guard!=null&&guard.Role==Role.Marine)fort.ReleaseGuard(guard);
             bool assembled=SquadChecks.FillSquad(w);
             check(assembled,"Real hiring and guard recruitment prepare all four members for the bunker scenarios");
@@ -180,7 +180,7 @@ namespace Frontier
             check(!fort.PlayerInside&&fort.Occupants==0&&!player.Self.IsSheltered&&!protectedSquad&&allAlive&&player.GetComponent<CharacterController>().enabled,
                 "Destroying an occupied bunker evacuates every living occupant and restores movement and vulnerability");
             check(!fort.TryTogglePlayer()&&!fort.OrderSquadInside(),"A destroyed bunker rejects player entry and squad garrison orders");
-            w.Barracks.Damage(10000,null);w.Phase=Phase.Intermission;int credits=w.Credits;
+            w.Barracks.Damage(10000,null);w.Phase=Phase.Intermission;CheckCommand.Enter(w);int credits=w.Credits;
             var uncappedUpgrades=new BaseUpgrades(w);
             bool rejected=true;foreach(BaseUpgrade kind in Enum.GetValues(typeof(BaseUpgrade)))rejected&=!uncappedUpgrades.CanBuy(kind)&&!uncappedUpgrades.Buy(kind);
             check(rejected&&w.Credits==credits,"Destroyed buildings cannot be upgraded or repaired even with upgrade capacity and sufficient supplies");
@@ -223,7 +223,9 @@ namespace Frontier
         }
         static void StepWorld(GameWorld w,float seconds)
         {
+            bool terminal=w.CommandTerminalOpen;if(terminal)CheckCommand.Leave(w);
             for(int step=0;step<Mathf.CeilToInt(seconds/.05f);step++){Physics.SyncTransforms();w.Tick(.05f);w.Effects.Tick(.05f);}
+            if(terminal)CheckCommand.Enter(w);
         }
         static void StepSquad(GameWorld w,float seconds)
         {

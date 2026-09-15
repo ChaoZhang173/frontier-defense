@@ -16,8 +16,9 @@ namespace Frontier
         public static void CheckRestart(GameWorld w,Action<bool,string> check)
         {
             check(w.Construction.Sites[0].State==SiteState.Empty&&w.Construction.Sites[1].State==SiteState.Empty&&
-                w.Construction.Sites[2].State==SiteState.Ready&&w.Construction.Sites[3].State==SiteState.Ready,
-                "A fresh mission restores the two empty sites and the two original completed buildings");
+                w.Construction.Sites[2].State==SiteState.Ready&&w.Construction.Sites[3].State==SiteState.Ready&&
+                w.Construction.Sites[4].State==SiteState.Empty,
+                "A fresh mission restores the three empty sites and the two original completed buildings");
             check(w.Bunkers.Count==1&&w.BarracksBuildings.Count==1&&w.MarineCapacity==8&&w.PeakMarineCapacity==8,
                 "Restart removes expanded buildings and restores the eight-defender capacity");
             check(!w.Tech.IsComplete(Research.InfantryArmor)&&!w.Tech.IsComplete(Research.ArmorPiercing)&&w.Tech.ActiveResearch==-1,
@@ -36,25 +37,29 @@ namespace Frontier
             int credits=w.Credits;
             check(!construction.CanBuild(0)&&!construction.Build(0)&&w.Credits==credits,"An assault without the command terminal cannot issue construction orders");
             PrepareIntermission(w);w.Credits=10000;
-            check(!construction.CanBuild(-1)&&!construction.Build(-1)&&!construction.CanBuild(4)&&!construction.Build(4),"Invalid construction site identifiers are rejected");
+            check(!construction.CanBuild(-1)&&!construction.Build(-1)&&!construction.CanBuild(5)&&!construction.Build(5),"Invalid construction site identifiers are rejected");
+            check(!construction.Build(0)&&w.Credits==10000,"A wave break does not permit construction away from the command terminal");
+            CheckCommand.Enter(w);
             check(!construction.Build(2)&&!construction.Build(3)&&w.Credits==10000,"Occupied original building sites cannot be purchased again");
             credits=w.Credits;
             check(!w.Tech.CanResearch(Research.InfantryArmor)&&!w.Tech.Research(Research.InfantryArmor)&&w.Credits==credits,
                 "Research requires a completed living reinforcement barracks");
             var site=construction.Sites[0];Vector3 originalPlayer=w.Player.transform.position;
+            CheckCommand.Leave(w);
             FortificationChecks.PlacePlayer(w,site.Position);
-            check(!construction.CanBuild(0)&&!construction.Build(0)&&w.Credits==credits,"A player standing in the construction footprint blocks a purchase");
-            FortificationChecks.PlacePlayer(w,originalPlayer);
+            check(!construction.SpaceClear(0)&&!construction.CanBuild(0)&&!construction.Build(0)&&w.Credits==credits,"A player standing in the construction footprint blocks the site and cannot remotely purchase it");
+            FortificationChecks.PlacePlayer(w,originalPlayer);CheckCommand.Enter(w);
             Health defender=w.Entities.Find(h=>h!=null&&h.Alive&&h.Role==Role.Marine);Vector3 originalDefender=defender.transform.position;
             defender.transform.position=site.Position;Physics.SyncTransforms();
-            check(!construction.CanBuild(0)&&!construction.Build(0)&&w.Credits==credits,"A defender standing in the construction footprint also blocks a purchase");
+            check(construction.CanManage&&!construction.SpaceClear(0)&&!construction.CanBuild(0)&&!construction.Build(0)&&w.Credits==credits,"A defender standing in the construction footprint blocks a purchase at the command terminal");
             defender.transform.position=originalDefender;Physics.SyncTransforms();
-            w.SetPaused(true);
+            CheckCommand.Leave(w);w.SetPaused(true);
             check(!construction.Build(0)&&w.Credits==credits,"A general pause cannot issue construction orders");w.SetPaused(false);
-            w.Credits=319;
+            CheckCommand.Enter(w);w.Credits=319;
             check(!construction.CanBuild(0)&&!construction.Build(0)&&w.Credits==319&&site.State==SiteState.Empty,
                 "Insufficient building supplies cannot start construction or spend credits");
-            w.Credits=10000;check(SquadChecks.FillSquad(w),"Construction scenarios use two contracted soldiers and two genuinely recruited guards");w.Phase=Phase.Assault;
+            w.Credits=10000;check(SquadChecks.FillSquad(w),"Construction scenarios use two contracted soldiers and two genuinely recruited guards");
+            CheckCommand.Leave(w);w.Phase=Phase.Assault;
             // Prime a real route through a never-built site before adding its collision volume.
             FortificationChecks.PlacePlayer(w,site.Position+Vector3.forward*14);
             foreach(var member in w.Squad.Members)member.transform.position=site.Position+new Vector3(member.Slot-1,0,-9);
@@ -96,8 +101,9 @@ namespace Frontier
             check(site.State==SiteState.Destroyed&&!foundation.Alive&&w.Credits==credits,"Destroyed construction loses the investment and leaves a rebuildable site");
             attacker.Damage(10000,null);
 
-            w.Upgrades.Buy(BaseUpgrade.BunkerArmor);w.Upgrades.Buy(BaseUpgrade.BunkerFirepower);
+            CheckCommand.Enter(w);w.Upgrades.Buy(BaseUpgrade.BunkerArmor);w.Upgrades.Buy(BaseUpgrade.BunkerFirepower);
             var navigation=w.Squad.Navigation;PrepareIntermission(w);credits=w.Credits;
+            CheckCommand.Enter(w);
             LogBlockedSite(w,0);check(construction.Build(0)&&w.Credits==credits-320&&site.Structure!=foundation,
                 "Rebuilding a lost foundation charges a new investment and creates a distinct health object");
             check(w.Squad.Navigation!=navigation&&!w.Squad.Navigation.Walkable(site.Position),
@@ -110,7 +116,7 @@ namespace Frontier
             check(w.Squad.Navigation!=navigation&&!w.Squad.Navigation.Walkable(site.Position),"Completion refreshes navigation while retaining the solid building footprint");
             check(west.Maximum==1600&&w.Bunker.Maximum==1600&&w.BunkerDamage==20,
                 "A newly completed bunker inherits the same global armor and firepower upgrades as the original bunker");
-            west.Damage(500,null);hp=w.Bunker.Current;credits=w.Credits;
+            west.Damage(500,null);hp=w.Bunker.Current;credits=w.Credits;CheckCommand.Enter(w);
             check(w.Upgrades.Buy(BaseUpgrade.RepairBunker,west)&&w.Credits==credits-120&&west.Current==west.Maximum&&w.Bunker.Current==hp,
                 "A targeted bunker repair spends 120 and repairs only the selected building");
             west.Damage(80,null);w.Bunker.Damage(120,null);float westHp=west.Current,eastHp=w.Bunker.Current;
@@ -123,7 +129,7 @@ namespace Frontier
 
         static void CheckProductionAndTechnology(GameWorld w,Action<bool,string> check)
         {
-            var construction=w.Construction;var site=construction.Sites[1];PrepareIntermission(w);
+            var construction=w.Construction;var site=construction.Sites[1];PrepareIntermission(w);CheckCommand.Enter(w);
             int credits=w.Credits;
             check(construction.Build(1)&&w.Credits==credits-400,"The reinforcement barracks starts for its advertised 400 supplies");
             check(!w.Tech.Research(Research.InfantryArmor)&&w.MarineCapacity==8,"An unfinished reinforcement barracks unlocks neither research nor additional garrison slots");
@@ -141,10 +147,10 @@ namespace Frontier
 
             var tech=w.Tech;
             check(tech.Cost(Research.InfantryArmor)==240&&tech.Cost(Research.ArmorPiercing)==280,"Research advertises the 240/280 supply costs");
-            w.Credits=239;credits=w.Credits;
+            CheckCommand.Enter(w);w.Credits=239;credits=w.Credits;
             check(!tech.CanResearch(Research.InfantryArmor)&&!tech.Research(Research.InfantryArmor)&&w.Credits==credits&&tech.ActiveResearch==-1,
                 "Insufficient research supplies leave the queue idle and do not charge");
-            w.Credits=10000;credits=w.Credits;w.Phase=Phase.Assault;
+            CheckCommand.Leave(w);w.Credits=10000;credits=w.Credits;w.Phase=Phase.Assault;
             check(!tech.Research(Research.InfantryArmor)&&w.Credits==credits,"Research cannot be ordered during an assault outside the command terminal");
             PrepareIntermission(w);w.SetPaused(true);
             check(!tech.Research(Research.InfantryArmor)&&w.Credits==credits,"A general pause cannot start research");w.SetPaused(false);
@@ -156,6 +162,7 @@ namespace Frontier
                 unit.Heal(unit.Maximum);float hp=unit.Current;unit.Damage(40,null);
                 check(Mathf.Abs(hp-unit.Current-40)<.01f,"Before research, "+unit.Role+" takes the full infantry damage amount");unit.Heal(unit.Maximum);
             }
+            CheckCommand.Enter(w);
             check(tech.Research(Research.InfantryArmor)&&w.Credits==credits-240&&tech.ActiveResearch==(int)Research.InfantryArmor&&tech.Duration==16,
                 "Infantry armor research spends 240 and occupies the single 16-second research queue");
             credits=w.Credits;
@@ -171,7 +178,7 @@ namespace Frontier
                 "Destroying the prerequisite barracks suspends research without discarding the queued work");
             w.Fort.ReleaseGuard(marine);marine.Damage(10000,null);defenders=w.MarinesAlive;StepWorld(w,13);
             check(w.MarinesAlive==defenders&&w.MarinesAlive>8,"With more than eight survivors, the original barracks cannot replace losses while the extra barracks is destroyed");
-            credits=w.Credits;
+            CheckCommand.Enter(w);credits=w.Credits;
             check(!w.Upgrades.Buy(BaseUpgrade.RepairBarracks,oldBarracks)&&w.Credits==credits,"A targeted repair cannot revive a destroyed reinforcement barracks");
             check(construction.Build(1)&&w.Credits==credits-400,"The destroyed reinforcement barracks can be rebuilt for a new 400-supply investment");
             StepWorld(w,21.7f);
@@ -194,13 +201,13 @@ namespace Frontier
             check(Mathf.Abs(marineHp-marine.Current-34)<.01f,"Surviving and newly produced marines also receive the completed infantry armor bonus");marine.Heal(1000);
             float buildingHp=w.Bunker.Current;w.Bunker.Damage(40,null);
             check(Mathf.Abs(buildingHp-w.Bunker.Current-40)<.01f,"Infantry armor does not incorrectly reduce damage to buildings");w.Bunker.Heal(1000);
-            credits=w.Credits;
+            CheckCommand.Enter(w);credits=w.Credits;
             check(!tech.CanResearch(Research.InfantryArmor)&&!tech.Research(Research.InfantryArmor)&&w.Credits==credits,"A completed technology cannot be researched or paid for twice");
             Health heavy=w.SpawnEnemy(Role.Colossus,0,new Vector3(-8,0,20));heavy.Current=heavy.Maximum=5000;heavy.WeakRadius=0;
             float hpBefore=heavy.Current;heavy.Damage(100,w.Player.Self);
             check(Mathf.Abs(hpBefore-heavy.Current-72)<.01f,"Before armor-piercing research, real player damage uses the original 0.72 colossus armor multiplier");
             heavy.Damage(10000,null);
-            w.Phase=Phase.Assault;FortificationChecks.PlacePlayer(w,new Vector3(0,0,3));
+            CheckCommand.Leave(w);w.Phase=Phase.Assault;FortificationChecks.PlacePlayer(w,new Vector3(0,0,3));
             check(w.TryOpenCommandTerminal(),"The player can open the command terminal to issue a research order");credits=w.Credits;
             check(tech.Research(Research.ArmorPiercing)&&w.Credits==credits-280&&tech.Duration==20,"Armor-piercing research can start at the command terminal for 280 supplies and a 20-second timer");
             left=tech.SecondsLeft;w.Tick(30);check(tech.SecondsLeft==left,"Research ordered at the terminal waits until the paused battlefield resumes");PrepareIntermission(w);
@@ -219,7 +226,7 @@ namespace Frontier
 
         static void CheckIndependentBunkers(GameWorld w,Action<bool,string> check)
         {
-            var fort=w.Fort;Health east=w.Bunker,west=w.Construction.Sites[0].Structure;
+            CheckCommand.Leave(w);var fort=w.Fort;Health east=w.Bunker,west=w.Construction.Sites[0].Structure;
             ReleaseGuards(w);
             w.Phase=Phase.Assault;FortificationChecks.PlacePlayer(w,fort.EntranceFor(west));
             check(fort.OrderSquadInside()&&fort.SquadBunker==west,"The west entrance binds the squad order to the west bunker");
@@ -236,7 +243,13 @@ namespace Frontier
             bool released=true;foreach(var member in w.Squad.Members)released&=!member.Self.IsSheltered;
             check(fort.PlayerBunker==east&&fort.PlayerInside&&w.Player.Self.IsSheltered&&fort.OccupantsFor(east)==1&&fort.OccupantsFor(west)==0&&released,
                 "Destroying the west bunker evacuates its squad while leaving the east-bunker player protected and stationed");
-            PrepareIntermission(w);LogBlockedSite(w,0);check(w.Construction.Build(0),"The west bunker can be rebuilt while the player remains sheltered in the east bunker");StepWorld(w,18.2f);ReleaseGuards(w);
+            PrepareIntermission(w);int beforeRebuild=w.Credits;
+            check(!w.Construction.Build(0)&&w.Credits==beforeRebuild&&fort.PlayerBunker==east,
+                "The sheltered east-bunker player cannot remotely order a west-bunker reconstruction");
+            CheckCommand.Enter(w);LogBlockedSite(w,0);
+            check(w.Construction.Build(0),"Returning to the command terminal permits west-bunker reconstruction");
+            CheckCommand.Leave(w);FortificationChecks.PlacePlayer(w,fort.EntranceFor(east));fort.TryTogglePlayer();
+            StepWorld(w,18.2f);ReleaseGuards(w);
             Health newWest=w.Construction.Sites[0].Structure;
             check(newWest!=west&&newWest.Alive&&fort.OccupantsFor(west)==0&&fort.OccupantsFor(newWest)==0&&newWest.Maximum==2000,
                 "A rebuilt west bunker uses a new health identity, inherits upgrades and never inherits obsolete occupants");
@@ -246,7 +259,7 @@ namespace Frontier
             east.Damage(10000,null);
             check(!fort.PlayerInside&&!w.Player.Self.IsSheltered&&w.Player.GetComponent<CharacterController>().enabled&&fort.SquadBunker==newWest&&fort.SquadInsideFor(newWest)==4&&fort.OccupantsFor(east)==0,
                 "Destroying the east bunker evacuates only its player and preserves all west-bunker squad occupants");
-            PrepareIntermission(w);FortificationChecks.PlacePlayer(w,new Vector3(0,0,3));LogBlockedSite(w,3);check(w.Construction.Build(3),"The destroyed original east-bunker site accepts a reconstruction order");StepWorld(w,18.2f);ReleaseGuards(w);
+            PrepareIntermission(w);CheckCommand.Enter(w);LogBlockedSite(w,3);check(w.Construction.Build(3),"The destroyed original east-bunker site accepts a reconstruction order at the command terminal");StepWorld(w,18.2f);ReleaseGuards(w);
             Health newEast=w.Construction.Sites[3].Structure;
             check(newEast!=east&&newEast==w.Bunker&&newEast.Alive&&fort.OccupantsFor(east)==0&&fort.SquadInsideFor(newWest)==4,
                 "Rebuilding the original bunker replaces the world's original-bunker reference without disturbing the other garrison");
@@ -254,8 +267,12 @@ namespace Frontier
             check(fort.TryTogglePlayer()&&fort.PlayerBunker==newEast&&fort.OccupantsFor(newEast)==1,
                 "The player can enter the replacement east bunker without being bound to its destroyed predecessor");
             Health originalBarracks=w.Barracks;originalBarracks.Damage(10000,null);PrepareIntermission(w);int credits=w.Credits;
+            check(!w.Construction.Build(2)&&w.Credits==credits&&fort.PlayerBunker==newEast,
+                "An east-bunker occupant cannot remotely reconstruct the original barracks during a wave break");
+            CheckCommand.Enter(w);
             check(w.Construction.Sites[2].State==SiteState.Destroyed&&w.Construction.Build(2)&&w.Credits==credits-400,
                 "The original barracks also has its own rebuildable site and a 400-supply reconstruction cost");
+            CheckCommand.Leave(w);FortificationChecks.PlacePlayer(w,fort.EntranceFor(newEast));fort.TryTogglePlayer();
             StepWorld(w,22.2f);
             check(w.Barracks!=originalBarracks&&w.Construction.Sites[2].Structure==w.Barracks&&w.Barracks.Alive&&w.BarracksBuildings.Contains(w.Barracks)&&
                 fort.PlayerBunker==newEast&&fort.SquadInsideFor(newWest)==4,
@@ -313,15 +330,15 @@ namespace Frontier
         {
             w.BeginCampaign();PrepareIntermission(w);w.Credits=2200;
             SquadChecks.FillSquad(w);
-            w.Construction.Build(0);w.Construction.Build(1);
+            CheckCommand.Enter(w);w.Construction.Build(0);w.Construction.Build(1);
             if(scene=="construction")StepWorld(w,5);
             else
             {
-                StepWorld(w,22.2f);w.Tech.Research(Research.InfantryArmor);
+                StepWorld(w,22.2f);CheckCommand.Enter(w);w.Tech.Research(Research.InfantryArmor);
                 if(scene=="technology")StepWorld(w,6);
                 else
                 {
-                    StepWorld(w,16.2f);w.Tech.Research(Research.ArmorPiercing);StepWorld(w,20.2f);
+                    StepWorld(w,16.2f);CheckCommand.Enter(w);w.Tech.Research(Research.ArmorPiercing);StepWorld(w,20.2f);
                     for(int i=0;i<12;i++)w.SpawnMarine();
                 }
             }
@@ -366,6 +383,7 @@ namespace Frontier
         }
         static void StepWorld(GameWorld w,float seconds)
         {
+            CheckCommand.Leave(w);
             for(int step=0;step<Mathf.CeilToInt(seconds/.05f);step++){Physics.SyncTransforms();w.Tick(.05f);w.Effects.Tick(.05f);}
         }
         static void StepSquad(GameWorld w,float seconds)

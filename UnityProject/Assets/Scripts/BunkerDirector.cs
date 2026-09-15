@@ -52,7 +52,7 @@ namespace Frontier
             }
         }
         bool CanUsePlayer()=>world!=null&&world.Player!=null&&world.Player.Self!=null&&world.Player.Self.Alive&&world.Squad!=null;
-        bool CanOrder=>CanUsePlayer()&&world.Active&&world.Phase==Phase.Assault;
+        bool CanOrder=>CanUsePlayer()&&world.Active&&world.Playing;
         static bool SameBunker(Health a,Health b)=>ReferenceEquals(a,b);
         static bool Usable(Health bunker)=>bunker!=null&&bunker.Alive&&bunker.Role==Role.Bunker&&bunker.gameObject.activeInHierarchy;
 
@@ -277,7 +277,7 @@ namespace Frontier
                 {nearest=Vector3.Distance(muzzle,target.Aim);guard.Target=target;}
             }
             guard.Unit.Rig?.Animate(0,dt);
-            if(world.Phase!=Phase.Assault||guard.Target==null||guard.ShotLeft>0||!CanSeeFromPort(guard.Unit,muzzle,guard.Target,25))return;
+            if(!world.Playing||guard.Target==null||guard.ShotLeft>0||!CanSeeFromPort(guard.Unit,muzzle,guard.Target,25))return;
             Combat.Rifle(guard.Unit,muzzle,(guard.Target.Aim-muzzle).normalized,10+3*world.DefenseLevel,false);
             guard.ShotLeft=.58f+Random.Range(0,.12f);guard.Unit.Rig?.Recoil();
         }
@@ -324,7 +324,7 @@ namespace Frontier
         }
         public bool TryAdmitSquad(SquadMember member)
         {
-            if(world==null||!world.Active||world.Phase!=Phase.Assault||!IsSquadApproaching(member))return false;
+            if(world==null||!world.Active||!world.Playing||!IsSquadApproaching(member))return false;
             // The destination stays tied to the order even when the player changes bunker.
             Vector3 door=SquadEntrance;
             if(Vector3.Distance(member.transform.position,door)>.85f||world.Squad.Navigation.Blocked(member.transform.position,door))return false;

@@ -18,6 +18,7 @@ namespace Frontier
         public sealed class HitFeedback { public Vector3 Position;public float Damage,Life;public bool Critical;public int TargetId; }
         public readonly List<HitFeedback> Feedback=new List<HitFeedback>(8);
         public bool Aiming, Sprinting, Bot;
+        public Vector3? BotDestination;
         public float Yaw, Pitch=9;
         public Vector3 AimPoint;
         CharacterController controller;
@@ -48,7 +49,7 @@ namespace Frontier
             DamageFlash=Mathf.MoveTowards(DamageFlash,0,dt*1.3f);recoil=Mathf.MoveTowards(recoil,0,dt*4);
             if(ReloadLeft>0){ReloadLeft-=dt;if(ReloadLeft<=0){ReloadLeft=0;Ammo=30;GameWorld.I.Sounds.Play(SoundId.Ready,.32f);}}
             if(Bot){if(GameWorld.I.Fort!=null&&GameWorld.I.Fort.PlayerInside)BotBunkerTick(dt);else BotTick(dt);return;}
-            if(GameWorld.I.Phase!=Phase.Assault){horizontalVelocity=Vector3.zero;Self.Rig.Animate(0,dt);return;}
+            if(!GameWorld.I.Playing){horizontalVelocity=Vector3.zero;Self.Rig.Animate(0,dt);return;}
             if(Cursor.lockState!=CursorLockMode.Locked)return;
             Aiming=Input.GetMouseButton(1);Sprinting=Input.GetKey(KeyCode.LeftShift)&&!Aiming;
             float sensitivity=GameWorld.I.Sensitivity*(Aiming?.68f:1);
@@ -72,12 +73,30 @@ namespace Frontier
             float speed=Sprinting?8.2f:Aiming?3.8f:5.8f;
             horizontalVelocity=Vector3.MoveTowards(horizontalVelocity,direction*speed,dt*(input.sqrMagnitude>.01f?38:52));
             if(controller.isGrounded&&gravity<0)gravity=-2;
-            gravity-=24*dt;controller.Move((horizontalVelocity+Vector3.up*gravity)*dt);
+            gravity-=24*dt;MoveOnFoot((horizontalVelocity+Vector3.up*gravity)*dt);
             transform.rotation=Quaternion.Euler(0,Yaw,0);
             if(transform.position.y < -12 || transform.position.sqrMagnitude>15000)Respawn();
             UpdateCamera(dt);UpdateAim();Self.Rig.AimAt(AimPoint);Self.Rig.Animate(horizontalVelocity.magnitude,dt);
             if(Input.GetKeyDown(KeyCode.R))StartReload();
             if(Input.GetMouseButton(0)&&!Sprinting)Fire();
+        }
+
+        public void MoveOnFoot(Vector3 motion)
+        {
+            // The capsule controller can auto-step onto knee-high cover. Sweep the real central
+            // wall first so walking keeps its blocking face while bullets can pass over the top.
+            Vector3 horizontal=new Vector3(motion.x,0,motion.z);
+            if(horizontal.sqrMagnitude>.000001f&&Physics.CapsuleCast(transform.position+Vector3.up*.65f,
+                transform.position+Vector3.up*1.5f,controller.radius,horizontal.normalized,out var hit,
+                horizontal.magnitude+controller.skinWidth,Combat.WorldMask,QueryTriggerInteraction.Ignore)&&
+                hit.collider.name=="North fortification"&&Mathf.Abs(hit.collider.bounds.center.x)<.1f&&hit.normal.y<.5f)
+            {
+                float distance=Mathf.Min(horizontal.magnitude,Mathf.Max(0,hit.distance-controller.skinWidth));
+                Vector3 first=horizontal.normalized*distance;
+                Vector3 slide=Vector3.ProjectOnPlane(horizontal-first,hit.normal);slide.y=0;
+                horizontal=first+slide;motion.x=horizontal.x;motion.z=horizontal.z;
+            }
+            controller.Move(motion);
         }
 
         void UpdateAim()
@@ -97,7 +116,7 @@ namespace Frontier
 
         public bool Fire()
         {
-            if(!Self.Alive||!GameWorld.I.Active||GameWorld.I.Phase!=Phase.Assault||cooldown>0||ReloadLeft>0)return false;
+            if(!Self.Alive||!GameWorld.I.Active||!GameWorld.I.Playing||cooldown>0||ReloadLeft>0)return false;
             var fort=GameWorld.I.Fort;
             bool stationed=fort!=null&&fort.PlayerInside;
             Vector3 muzzle=stationed?fort.PlayerMuzzle:Self.Rig.Muzzle.position;
@@ -211,7 +230,13 @@ namespace Frontier
 
         void BotTick(float dt)
         {
-            if(GameWorld.I.Phase!=Phase.Assault)return;
+            if(!GameWorld.I.Playing)return;
+            if(BotDestination.HasValue)
+            {
+                Vector3 travel=BotDestination.Value-transform.position;travel.y=0;
+                if(travel.magnitude>.6f)MoveOnFoot(travel.normalized*5.7f*dt+Vector3.down*3*dt);
+                Self.Rig.Animate(travel.magnitude>.6f?5:0,dt);return;
+            }
             botThink-=dt;
             if(botThink<=0||botTarget==null||!botTarget.Alive)
             {
@@ -220,7 +245,7 @@ namespace Frontier
             Vector3 destination=new Vector3(0,0,15);
             if(botTarget!=null)destination=new Vector3(botTarget.Lane==0?-11.5f:11.5f,0,Combat.Visible(Self,botTarget)?17:24);
             Vector3 direction=destination-transform.position;direction.y=0;
-            if(direction.magnitude>1)controller.Move(direction.normalized*5.7f*dt+Vector3.down*3*dt);
+            if(direction.magnitude>1)MoveOnFoot(direction.normalized*5.7f*dt+Vector3.down*3*dt);
             if(botTarget!=null)
             {
                 AimPoint=botTarget.Aim;
@@ -232,7 +257,7 @@ namespace Frontier
         }
         void BotBunkerTick(float dt)
         {
-            var w=GameWorld.I;if(w.Phase!=Phase.Assault)return;
+            var w=GameWorld.I;if(!w.Playing)return;
             var fort=w.Fort;botThink-=dt;
             if(botThink<=0||!fort.CanSeeFromPort(Self,fort.PlayerMuzzle,botTarget,90))
             {

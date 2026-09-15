@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Frontier
 {
     public enum Faction { Defense, Invaders }
-    public enum Role { Player, Marine, Runner, Spitter, Colossus, Command, Barracks, Bunker, Squad, Construction }
+    public enum Role { Player, Marine, Runner, Spitter, Colossus, Command, Barracks, Bunker, Squad, Construction, Factory, Tank, EnemyTower }
     public enum Phase { Briefing, Assault, Intermission, Victory, Defeat }
 
     public sealed class Health : MonoBehaviour
@@ -22,7 +22,7 @@ namespace Frontier
         public Vector3 WeakPoint;
         public float WeakRadius;
         public Vector3 Aim => transform.position + Vector3.up * AimHeight;
-        public bool IsBuilding => Role == Role.Command || Role == Role.Barracks || Role == Role.Bunker || Role == Role.Construction;
+        public bool IsBuilding => Role == Role.Command || Role == Role.Barracks || Role == Role.Bunker || Role == Role.Construction || Role == Role.Factory || Role == Role.EnemyTower;
 
         public void Setup(Role role, Faction faction, float hp, float height, float radius)
         {
@@ -314,7 +314,7 @@ namespace Frontier
 
     public static class WavePlan
     {
-        public static readonly int[] Counts = { 40, 58, 80, 100, 130 };
+        public static readonly int[] Counts = { 40, 58, 92, 120, 150 };
         public static readonly float[] Intervals = { 1.2f, 1.35f, 1.2f, 1.2f, 1.15f };
         public static readonly string[] Titles = { "接触", "酸雨", "双线告急", "铁甲冲锋", "守住黎明" };
         public static int TotalCount { get { int total=0;foreach(int n in Counts)total+=n;return total; } }
@@ -337,8 +337,10 @@ namespace Frontier
             {
                 Role role = Role.Runner;
                 if (wave >= 2 && i % 4 == 2) role = Role.Spitter;
-                if (wave == 3 && i % 11 == 9) role = Role.Colossus;
-                if (wave >= 4 && i % (wave == 5 ? 5 : 7) == 0) role = Role.Colossus;
+                if (wave == 3 && i % 10 == 8) role = Role.Colossus;
+                // Alternate fourth-wave armor between the two three-unit lane blocks.
+                if (wave == 4 && (i % 12 == 0 || i % 12 == 9)) role = Role.Colossus;
+                if (wave == 5 && i % 5 == 0) role = Role.Colossus;
                 if (wave == 5 && i % 5 == 3) role = Role.Spitter;
                 int lane = wave == 1 ? 0 : wave == 2 ? 1 : (i / 3 + wave) % 2;
                 orders.Add(new SpawnOrder(role, lane));

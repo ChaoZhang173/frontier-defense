@@ -24,8 +24,7 @@ namespace Frontier
         public int Completed, LostSites;
         readonly Collider[] obstacles=new Collider[40];
         public bool ReserveOperational => Sites[1].State==SiteState.Ready && Sites[1].Structure!=null && Sites[1].Structure.Alive;
-        public bool CanManage => world.Command.Alive && world.Player.Self.Alive && !world.Ended &&
-            ((world.Phase==Phase.Intermission && !world.Paused) || world.CommandTerminalOpen);
+        public bool CanManage => world.CanManage;
 
         public ConstructionDirector(GameWorld owner)
         {
@@ -34,21 +33,23 @@ namespace Frontier
                 MakeSite(0,"西侧地堡",Role.Bunker,new Vector3(-20.5f,0,6),null),
                 MakeSite(1,"增援兵营",Role.Barracks,new Vector3(9,0,-16),null),
                 MakeSite(2,"主兵营",Role.Barracks,world.Barracks.transform.position,world.Barracks),
-                MakeSite(3,"东侧地堡",Role.Bunker,world.Bunker.transform.position,world.Bunker)
+                MakeSite(3,"东侧地堡",Role.Bunker,world.Bunker.transform.position,world.Bunker),
+                MakeSite(4,"战车工厂",Role.Factory,new Vector3(20,0,-15),null)
             };
         }
         BuildSite MakeSite(int id,string name,Role role,Vector3 position,Health existing)
         {
             var site=new BuildSite {Id=id,Name=name,Role=role,Position=position,Structure=existing,
-                State=existing==null?SiteState.Empty:SiteState.Ready,Duration=role==Role.Bunker?18:22};
+                State=existing==null?SiteState.Empty:SiteState.Ready,Duration=role==Role.Factory?28:role==Role.Bunker?18:22};
             site.Marker=Art.BuildSiteMarker(world.transform,position,role);
             site.Marker.gameObject.SetActive(existing==null);
             if(existing!=null)existing.gameObject.name=name;
             return site;
         }
-        public static Vector3 Size(Role role)=>role==Role.Bunker?new Vector3(7.4f,3,6.1f):new Vector3(7.5f,4.2f,8.3f);
+        public static Vector3 Size(Role role)=>role==Role.Factory?new Vector3(8,4.8f,8):
+            role==Role.Bunker?new Vector3(7.4f,3,6.1f):new Vector3(7.5f,4.2f,8.3f);
         bool Valid(int id)=>id>=0 && id<Sites.Length;
-        public int Cost(int id)=>Valid(id)?(Sites[id].Role==Role.Bunker?320:400):0;
+        public int Cost(int id)=>Valid(id)?(Sites[id].Role==Role.Factory?650:Sites[id].Role==Role.Bunker?320:400):0;
         bool CanStart(int id)=>Valid(id)&&CanManage&&(Sites[id].State==SiteState.Empty||Sites[id].State==SiteState.Destroyed);
         public bool SpaceClear(int id)
         {
@@ -82,7 +83,7 @@ namespace Frontier
             Transform root=Art.Root(site.Name+" · 施工中",world.transform,site.Position);
             root.gameObject.layer=Combat.WorldLayer;
             var h=root.gameObject.AddComponent<Health>();
-            h.Setup(Role.Construction,Faction.Defense,site.Role==Role.Bunker?650:750,1.6f,Size(site.Role).x*.45f);
+            h.Setup(Role.Construction,Faction.Defense,site.Role==Role.Factory?900:site.Role==Role.Bunker?650:750,1.6f,Size(site.Role).x*.45f);
             var box=root.gameObject.AddComponent<BoxCollider>();box.size=Size(site.Role);box.center=Vector3.up*(box.size.y*.5f);
             Art.ConstructionFrame(root,site.Role);
             site.Structure=h;site.State=SiteState.Constructing;site.SecondsLeft=site.Duration;
@@ -100,7 +101,7 @@ namespace Frontier
         void Complete(BuildSite site)
         {
             Retire(site.Structure);
-            float hp=site.Role==Role.Bunker?1200+400*world.Upgrades.ArmorLevel:1100;
+            float hp=site.Role==Role.Factory?1400:site.Role==Role.Bunker?1200+400*world.Upgrades.ArmorLevel:1100;
             site.Structure=world.CreateBuilding(site.Role,site.Position,hp,Size(site.Role));
             site.Structure.gameObject.name=site.Name;
             site.State=SiteState.Ready;site.SecondsLeft=0;site.Marker.gameObject.SetActive(false);
@@ -110,7 +111,7 @@ namespace Frontier
             world.PeakMarineCapacity=Mathf.Max(world.PeakMarineCapacity,world.MarineCapacity);
             world.Squad.RebuildNavigation();Completed++;
             world.Effects.Burst(site.Position+Vector3.up,Art.Cyan,2.4f);
-            world.Notice(site.Name+" 已投产"+(site.Id==1?" · 驻军上限 12，科技研究已解锁":" · 防线火力就绪"));
+            world.Notice(site.Name+" 已投产"+(site.Id==4?" · 自动生产一辆坦克":site.Id==1?" · 驻军上限 12，科技研究已解锁":" · 防线火力就绪"));
             world.Sounds.Play(SoundId.Upgrade,.65f);
         }
         public void Tick(float dt)
@@ -139,9 +140,21 @@ namespace Frontier
             }
         }
         BaseUpgrade RepairKind(int id)=>Sites[id].Role==Role.Bunker?BaseUpgrade.RepairBunker:BaseUpgrade.RepairBarracks;
-        public int RepairCost(int id)=>Valid(id)?world.Upgrades.Cost(RepairKind(id)):0;
-        public bool CanRepairSite(int id)=>Valid(id)&&Sites[id].State==SiteState.Ready&&world.Upgrades.CanBuy(RepairKind(id),Sites[id].Structure);
-        public bool RepairSite(int id)=>CanRepairSite(id)&&world.Upgrades.Buy(RepairKind(id),Sites[id].Structure);
+        public int RepairCost(int id)=>Valid(id)?(Sites[id].Role==Role.Factory?180:world.Upgrades.Cost(RepairKind(id))):0;
+        public bool CanRepairSite(int id)
+        {
+            if(!Valid(id)||Sites[id].State!=SiteState.Ready)return false;
+            if(Sites[id].Role!=Role.Factory)return world.Upgrades.CanBuy(RepairKind(id),Sites[id].Structure);
+            var h=Sites[id].Structure;
+            return CanManage&&h!=null&&h.Alive&&h.Current<h.Maximum&&world.Credits>=RepairCost(id);
+        }
+        public bool RepairSite(int id)
+        {
+            if(!CanRepairSite(id))return false;
+            if(Sites[id].Role!=Role.Factory)return world.Upgrades.Buy(RepairKind(id),Sites[id].Structure);
+            world.Credits-=RepairCost(id);Sites[id].Structure.Heal(700);
+            world.Notice("战车工厂维修完成 · 恢复 700 耐久");world.Sounds.Play(SoundId.Upgrade,.6f);return true;
+        }
         public string Status(int id)
         {
             if(!Valid(id))return "无效位置";
@@ -154,7 +167,7 @@ namespace Frontier
         public string NameFor(Health h)
         {
             foreach(var site in Sites)if(site.Structure==h)return site.Name+(site.State==SiteState.Constructing?" · 施工中":"");
-            return h.Role==Role.Command?"指挥中心":h.Role==Role.Barracks?"兵营":"地堡";
+            return h.Role==Role.Command?"指挥中心":h.Role==Role.Factory?"战车工厂":h.Role==Role.Barracks?"兵营":"地堡";
         }
     }
 }

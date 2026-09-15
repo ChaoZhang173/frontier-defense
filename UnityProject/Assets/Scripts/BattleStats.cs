@@ -49,7 +49,7 @@ namespace Frontier
             int west=0,east=0;
             foreach(var h in world.Entities)
             {
-                if(h==null||!h.Alive||h.Faction!=Faction.Invaders||h.transform.position.z>31)continue;
+                if(h==null||!h.Alive||h.Faction!=Faction.Invaders||h.IsBuilding||h.transform.position.z>31)continue;
                 if(h.Lane==0)west++;else east++;
             }
             int front=west+east;

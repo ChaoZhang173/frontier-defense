@@ -16,6 +16,8 @@ namespace Frontier
             public int barracksLevel,bunkerArmorLevel,bunkerFirepowerLevel,readySites,completedResearch;
             public int mercenaryContracts,recruitedGuards,mercenaryRespawns,peakMarineCapacity;
             public int[] spawnPointUses;
+            public int tanksProduced,tanksLost,tankKills,tankShots,enemyTowersDestroyed;
+            public bool tankDeployed;
             public int suppliesEarned,suppliesSpent,endingSupplies,guardLosses,squadLosses,buildingsLost,peakFrontlineEnemies;
             public float headquartersDamage,bunkerDamage,barracksDamage,dualLanePressureSeconds;
             public List<BattleStats.WaveResult> waves;
@@ -68,14 +70,14 @@ namespace Frontier
                     catch(Exception exception){Check(false,mode+" diagnostic exception: "+exception);Complete();return;}
                     restartReport=report;finished=true;world.Restart();return;
                 }
-                if(mode=="assault")
+                if(mode=="assault"||mode=="tank"||mode=="enemy_defense"||mode=="central")
                 {
-                    try{AssaultChecks.Run(world,Check);}catch(Exception exception){Check(false,"assault diagnostic exception: "+exception);}
+                    try{if(mode=="assault")AssaultChecks.Run(world,Check);else if(mode=="tank")TankChecks.Run(world,Check);else if(mode=="enemy_defense")EnemyDefenseChecks.Run(world,Check);else CentralDefenseChecks.Run(world,Check);}catch(Exception exception){Check(false,"assault diagnostic exception: "+exception);}
                     Complete();return;
                 }
                 if(mode=="mechanics"){Mechanics();Complete();return;}
                 world.BeginCampaign();
-                if(mode=="victory"||mode=="balance_rifle"||mode=="balance_squad"){balance=new BalanceDriver(world,mode);balance.Begin();}
+                if(mode=="victory"||mode=="balance_rifle"||mode=="balance_squad"||mode=="balance_prepared"){balance=new BalanceDriver(world,mode);balance.Begin();}
                 if(mode=="defeat")
                 {
                     world.Barracks.Damage(10000,null);world.Bunker.Damage(10000,null);
@@ -94,12 +96,13 @@ namespace Frontier
                 else Check(mode=="victory"?world.Phase==Phase.Victory:world.Phase==Phase.Defeat,"Expected "+mode+" outcome");
                 if(mode=="victory")
                 {
-                    Check(WavePlan.TotalCount==408&&world.TotalSpawned==WavePlan.TotalCount&&world.Kills==WavePlan.TotalCount,"All 408 scheduled invaders spawned and defeated");
+                    Check(WavePlan.TotalCount==460&&world.TotalSpawned==WavePlan.TotalCount&&world.Kills==WavePlan.TotalCount,"All 460 scheduled invaders spawned and defeated");
                     Check(world.Wave==5&&world.EnemiesAlive==0&&world.RemainingToSpawn==0,"Victory waits for the complete fifth wave");
                     Check(world.PlayerKills>20,"Player bot uses actual rifle hits");
                     Check(world.Squad.Contracts==2&&world.Squad.Recruited>=2&&world.Squad.PeakCount==4&&world.Squad.Kills>0,"Two contracted mercenaries and two free recruited guards participate in the full five-wave campaign");
                     Check(System.Array.TrueForAll(world.SpawnPointUses,n=>n>0),"All six exterior rifts contribute attackers during the full campaign");
                     Check(world.Construction.Completed>=2&&world.PeakMarineCapacity==12,"Real battle supplies build both western bunker and reinforcement barracks");
+                    Check(world.Tanks.Produced>=1&&world.Tanks.Shots>0&&world.Tanks.Kills>0,"The factory automatically deploys a tank that attacks and earns real kills");
                     Check(world.Tech.IsComplete(Research.ArmorPiercing)&&world.Tech.IsComplete(Research.InfantryArmor),"The prepared strategy researches actual combat technologies before winning");
                 }
                 Check(world.PeakMarines<=world.PeakMarineCapacity,"Garrison respects its operational capacity");
@@ -111,16 +114,16 @@ namespace Frontier
         void Mechanics()
         {
             Physics.SyncTransforms();
-            Check(world.Entities.Count==8,"HQ, barracks, bunker, player and four initial defenders exist");
+            Check(world.Entities.FindAll(h=>h.Faction==Faction.Defense).Count==8&&world.EnemyDefenses.Towers.Count==6,"HQ, barracks, bunker, player, four initial defenders and six enemy towers exist");
             int total=0;for(int i=1;i<=5;i++)total+=WavePlan.Create(i).Count;
-            Check(total==408&&total==WavePlan.TotalCount,"Five wave definitions contain exactly 408 invaders");
-            int[] expected={40,58,80,100,130};
+            Check(total==460&&total==WavePlan.TotalCount,"Five wave definitions contain exactly 460 invaders");
+            int[] expected={40,58,92,120,150};
             for(int i=0;i<expected.Length;i++)Check(WavePlan.Create(i+1).Count==expected[i]&&WavePlan.Counts[i]==expected[i],"Wave "+(i+1)+" schedules "+expected[i]+" invaders");
             for(int i=0;i<14;i++)world.SpawnMarine();
             Check(world.MarinesAlive==8,"Production refuses units beyond its cap");
             float hp=world.Command.Current;world.Command.Damage(100,world.Player.Self);
             Check(world.Command.Current==hp,"Friendly rifle damage cannot harm the base");
-            world.Phase=Phase.Intermission;world.Credits=0;
+            world.Phase=Phase.Intermission;world.TryOpenCommandTerminal();world.Credits=0;
             Check(!world.Buy(0)&&world.Credits==0&&world.WeaponLevel==0,"Insufficient credits do not purchase or go negative");
             world.Credits=10000;for(int i=0;i<10;i++)world.Buy(0);
             Check(world.WeaponLevel==4,"Player upgrade has a hard level cap");
@@ -134,7 +137,7 @@ namespace Frontier
             Check(enemy.Current==enemyHp,"HQ collider blocks rifle fire at an enemy behind it");
             enemy.Damage(9999,null);
             world.Phase=Phase.Briefing;world.WeaponLevel=0;world.Wave=0;world.BeginCampaign();
-            before=world.Credits;Check(!world.Buy(1)&&world.Credits==before,"Purchases are disabled during an assault");
+            before=world.Credits;Check(!world.Buy(1)&&world.Credits==before,"Purchases require an open command terminal during an assault");
             world.Tick(.05f);
             Check(world.Phase==Phase.Assault&&world.EnemiesAlive==0&&world.RemainingToSpawn==WavePlan.Create(1).Count,"An empty field does not finish a wave with pending spawns");
             world.SetPaused(true);float now=world.SimTime;world.Tick(10);
@@ -153,6 +156,37 @@ namespace Frontier
         {
             string path=Argument("--frontier-output");if(path=="")path=Application.persistentDataPath+"/capture.png";
             string scene=Argument("--frontier-scene");
+            if(scene.StartsWith("v06-"))
+            {
+                world.BeginCampaign();world.WaveBannerLeft=0;
+                if(scene=="v06-enemy")
+                {
+                    FortificationChecks.PlacePlayer(world,new Vector3(-13.5f,-4,55));world.Player.Yaw=0;world.Player.Pitch=0;world.Player.UpdateCamera(1);
+                }
+                else
+                {
+                    world.Phase=Phase.Intermission;world.IntermissionLeft=1000;world.Credits=10000;
+                    CheckCommand.Enter(world);world.Construction.Build(0);world.Construction.Build(1);world.Construction.Build(4);CheckCommand.Leave(world);
+                    SquadChecks.FillSquad(world);FortificationChecks.PlacePlayer(world,new Vector3(0,0,23));world.Player.Yaw=0;world.Squad.GiveOrder(SquadOrder.Hold);
+                    for(int step=0;step<2400;step++)
+                    {
+                        Physics.SyncTransforms();world.Tick(.05f);world.Effects.Tick(.05f);
+                        if(step%240==0)yield return null;
+                    }
+                    world.ToastLeft=0;world.IntermissionLeft=35;
+                    if(scene=="v06-terminal"||scene=="v06-factory"||scene=="v06-squad")
+                    {
+                        CheckCommand.Enter(world);yield return null;
+                        typeof(GameHud).GetField("terminalPage",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic).SetValue(world.Hud,scene=="v06-factory"?1:scene=="v06-squad"?2:0);
+                    }
+                    else
+                    {
+                        FortificationChecks.PlacePlayer(world,new Vector3(-6,0,14));world.Player.Yaw=35;world.Player.Pitch=8;
+                        if(scene=="v06-central")world.Phase=Phase.Assault;
+                    }
+                    world.Player.UpdateCamera(1);
+                }
+            }
             if(scene=="assault-warning"||scene=="assault-battle")
             {
                 world.BeginCampaign();var strategy=new BalanceDriver(world,"victory");strategy.Begin();
@@ -229,7 +263,7 @@ namespace Frontier
                 world.Player.UpdateCamera(1);
             }
             yield return null;
-            if(scene=="squad")typeof(GameHud).GetField("terminalPage",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic).SetValue(world.Hud,1);
+            if(scene=="squad")typeof(GameHud).GetField("terminalPage",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic).SetValue(world.Hud,2);
             yield return new WaitForEndOfFrame();
             ScreenCapture.CaptureScreenshot(path);
             for(int i=0;i<20;i++)yield return null;
@@ -244,6 +278,7 @@ namespace Frontier
             report.guardLosses=world.Stats.GuardLosses;report.squadLosses=world.Stats.SquadLosses;report.buildingsLost=world.Stats.BuildingsLost;
             report.headquartersDamage=world.Stats.HeadquartersDamage;report.bunkerDamage=world.Stats.BunkerDamage;report.barracksDamage=world.Stats.BarracksDamage;
             report.peakFrontlineEnemies=world.Stats.PeakFrontlineEnemies;report.dualLanePressureSeconds=world.Stats.DualLanePressureSeconds;
+            report.tanksProduced=world.Tanks.Produced;report.tanksLost=world.Tanks.Lost;report.tankKills=world.Tanks.Kills;report.tankShots=world.Tanks.Shots;report.tankDeployed=world.Tanks.Deployed;report.enemyTowersDestroyed=world.EnemyDefenses.DestroyedCount;
             report.simulatedSeconds=world.SimTime;report.hqHealth=world.Command.Current;report.wave=world.Wave;
             report.spawned=world.TotalSpawned;report.kills=world.Kills;report.playerKills=world.PlayerKills;report.deaths=world.Deaths;
             report.peakEnemies=world.PeakEnemies;report.peakMarines=world.PeakMarines;

@@ -22,11 +22,22 @@ namespace Frontier
             check(w.GuardRecruitTarget==null,"A real world collider blocks recruitment through a wall");
             wall.gameObject.SetActive(false);UnityEngine.Object.Destroy(wall.gameObject);Physics.SyncTransforms();
             w.SetPaused(true);check(w.GuardRecruitTarget==null&&!w.Squad.RecruitGuard(second),"A general pause prevents guard targeting and transfer");w.SetPaused(false);
-            AimAt(w,second,3);check(w.Interact()&&w.Squad.RecruitedGuardCount==2&&w.Squad.Contracts==0,"Two guards may be recruited with E before hiring either mercenary");
+            w.Phase=Phase.Intermission;w.IntermissionLeft=45;
+            check(w.Active&&!w.CommandTerminalOpen&&!w.CanManage,"Entering intermission preserves field control without automatically opening upgrades");
+            AimAt(w,second,3);check(w.GuardRecruitTarget==second&&w.Interact()&&w.Squad.RecruitedGuardCount==2&&w.Squad.Contracts==0,
+                "E recruits the second guard freely during intermission before hiring either mercenary");
             Health third=NextGuard(w);AimAt(w,third,3);credits=w.Credits;count=w.MarinesAlive;
             check(w.GuardRecruitTarget==third&&w.Interact()&&third.Role==Role.Marine&&w.MarinesAlive==count&&w.Credits==credits&&w.Squad.Count==2,
                 "E on a third guard reports the recruit limit without spending supplies or consuming a base defender");
             FortificationChecks.PlacePlayer(w,new Vector3(0,0,3));w.Player.Yaw=180;w.Player.UpdateCamera(1);
+            w.SetPaused(true);
+            check(!w.Interact()&&!w.CommandTerminalOpen&&!w.CanManage,"E cannot turn a general pause into command terminal access");
+            w.SetPaused(false);
+            check(w.Interact()&&w.CommandTerminalOpen&&w.Paused&&w.CanManage,"E opens the nearby command terminal during free intermission");
+            float remaining=w.IntermissionLeft;w.Tick(1);
+            check(Mathf.Abs(w.IntermissionLeft-remaining)<.001f,"Opening the command terminal freezes the real intermission countdown");
+            check(w.Interact()&&!w.CommandTerminalOpen&&!w.Paused&&!w.CanManage,"E returns from the terminal to free intermission and closes purchase access");
+            w.Phase=Phase.Assault;
             check(w.Interact()&&w.CommandTerminalOpen&&w.Paused,"E still opens the command terminal when no guard is targeted");
             check(w.Interact()&&!w.CommandTerminalOpen&&!w.Paused,"E closes the command terminal and resumes the battle");
             FortificationChecks.PlacePlayer(w,w.Fort.EntranceFor(w.Bunker));w.Player.Yaw=0;w.Player.UpdateCamera(1);

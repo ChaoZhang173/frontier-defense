@@ -25,9 +25,7 @@ namespace Frontier
         public bool HasContract(int slot)=>IsMercenarySlot(slot)&&contracts[slot];
         public float RespawnRemaining(int slot)=>HasContract(slot)&&!LivingMember(slot)?Mathf.Max(0,respawnLeft[slot]):0;
         bool LivingMember(int slot)=>slot>=0&&slot<Members.Length&&Members[slot]!=null&&Members[slot].Self!=null&&Members[slot].Self.Alive;
-        public bool CanHire=>Contracts<MercenaryCapacity&&GameWorld.I.Command!=null&&GameWorld.I.Command.Alive&&
-            GameWorld.I.Player.Self.Alive&&!GameWorld.I.Ended&&
-            ((GameWorld.I.Phase==Phase.Intermission&&!GameWorld.I.Paused)||GameWorld.I.CommandTerminalOpen);
+        public bool CanHire=>Contracts<MercenaryCapacity&&GameWorld.I.CanManage;
         public SquadNavigation Navigation {get;private set;}
         float focusUntil,holdYaw;
         Vector3 rally;
@@ -72,7 +70,7 @@ namespace Frontier
         public bool CanRecruitGuard(Health guard)
         {
             var w=GameWorld.I;
-            if(w==null||!w.Active||w.Phase!=Phase.Assault||w.Player==null||!w.Player.Self.Alive||RecruitedGuardCount>=GuardCapacity)return false;
+            if(w==null||!w.Active||!w.Playing||w.Player==null||!w.Player.Self.Alive||RecruitedGuardCount>=GuardCapacity)return false;
             if(guard==null||!guard.Alive||guard.Role!=Role.Marine||guard.Faction!=Faction.Defense||!w.Entities.Contains(guard))return false;
             if(guard.Rig==null||guard.GetComponent<SquadMember>()!=null)return false;
             return Vector3.Distance(w.Player.transform.position,guard.transform.position)<=4&&Combat.Visible(w.Player.Self,guard);
@@ -106,7 +104,7 @@ namespace Frontier
         public bool GiveOrder(SquadOrder order)
         {
             var w=GameWorld.I;
-            if(w.Paused||w.Ended||w.Phase!=Phase.Assault||!w.Player.Self.Alive)return false;
+            if(w.Paused||w.Ended||!w.Playing||!w.Player.Self.Alive)return false;
             if(Count==0){w.Notice(Contracts>0?"雇佣兵正在复活 · 也可招募普通守卫":"小队尚未组建 · 可雇佣或招募普通守卫");return false;}
             if(order==SquadOrder.Bunker&&(w.Fort==null||!w.Fort.TryAssignSquadBunker()))return false;
             if(order!=SquadOrder.Bunker)w.Fort?.ReleaseSquad();
@@ -129,6 +127,8 @@ namespace Frontier
             var p=GameWorld.I.Player;
             var fort=GameWorld.I.Fort;
             if(Order==SquadOrder.Bunker&&fort!=null&&fort.SquadBunker!=null&&fort.SquadBunker.Alive)return fort.SquadEntrance;
+            if(Order==SquadOrder.Hold&&CentralDefense.Contains(HoldPoint))
+                return Navigation.Resolve(CentralDefense.SquadPost(slot));
             Vector3 center=Order==SquadOrder.Hold?HoldPoint:rally;
             float yaw=Order==SquadOrder.Hold?holdYaw:p.Yaw;
             Vector3 offset=slot==0?new Vector3(-2.6f,0,-2.6f):slot==1?new Vector3(2.6f,0,-2.6f):slot==2?new Vector3(-1.65f,0,-4.8f):new Vector3(1.65f,0,-4.8f);
@@ -276,7 +276,7 @@ namespace Frontier
                     float distance=Vector3.Distance(h.Aim,muzzle);if(distance<nearest){nearest=distance;Target=h;}
                 }
             }
-            if(w.Phase!=Phase.Assault||Target==null||cooldown>0||!ValidTarget(Target))return;
+            if(!w.Playing||Target==null||cooldown>0||!ValidTarget(Target))return;
             float hp=Target.Current;
             Combat.Rifle(Self,muzzle,(Target.Aim-muzzle).normalized,RifleDamage,false);Shots++;
             if(Target!=null)DamageDealt+=Mathf.Max(0,hp-Target.Current);

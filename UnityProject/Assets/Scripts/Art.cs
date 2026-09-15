@@ -214,7 +214,13 @@ namespace Frontier
                     Spike(portal,new Vector3(Mathf.Cos(a)*3,0,Mathf.Sin(a)*3),new Vector3(.9f,3.2f+UnityEngine.Random.value*2,.9f),9,new Vector3(10,i*45,0));
                 }
             }
-            Wall(world,-24,26,10,3.0f);Wall(world,0,26,18,3.0f);Wall(world,24,26,10,3.0f);
+            Wall(world,-24,26,10,3.0f);Wall(world,0,26,18,CentralDefense.WallHeight);Wall(world,24,26,10,3.0f);
+            for(int slot=0;slot<4;slot++)
+            {
+                Vector3 post=CentralDefense.SquadPost(slot);
+                Part(world,"Central firing position",post+Vector3.up*.03f,new Vector3(1.1f,.02f,.6f),7);
+            }
+            Part(world,"Central tank deployment",new Vector3(0,.03f,21),new Vector3(3.8f,.02f,.14f),6);
             for(int side=-1;side<=1;side+=2)
             {
                 Part(world,"Perimeter barrier",new Vector3(side*28.1f,1.25f,1),new Vector3(1.6f,2.5f,49),2,collision:true);
@@ -242,7 +248,7 @@ namespace Frontier
             }
             for(int i=0;i<6;i++)
             {
-                var p=new Vector3(21+(i%2)*2.1f,.8f,-12+(i/2)*2.3f);
+                var p=new Vector3(-23+(i%2)*2.1f,.8f,-18+(i/2)*2.3f);
                 Part(world,"Supply container",p,new Vector3(1.8f,1.6f,1.9f),i%2==0?0:2,collision:true);
                 Part(world,"Container stripe",p+new Vector3(0,0,.96f),new Vector3(1.3f,.14f,.02f),7);
             }
@@ -255,10 +261,12 @@ namespace Frontier
 
         static void Wall(Transform world,float x,float z,float width,float height)
         {
-            Part(world,"North fortification",new Vector3(x,height/2,z),new Vector3(width,height,1.8f),2,collision:true);
-            Part(world,"Armor rail",new Vector3(x,height+.1f,z),new Vector3(width+.2f,.25f,2),1);
+            float depth=height<1?.6f:1.8f;
+            Part(world,"North fortification",new Vector3(x,height/2,z),new Vector3(width,height,depth),2,collision:true);
+            float railHeight=height<1?.075f:.25f;
+            Part(world,"Armor rail",new Vector3(x,height+railHeight*.5f,z),new Vector3(width+.2f,railHeight,depth+.1f),1);
             for(float dx=-width/2+1;dx<width/2;dx+=3)
-                Part(world,"Warning stripe",new Vector3(x+dx,1.8f,z-.92f),new Vector3(.32f,.45f,.03f),7,euler:new Vector3(0,0,25));
+                Part(world,"Warning stripe",new Vector3(x+dx,height*.6f,z-depth*.5f-.02f),new Vector3(.32f,.45f,.03f),7,euler:new Vector3(0,0,25));
         }
 
         static void Ramp(Transform world,float x)

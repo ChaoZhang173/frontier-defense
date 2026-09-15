@@ -1,0 +1,111 @@
+{
+  "gameVersion": "0.6.0",
+  "platform": "Mac native",
+  "modes": 17,
+  "totalChecks": 583,
+  "passed": true,
+  "results": [
+    {
+      "mode": "tank",
+      "passed": true,
+      "checks": 37,
+      "failures": []
+    },
+    {
+      "mode": "enemy_defense",
+      "passed": true,
+      "checks": 35,
+      "failures": []
+    },
+    {
+      "mode": "central",
+      "passed": true,
+      "checks": 24,
+      "failures": []
+    },
+    {
+      "mode": "balance_prepared",
+      "passed": true,
+      "checks": 3,
+      "failures": []
+    },
+    {
+      "mode": "assault",
+      "passed": true,
+      "checks": 96,
+      "failures": []
+    },
+    {
+      "mode": "balance_rifle",
+      "passed": true,
+      "checks": 3,
+      "failures": []
+    },
+    {
+      "mode": "balance_squad",
+      "passed": true,
+      "checks": 3,
+      "failures": []
+    },
+    {
+      "mode": "interaction",
+      "passed": true,
+      "checks": 19,
+      "failures": []
+    },
+    {
+      "mode": "guards",
+      "passed": true,
+      "checks": 29,
+      "failures": []
+    },
+    {
+      "mode": "navigation",
+      "passed": true,
+      "checks": 60,
+      "failures": []
+    },
+    {
+      "mode": "construction",
+      "passed": true,
+      "checks": 114,
+      "failures": []
+    },
+    {
+      "mode": "mechanics",
+      "passed": true,
+      "checks": 22,
+      "failures": []
+    },
+    {
+      "mode": "fortification",
+      "passed": true,
+      "checks": 60,
+      "failures": []
+    },
+    {
+      "mode": "squad",
+      "passed": true,
+      "checks": 61,
+      "failures": []
+    },
+    {
+      "mode": "victory",
+      "passed": true,
+      "checks": 11,
+      "failures": []
+    },
+    {
+      "mode": "afk",
+      "passed": true,
+      "checks": 3,
+      "failures": []
+    },
+    {
+      "mode": "defeat",
+      "passed": true,
+      "checks": 3,
+      "failures": []
+    }
+  ]
+}

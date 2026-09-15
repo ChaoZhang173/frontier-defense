@@ -106,8 +106,8 @@ namespace Frontier
                     unit.transform.position=new Vector3(-23+unit.Slot*.8f,0,-18);
             Physics.SyncTransforms();
             int scheduledTotal=0,extraSpawns=0;
-            check(WavePlan.TotalCount==408&&GameWorld.EnemyLimit==65,
-                "The grouped assault retains 408 scheduled invaders and a 65-enemy concurrency limit");
+            check(WavePlan.TotalCount==460&&GameWorld.EnemyLimit==65,
+                "The expanded grouped assault has 460 scheduled invaders and a 65-enemy concurrency limit");
 
             for(int wave=1;wave<=5;wave++)
             {
@@ -132,11 +132,14 @@ namespace Frontier
                 if(wave>=3)check(audit.DualLane,"Wave "+wave+" has real living attackers on both lanes simultaneously");
                 if(w.Ended&&wave<5)return;
             }
-            check(scheduledTotal==408&&w.TotalSpawned==408+extraSpawns&&w.Kills==w.TotalSpawned,
-                "All 408 grouped campaign enemies and the separately counted cap-test enemies really spawn and die");
+            check(scheduledTotal==460&&w.TotalSpawned==460+extraSpawns&&w.Kills==w.TotalSpawned,
+                "All 460 grouped campaign enemies and the separately counted cap-test enemies really spawn and die");
             check(Array.TrueForAll(w.SpawnPointUses,n=>n>0),"The complete campaign rotates actual spawns through all six rifts");
             check(w.Phase==Phase.Victory&&w.Wave==5&&w.EnemiesAlive==0&&w.RemainingToSpawn==0,
                 "Victory occurs only after the complete fifth-wave queue and its final living enemy are cleared");
+            bool towersRemain=w.EnemyDefenses.DestroyedCount==0;
+            foreach(var tower in w.EnemyDefenses.Towers)towersRemain&=tower!=null&&tower.Alive;
+            check(towersRemain,"Six surviving rift defenses neither prevent five-wave victory nor enter the assault cleanup count");
             check(w.PeakEnemies<=GameWorld.EnemyLimit,"Actual concurrent enemies never exceed 65 during queue backpressure and the campaign");
         }
 
@@ -156,6 +159,20 @@ namespace Frontier
                 "Wave "+w.Wave+" has ordered, nonempty multi-enemy batches on valid lane-specific rifts");
             bool same=true;for(int lane=0;lane<2;lane++)for(int role=0;role<3;role++)same&=actual[lane,role]==expected[lane,role];
             check(same,"Wave "+w.Wave+" preserves the original role and lane totals when regrouping spawn orders");
+            int[] expectedCounts={40,58,92,120,150};
+            int[,] expectedRoles={{40,0,0},{44,14,0},{64,19,9},{70,30,20},{67,53,30}};
+            bool balance=WavePlan.Counts[w.Wave-1]==expectedCounts[w.Wave-1];
+            for(int role=0;role<3;role++)balance&=actual[0,role]+actual[1,role]==expectedRoles[w.Wave-1,role];
+            check(balance,"Wave "+w.Wave+" matches its approved total and runner, ranged and armored composition");
+            if(w.Wave>=3)
+            {
+                bool timing=w.Assault.Schedule.Count==8;
+                float interval=w.Wave==5?18:20;
+                for(int i=0;i<w.Assault.Schedule.Count;i++)
+                    timing&=Mathf.Abs(w.Assault.Schedule[i].At-(4+(i/2)*interval+(i%2)*4))<.01f;
+                check(timing&&actual[0,2]>0&&actual[1,2]>0,
+                    "Wave "+w.Wave+" uses four overlapping lane pairs at the approved cadence with armor on both lanes");
+            }
             check(w.Assault.Schedule.Count>0&&w.Assault.Schedule[0].At>=4,
                 "Wave "+w.Wave+" gives at least four seconds of preparation before the first batch");
         }
@@ -284,7 +301,7 @@ namespace Frontier
                 if(w.RemainingToSpawn==0)
                 {
                     Health last=null;
-                    foreach(var unit in w.Entities.ToArray())if(unit!=null&&unit.Alive&&unit.Faction==Faction.Invaders)
+                    foreach(var unit in w.Entities.ToArray())if(unit!=null&&unit.Alive&&unit.Faction==Faction.Invaders&&!unit.IsBuilding)
                     {if(last==null)last=unit;else unit.Damage(10000,null);}
                     if(last!=null)
                     {
@@ -295,7 +312,7 @@ namespace Frontier
                     }
                 }
                 foreach(var unit in w.Entities.ToArray())
-                    if(unit!=null&&unit.Alive&&unit.Faction==Faction.Invaders&&
+                    if(unit!=null&&unit.Alive&&unit.Faction==Faction.Invaders&&!unit.IsBuilding&&
                         audit.Born.TryGetValue(unit.GetInstanceID(),out var born)&&w.Assault.Elapsed-born>12)
                         unit.Damage(10000,null);
                 audit.Step(StepSize);

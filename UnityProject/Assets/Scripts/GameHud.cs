@@ -6,7 +6,7 @@ namespace Frontier
     {
         readonly Color ink=new Color(.025f,.055f,.08f,.94f), muted=new Color(.55f,.66f,.70f),white=new Color(.91f,.96f,.96f);
         Font font;GUIStyle text,button;float width,height,scale;bool settings,terminalWasOpen;
-        int intermissionPage,terminalPage,lastIntermissionWave=-1;
+        int terminalPage;
         GameWorld W=>GameWorld.I;
         void Initialize()
         {
@@ -24,7 +24,6 @@ namespace Frontier
             GUI.matrix=Matrix4x4.TRS(Vector3.zero,Quaternion.identity,Vector3.one*scale);
             if(W.CommandTerminalOpen&&!terminalWasOpen)terminalPage=0;
             terminalWasOpen=W.CommandTerminalOpen;
-            if(W.Phase==Phase.Intermission&&lastIntermissionWave!=W.Wave){lastIntermissionWave=W.Wave;intermissionPage=0;}
             if(W.Phase==Phase.Briefing){Briefing();return;}
             if(W.Ended){Result();return;}
             if(W.Fort!=null&&W.Fort.PlayerInside)BunkerView();
@@ -41,7 +40,7 @@ namespace Frontier
             if(W.CommandTerminalOpen)CommandTerminal();else if(W.Paused)Pause();
             if(W.ToastLeft>0&&!W.Paused)
             {
-                float toastY=W.Phase==Phase.Intermission?height-64:W.Assault!=null?216:118;
+                float toastY=W.Phase==Phase.Intermission?248:W.Assault!=null?216:118;
                 Panel(new Rect(width/2-290,toastY,580,43));
                 Label(width/2-275,toastY+10,550,25,W.Toast,16,Art.Amber,TextAnchor.UpperCenter);
             }
@@ -54,13 +53,13 @@ namespace Frontier
             Label(58,height*.24f,600,90,"边境防线",66,white);
             Label(63,height*.24f+94,540,30,"守住基地，直到黎明。",23,Art.Amber);
             Label(63,height*.24f+156,570,40,"一名装甲步兵。两处入口。五波敌潮。",18,white);
-            Label(63,height*.24f+195,570,60,"敌军集结成组突击，注意东西两路进攻预警。\n建设防线、调动四人小队，抓住攻势间隙整备。",17,muted);
+            Label(63,height*.24f+195,570,80,"建造战车工厂，部署坦克与四人小队守住中央阵地。\n前往指挥中心升级；击毁敌巢炮塔获得额外补给。\n第三波起，警惕两路更密集的重甲突击。",17,muted);
             if(Button(new Rect(62,height-226,300,58),"部署到防线  →",Art.Cyan))W.BeginCampaign();
             if(Button(new Rect(378,height-226,144,58),"设置",new Color(.39f,.50f,.55f)))settings=true;
             Label(62,height-142,650,27,"W A S D  移动     鼠标  视角     左键  射击",16,white);
             Label(62,height-109,650,27,"右键  瞄准     R  换弹     Shift  冲刺     Esc  暂停",16,muted);
             Label(62,height-78,650,24,"E  招募守卫 / 交互     B  小队入驻     F  撤出跟随",15,Art.Amber);
-            Label(62,height-39,750,24,"单人试玩  v0.5.1   /   敌军攻势与难度   /   键盘与鼠标",13,muted);
+            Label(62,height-39,750,24,"单人试玩  v0.6   /   机械工厂与中央防线   /   键盘与鼠标",13,muted);
             Label(width-355,52,295,28,"峡谷前哨 / 清晨 05:47",16,white,TextAnchor.UpperRight);
             Label(width-405,86,345,25,"五波共 "+WavePlan.TotalCount+" 名敌人 · 守住两路",14,muted,TextAnchor.UpperRight);
             if(settings){Box(new Rect(0,0,width,height),new Color(0,0,0,.55f));SettingsCard(true);}
@@ -78,6 +77,7 @@ namespace Frontier
             MiniMap();
             SquadPanel();
             BunkerPanel();
+            TankPanel();
             EngineeringPanel();
             Panel(new Rect(30,height-149,315,120));
             Label(48,height-135,200,23,"先锋 / 装甲步兵",16,white);
@@ -95,7 +95,7 @@ namespace Frontier
             }
             Label(width/2-220,height-66,440,25,"补给  "+W.Credits+"     驻军  "+W.MarinesAlive+" / "+W.MarineCapacity+"     击杀  "+W.Kills,16,white,TextAnchor.UpperCenter);
             Label(width/2-325,height-36,650,24,"R 换弹   E 交互   B 入驻地堡   F 跟随   G 驻守   Esc 暂停",13,muted,TextAnchor.UpperCenter);
-            if(W.Phase==Phase.Assault && !W.Paused && W.Player.Self.Alive)
+            if(W.Playing && !W.Paused && W.Player.Self.Alive)
             {
                 float x=width/2,y=height/2,gap=W.Player.ReticleSpread;
                 Color c=W.Player.KillTimer>0?Art.Pink:W.Player.CriticalTimer>0?Art.Amber:W.Player.AimTarget!=null?Art.Cyan:white;
@@ -126,9 +126,14 @@ namespace Frontier
                 else if(W.NearCommand)
                 {
                     Panel(new Rect(x-192,height-228,384,49));
-                    Label(x-180,height-213,360,26,"E 指挥中心 · 建造 / 科技 / 小队",17,Art.Amber,TextAnchor.UpperCenter);
+                    Label(x-180,height-213,360,26,"E 指挥中心 · 升级 / 建造 / 小队",17,Art.Amber,TextAnchor.UpperCenter);
                 }
-                if(W.WaveBannerLeft>0)
+                else if(Mathf.Abs(W.Player.transform.position.x)<9&&W.Player.transform.position.z>19&&W.Player.transform.position.z<27)
+                {
+                    Panel(new Rect(x-245,height-228,490,49));
+                    Label(x-230,height-213,460,26,"中央射击阵地 · G 小队驻守 · F 跟随",17,Art.Cyan,TextAnchor.UpperCenter);
+                }
+                if(W.Phase==Phase.Assault&&W.WaveBannerLeft>0)
                 {
                     Label(x-400,274,800,40,W.Banner,29,white,TextAnchor.UpperCenter);
                     Label(x-400,319,800,25,W.Subtitle,16,Art.Amber,TextAnchor.UpperCenter);
@@ -222,7 +227,7 @@ namespace Frontier
         void MapRect(Rect r,Vector3 p,Vector2 size,Color color){Vector2 t=MapPoint(r,p);Box(new Rect(t.x-size.x/64*r.width/2,t.y-size.y/108*r.height/2,size.x/64*r.width,size.y/108*r.height),color);}
         void WorldLabels()
         {
-            if(W.Paused||W.Phase==Phase.Intermission)return;
+            if(W.Paused)return;
             foreach(var h in W.Entities)
             {
                 if(h==null||!h.Alive||h.IsSheltered||h.Role==Role.Player)continue;
@@ -239,7 +244,7 @@ namespace Frontier
                     if(h.Role==Role.Bunker&&W.Fort!=null)name+=" · "+W.Fort.OccupantsFor(h)+" / "+BunkerDirector.Capacity+" 席位";
                     if(h.Role==Role.Construction&&W.Construction!=null)
                         foreach(var site in W.Construction.Sites)if(site.Structure==h){name+=" · "+Mathf.CeilToInt(site.SecondsLeft)+" 秒";break;}
-                    Label(x-145,y-25,290,25,name,13,h.Role==Role.Construction?Art.Amber:Art.Cyan,TextAnchor.UpperCenter);
+                    Label(x-145,y-25,290,25,name,13,h.Faction==Faction.Invaders?Art.Pink:h.Role==Role.Construction?Art.Amber:Art.Cyan,TextAnchor.UpperCenter);
                 }
                 if(companion)Label(x-70,y-23,140,24,"0"+(h.Slot+1)+" / "+SquadDirector.Names[h.Slot],13,Art.Amber,TextAnchor.UpperCenter);
                 Bar(new Rect(x-(building?45:24),y,building?90:48,4),h.Current/h.Maximum,h.Faction==Faction.Invaders?Art.Pink:companion?Art.Amber:Art.Cyan);
@@ -258,22 +263,14 @@ namespace Frontier
         }
         void Intermission()
         {
-            Box(new Rect(0,0,width,height),new Color(.01f,.025f,.04f,.64f));
-            float left=width/2-560,top=height/2-364;
-            Panel(new Rect(left,top,1120,728));
-            Label(left+24,top+21,780,39,"第 "+W.Wave+" 波已清除 / 整备防线",28,white);
-            Label(left+804,top+28,292,29,"可用补给  "+W.Credits,22,Art.Amber,TextAnchor.UpperRight);
-            PageTabs(left,top,ref intermissionPage,"防线升级","建造科技");
-            Label(left+398,top+72,698,24,"整备剩余 "+Mathf.CeilToInt(W.IntermissionLeft)+" 秒 · 施工与研究持续推进",14,Art.Amber,TextAnchor.UpperRight);
-            Box(new Rect(left+24,top+111,1072,79),new Color(.055f,.14f,.17f));
+            float left=width/2-310,top=118;
+            Panel(new Rect(left,top,620,116));
             int next=Mathf.Min(W.Wave+1,WavePlan.Counts.Length);
-            Label(left+40,top+120,510,27,"下一波  "+next+" / 5  ·  "+WavePlan.Titles[next-1],18,Art.Cyan);
-            Label(left+550,top+124,530,25,WaveAdvice(next),14,Art.Amber,TextAnchor.UpperRight);
-            Paragraph(left+40,top+152,1036,34,WavePlan.Preview(next),16,white);
-            if(intermissionPage==0)DefenseUpgrades(left,top);else ConstructionPage(left,top);
-            Label(left+25,top+654,696,24,intermissionPage==0?"开战后：B 小队入堡 · F 撤出跟随 · G 驻守":"增援兵营完工后解锁科技 · 每次研究一项",15,white);
-            Label(left+25,top+686,696,23,intermissionPage==0?"更多建筑维修与重建，见“建造科技”页":"已开工项目跨波次保留进度 · 科技完成后持续生效",13,muted);
-            if(Button(new Rect(left+748,top+653,348,51),"部署下一波  →",Art.Cyan))W.StartWave();
+            Label(left+16,top+10,370,25,"下一波  "+next+" / 5  ·  "+WavePlan.Titles[next-1],18,Art.Cyan);
+            Label(left+392,top+12,212,24,Mathf.CeilToInt(W.IntermissionLeft)+" 秒后自动开战",16,Art.Amber,TextAnchor.UpperRight);
+            Label(left+16,top+41,588,23,WavePlan.Preview(next),14,white,TextAnchor.UpperCenter);
+            Label(left+16,top+66,588,22,WaveAdvice(next),13,Art.Amber,TextAnchor.UpperCenter);
+            Label(left+16,top+91,588,21,"自由整备 · 前往指挥中心按 E 升级、建造与维修",13,muted,TextAnchor.UpperCenter);
         }
         string WaveAdvice(int wave)
         {
@@ -283,10 +280,10 @@ namespace Frontier
             if(wave==4)return "重甲先行攻城，集中火力击破先头";
             return "双线连续突击，及时支援受压入口";
         }
-        void PageTabs(float left,float top,ref int page,string first,string second)
+        void PageTabs(float left,float top)
         {
-            if(Button(new Rect(left+24,top+67,168,32),first,page==0?Art.Cyan:muted))page=0;
-            if(Button(new Rect(left+204,top+67,168,32),second,page==1?Art.Cyan:muted))page=1;
+            string[] names={"防线升级","建造科技","先锋小队"};
+            for(int i=0;i<names.Length;i++)if(Button(new Rect(left+24+i*180,top+67,168,32),names[i],terminalPage==i?Art.Cyan:muted))terminalPage=i;
         }
         void DefenseUpgrades(float left,float top)
         {
@@ -300,7 +297,7 @@ namespace Frontier
                 if(i<2)Label(x+237,y+15,95,23,(i==0?W.WeaponLevel:W.DefenseLevel)+" / 4 级",13,muted,TextAnchor.UpperRight);
                 Paragraph(x+16,y+44,316,44,descriptions[i],14,muted);
                 bool max=i==0?W.WeaponLevel>=4:i==1?W.DefenseLevel>=4:W.Command.Current>=W.Command.Maximum;
-                bool can=!max&&!W.Paused&&W.Credits>=W.UpgradeCost(i);
+                bool can=!max&&W.CanManage&&W.Credits>=W.UpgradeCost(i);
                 string caption=max?(i==2?"耐久充足":"已达满级"):Price(W.UpgradeCost(i));
                 if(Button(new Rect(x+16,y+92,316,27),caption,Art.Amber,can))W.Buy(i);
             }
@@ -320,8 +317,8 @@ namespace Frontier
             RepairCard(new Rect(left+24,top+554,348,79),BaseUpgrade.RepairBarracks,"主兵营维修");
             RepairCard(new Rect(left+386,top+554,348,79),BaseUpgrade.RepairBunker,"东侧地堡维修");
             UpgradeCard(new Rect(left+748,top+554,348,79));
-            Label(left+764,top+564,316,24,"雇佣兵合同  "+W.Squad.Contracts+" / 2",16,Art.Amber);
-            if(Button(new Rect(left+764,top+593,316,29),W.Squad.Contracts>=2?"雇佣兵合同已满":"雇佣精英 · "+Price(SquadDirector.HireCost),Art.Amber,W.Squad.CanHire&&W.Squad.Contracts<2&&W.Credits>=SquadDirector.HireCost))W.Squad.Hire();
+            Label(left+764,top+564,316,24,"中央射击阵地",16,Art.Amber);
+            Paragraph(left+764,top+593,316,34,"到正面矮墙后按 G，让小队展开防守。",13,muted);
 
         }
         void ConstructionPage(float left,float top)
@@ -330,7 +327,7 @@ namespace Frontier
             for(int i=0;i<W.Construction.Sites.Length;i++)
             {
                 BuildSite site=W.Construction.Sites[i];
-                BuildSiteCard(new Rect(left+24+(i%2)*362,top+207+(i/2)*217,348,207),site);
+                BuildSiteCard(new Rect(left+24,top+207+i*86,710,79),site);
             }
             for(int i=0;i<3;i++)ResearchCard(new Rect(left+748,top+207+i*145,348,134),(Research)i,W.Tech.Name((Research)i));
         }
@@ -338,34 +335,36 @@ namespace Frontier
         {
             UpgradeCard(rect);
             Color accent=site.State==SiteState.Destroyed?Art.Pink:site.State==SiteState.Constructing?Art.Amber:Art.Cyan;
-            Label(rect.x+16,rect.y+11,230,27,site.Name,18,white);
-            Label(rect.x+241,rect.y+15,91,23,SiteStateName(site.State),13,accent,TextAnchor.UpperRight);
-            string purpose=site.Id==0?"补足西路固定火力\n可进驻玩家与 4 名队员":site.Id==1?"驻军上限增至 12 人\n完工后解锁三项科技":site.Id==2?"自动补员，维持基地驻军\n摧毁后可在原址重建":"守住东路，提供驻守掩护\n摧毁后可在原址重建";
-            Paragraph(rect.x+16,rect.y+45,316,41,purpose,14,muted);
+            Label(rect.x+14,rect.y+8,220,25,site.Name+" · "+SiteStateName(site.State),17,white);
+            string purpose=site.Id==0?"西路火力与五人驻堡席位":site.Id==1?"驻军上限 12 人，解锁三项科技":site.Id==2?"自动补员，维持基地驻军":site.Id==4?"自动生产一辆坦克，部署中央防线":"东路火力与五人驻堡席位";
             Health structure=site.Structure;
             bool alive=structure!=null&&structure.Alive;
-            Label(rect.x+16,rect.y+92,316,23,alive?"耐久 "+Mathf.CeilToInt(structure.Current)+" / "+Mathf.CeilToInt(structure.Maximum):"施工用时 "+Mathf.CeilToInt(site.Duration)+" 秒",13,white);
+            Label(rect.x+234,rect.y+11,218,22,alive?"耐久 "+Mathf.CeilToInt(structure.Current)+" / "+Mathf.CeilToInt(structure.Maximum):"施工 "+Mathf.CeilToInt(site.Duration)+" 秒",12,accent,TextAnchor.UpperRight);
             float progress=site.State==SiteState.Constructing?1-site.SecondsLeft/Mathf.Max(1,site.Duration):alive?structure.Current/structure.Maximum:0;
-            Bar(new Rect(rect.x+16,rect.y+120,316,4),progress,accent);
-            string status=W.Construction.Status(site.Id);
+            Bar(new Rect(rect.x+14,rect.y+63,438,4),progress,accent);
+            string status=purpose;
             if(site.State==SiteState.Constructing)status="施工剩余 "+Mathf.CeilToInt(site.SecondsLeft)+" 秒"+(W.Paused?" · 返回战场后继续":" · 正在施工");
-            else if(site.State==SiteState.Ready&&alive&&structure.Current<structure.Maximum)status="维修可恢复 "+(site.Role==Role.Bunker?600:450)+" 耐久";
-            Paragraph(rect.x+16,rect.y+134,316,25,status,13,accent);
+            else if(site.State==SiteState.Ready&&alive&&structure.Current<structure.Maximum)status="维修可恢复 "+(site.Role==Role.Bunker?600:site.Id==4?700:450)+" 耐久";
+            else if(site.Id==4&&site.State==SiteState.Ready&&W.Tanks!=null)status="战车状态 · "+W.Tanks.Status;
+            else if((site.State==SiteState.Empty||site.State==SiteState.Destroyed)&&!W.Construction.SpaceClear(site.Id))status="施工位置被占用 · 请先移开人员";
+            Label(rect.x+14,rect.y+35,438,23,status,13,muted);
             string caption;
             bool can;
             if(site.State==SiteState.Empty||site.State==SiteState.Destroyed)
             {
-                caption=(site.State==SiteState.Destroyed?"重建 · ":"建造 · ")+Price(W.Construction.Cost(site.Id));can=W.Construction.CanBuild(site.Id);
-                if(Button(new Rect(rect.x+16,rect.y+166,316,29),caption,Art.Cyan,can))W.Construction.Build(site.Id);
+                int cost=W.Construction.Cost(site.Id);
+                caption=W.Credits<cost?cost+" 补给 · 不足":(site.State==SiteState.Destroyed?"重建 · ":"建造 · ")+cost+" 补给";can=W.Construction.CanBuild(site.Id);
+                if(Button(new Rect(rect.x+470,rect.y+23,224,33),caption,Art.Cyan,can))W.Construction.Build(site.Id);
             }
             else if(site.State==SiteState.Ready)
             {
                 bool damaged=alive&&structure.Current<structure.Maximum;
-                caption=!damaged?"耐久充足":W.Phase!=Phase.Intermission?"波间可维修 · "+W.Construction.RepairCost(site.Id)+" 补给":"维修 · "+Price(W.Construction.RepairCost(site.Id));
+                int cost=W.Construction.RepairCost(site.Id);
+                caption=!damaged?"耐久充足":W.Credits<cost?cost+" 补给 · 不足":"维修 · "+cost+" 补给";
                 can=W.Construction.CanRepairSite(site.Id);
-                if(Button(new Rect(rect.x+16,rect.y+166,316,29),caption,Art.Cyan,can))W.Construction.RepairSite(site.Id);
+                if(Button(new Rect(rect.x+470,rect.y+23,224,33),caption,Art.Cyan,can))W.Construction.RepairSite(site.Id);
             }
-            else Button(new Rect(rect.x+16,rect.y+166,316,29),"施工中",Art.Amber,false);
+            else Button(new Rect(rect.x+470,rect.y+23,224,33),"施工中",Art.Amber,false);
         }
         string SiteStateName(SiteState state)=>state==SiteState.Empty?"待建":state==SiteState.Constructing?"施工中":state==SiteState.Ready?"已建成":"已摧毁";
         void ResearchCard(Rect rect,Research research,string title)
@@ -440,7 +439,7 @@ namespace Frontier
             string[] nums={W.Kills.ToString(),W.PlayerKills.ToString(),W.DurationText()};string[] labels={"防线总击杀","你的击杀","坚守时间"};
             for(int i=0;i<3;i++){float x=width/2-405+i*280;Panel(new Rect(x,top,250,110));Label(x,top+15,250,46,nums[i],34,accent,TextAnchor.UpperCenter);Label(x,top+73,250,23,labels[i],16,muted,TextAnchor.UpperCenter);}
             if(Button(new Rect(width/2-180,height-169,360,59),"重新部署  →",accent))W.Restart();
-            Label(width/2-450,height-70,900,24,"小队击杀 "+W.Squad.Kills+"  ·  弱点命中 "+W.Player.CriticalHits+"  ·  边境防线 v0.5.1",14,muted,TextAnchor.UpperCenter);
+            Label(width/2-450,height-70,900,24,"小队击杀 "+W.Squad.Kills+"  ·  坦克击杀 "+(W.Tanks!=null?W.Tanks.Kills:0)+"  ·  敌方炮塔 "+(W.EnemyDefenses!=null?W.EnemyDefenses.DestroyedCount:0)+" / 6  ·  边境防线 v0.6",14,muted,TextAnchor.UpperCenter);
         }
         string MemberStatus(int slot)
         {
@@ -476,6 +475,7 @@ namespace Frontier
         string BuildingName(Health building)
         {
             if(building==null)return "地堡";
+            if(building.Faction==Faction.Invaders)return "敌巢炮塔 · 摧毁奖励 "+EnemyDefenseDirector.Reward;
             return W.Construction!=null?W.Construction.NameFor(building):building.Role==Role.Command?"指挥中心":building.Role==Role.Barracks?"兵营":"地堡";
         }
         string Durability(Health building)=>building==null?"重建中":Mathf.CeilToInt(building.Current)+" / "+Mathf.CeilToInt(building.Maximum);
@@ -515,21 +515,41 @@ namespace Frontier
                 Bar(new Rect(x+18,row+51,255,3),1-W.Tech.SecondsLeft/Mathf.Max(1,W.Tech.Duration),Art.Amber);
             }
         }
+        void TankPanel()
+        {
+            if(W.Tanks==null)return;
+            float x=width-253,y=507;Panel(new Rect(x,y,223,124));
+            Health tank=W.Tanks.Tank;bool alive=tank!=null&&tank.Alive;
+            Color accent=alive?Art.Cyan:W.Tanks.Operational?Art.Amber:muted;
+            Label(x+16,y+11,135,25,"基地战车",17,accent);
+            Label(x+146,y+15,61,23,(alive?"1":"0")+" / 1",14,white,TextAnchor.UpperRight);
+            Label(x+16,y+43,191,24,W.Tanks.Status,14,white);
+            float progress=alive?tank.Current/tank.Maximum:W.Tanks.Operational?1-W.Tanks.ProductionLeft/TankDirector.ProductionDuration:0;
+            Bar(new Rect(x+16,y+73,191,4),progress,accent);
+            Label(x+16,y+88,191,25,alive?"耐久 "+Mathf.CeilToInt(tank.Current)+" / "+Mathf.CeilToInt(tank.Maximum):"建造工厂后自动生产",12,muted);
+        }
         void CommandTerminal()
         {
             Box(new Rect(0,0,width,height),new Color(.01f,.03f,.05f,.75f));
             float left=width/2-560,top=height/2-364;Panel(new Rect(left,top,1120,728));
             Label(left+24,top+21,780,39,"指挥中心 / 基地指挥",28,white);
             Label(left+804,top+28,292,29,"可用补给  "+W.Credits,22,Art.Amber,TextAnchor.UpperRight);
-            PageTabs(left,top,ref terminalPage,"建造科技","先锋小队");
-            Label(left+398,top+72,698,24,"战场已暂停 · 返回战场后继续施工 / 研究",14,Art.Amber,TextAnchor.UpperRight);
+            PageTabs(left,top);
+            Label(left+578,top+72,518,24,W.Phase==Phase.Intermission?"整备暂停 · 剩余 "+Mathf.CeilToInt(W.IntermissionLeft)+" 秒":"战场已暂停 · 可随时返回防守",14,Art.Amber,TextAnchor.UpperRight);
             Box(new Rect(left+24,top+111,1072,79),new Color(.055f,.14f,.17f));
-            Label(left+40,top+120,1038,27,terminalPage==0?"扩建防线，准备迎接下一轮攻势":"四人小队 · 2 名雇佣兵 + 2 名随行守卫",18,Art.Cyan);
-            Label(left+40,top+154,1036,27,terminalPage==0?"西侧地堡守住另一路；增援兵营提高驻军上限，并解锁科技。":"B 入驻附近地堡 · F 撤出跟随 · G 守住此处 · 射击标记集火目标",15,white);
-            if(terminalPage==0)ConstructionPage(left,top);else SquadTerminalPage(left,top);
-            Label(left+25,top+655,696,24,"下单后返回战场，施工与研究才会继续推进。",15,white);
-            Label(left+25,top+686,696,23,"波间整备可直接建造、研究与维修；进度跨波次保留。",13,muted);
-            if(Button(new Rect(left+748,top+653,348,51),"返回战场  →",Art.Cyan))W.SetPaused(false);
+            string[] titles={"升级火力、强化建筑，随时维修受损防线","建造战车工厂，部署中央火力支援","四人小队 · 2 名雇佣兵 + 2 名随行守卫"};
+            string[] hints={"个人与防线升级立即生效；所有升级、建造、雇佣与维修均在此下单。","工厂自动维持一辆坦克；增援兵营提高驻军上限，并解锁三项科技。","B 入驻附近地堡 · F 撤出跟随 · G 守住此处 · 射击标记集火目标"};
+            Label(left+40,top+120,1038,27,titles[terminalPage],18,Art.Cyan);
+            Label(left+40,top+154,1036,27,hints[terminalPage],15,white);
+            if(terminalPage==0)DefenseUpgrades(left,top);else if(terminalPage==1)ConstructionPage(left,top);else SquadTerminalPage(left,top);
+            Label(left+25,top+655,696,24,"返回战场后，施工、研究与坦克生产继续推进。",15,white);
+            Label(left+25,top+686,696,23,"E / Esc 关闭终端 · 波间可自由部署，倒计时结束自动开战。",13,muted);
+            if(W.Phase==Phase.Intermission)
+            {
+                if(Button(new Rect(left+748,top+653,166,51),"立即下一波",Art.Amber))W.StartWave();
+                if(Button(new Rect(left+926,top+653,170,51),"返回战场  →",Art.Cyan))W.SetPaused(false);
+            }
+            else if(Button(new Rect(left+748,top+653,348,51),"返回战场  →",Art.Cyan))W.SetPaused(false);
         }
         void SquadTerminalPage(float left,float top)
         {

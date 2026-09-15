@@ -1,15 +1,15 @@
-# 边境防线 · Frontier Defense v0.5.1
+# 边境防线 · Frontier Defense v0.6
 
-原创 3D 第三人称基地防守试玩：v0.5.1 五波共 408 个敌人、六处敌巢、两处基地入口，最多两名雇佣兵加两名随行守卫。使用全球版 Unity 6000.3.24f1 / URP 17.3.0，电脑键鼠操作。
+原创3D第三人称基地防守试玩。v0.6加入自动生产的一辆坦克、中央矮墙阵地和六座敌巢防御塔；五波共460名进攻敌人。使用Unity 6000.3.24f1 / URP17.3，电脑键鼠操作。
 
-v0.5.1「敌军攻势」机制已完成，466 项实际运行检查通过。前两波为单线学习期，第三波起成组集结、双线重叠推进。Mac / Windows / Web已构建并打包，原公开试玩站点已更新。验证范围和平台限制见 [测试报告](Docs/测试报告.md)。
+v0.6已完成：17个模式、583项Mac实跑检查全部通过；三个平台试玩包已生成，原公开站点已更新。详细数据和平台范围见[测试报告](Docs/测试报告.md)，发布记录见[开发进度](Docs/开发进度.md)。
 
-## 开始试玩（v0.5.1）
+## 开始试玩（v0.6）
 
 - **网页：** [在线试玩](https://frontier-defense-outpost-07.fumeshroom.chatgpt.site)。
-- **Mac：** 解压 `Releases/FrontierDefense-0.5.1-Mac.zip`，打开其中的 `Frontier Defense.app`。
-- **Windows：** 完整解压 `Releases/FrontierDefense-0.5.1-Windows.zip`，打开其中的 `Frontier Defense.exe`。
-- `Releases/FrontierDefense-0.5.1-Web.zip` 可用于其他静态 HTTP(S) 托管，不能双击 index.html 直接运行。
+- **Mac：** 解压 `Releases/FrontierDefense-0.6-Mac.zip`，打开其中的 `Frontier Defense.app`。
+- **Windows：** 完整解压 `Releases/FrontierDefense-0.6-Windows.zip`，打开其中的 `Frontier Defense.exe`。
+- `Releases/FrontierDefense-0.6-Web.zip` 可用于其他静态 HTTP(S) 托管，不能双击 index.html 直接运行。
 
 | 操作 | 按键 |
 | --- | --- |
@@ -24,9 +24,20 @@ v0.5.1「敌军攻势」机制已完成，466 项实际运行检查通过。前�
 | 小队驻守 / 撤出驻守 | G |
 | 暂停 / 释放鼠标 | Esc |
 
-小队指令、守卫招募和地堡进出在开战后使用。指挥中心默认打开“建造科技”，可切换到小队页；波间整备可切换“防线升级 / 建造科技”。战斗中打开终端会暂停战场，返回后才继续施工与研究；波间整备正常计时。
+开战后与波间整备都可移动、射击、招募和指挥小队。第一至第四波结束进入45秒自由整备，倒计时结束自动开战，不再弹出菜单；第五波清场即胜利。所有强化、建造、研究、雇佣和维修都需靠近指挥中心按E；终端中暂停战场与整备倒计时，关闭后恢复。
 
-## v0.5.1 新增
+## v0.6 新增
+
+- **自动坦克：** 战车工厂650补给/28秒，建成后24秒自动生产一辆坦克。坦克实际从工厂行驶到东西线之间的中央阵位，优先攻击重甲；最多同时一辆，阵亡后工厂补产，工厂停运时暂停生产。
+- **中央防线：** 正面两入口之间的墙降低，仍阻挡身体但留下射击空间。玩家到附近按G，小队会沿矮墙排列，中央为坦克留出通道。
+- **自由整备与集中升级：** 波间可自由行动，全部升级转到指挥中心的防线升级、建造科技、小队三页。
+- **更多收入：** 迅行兽/酸脊兽/铁甲兽击杀奖励10/18/48，五波奖励175/210/245/280/315。
+- **敌巢防御：** 六座650耐久防御塔自动攻击22米内靠近的玩家方单位，每座摧毁额外奖励220，本局不重生，不影响进攻波次清场。
+- **更强后期：** 五波40/58/92/120/150，共460，增强后期双线重甲配置与出兵密度。
+
+数值与规则见[v0.6设计](Docs/v0.6设计.md)。
+
+## v0.5.1 新增（历史）
 
 - **成组进攻：** 五波总数408不变，按4 / 5 / 8 / 8 / 8批出兵；六处敌巢按批次轮换，达到65人在场上限时排队等待。
 - **混编协同：** 重甲在前、远程在后，部队实际到坡脚集结后一起推进，领队阵亡后换人；超时继续进攻，避免永远等不到队员。
@@ -70,9 +81,9 @@ v0.5.1「敌军攻势」机制已完成，466 项实际运行检查通过。前�
 
 守住指挥中心并消灭全部五波敌人。兵营周期补员，地堡自动攻击；开局 160 补给，可花 120 签下第一份雇佣兵合同，再从战场免费招募普通守卫。小队上限为两名雇佣兵加两名守卫，与基地驻军分开计数；基地驻军上限随增援兵营是否存活在 8 / 12 之间变化。玩家射击可标记小队集火目标。
 
-玩家脱战五秒后自动修复，阵亡六秒后重生；小队成员脱战后自动修复。雇佣兵阵亡后按合同免费复活，普通守卫阵亡后需另行招募。指挥中心被毁则失败。波间保留原有步枪强化、协同火力和指挥中心维修。
+玩家脱战五秒后自动修复，阵亡六秒后重生；小队成员脱战后自动修复。雇佣兵阵亡后按合同免费复活，普通守卫阵亡后需另行招募。指挥中心被毁则失败。原有步枪强化、协同火力和指挥中心维修也移至指挥中心，战斗和整备期间均可办理。
 
-当前采用固定建造点。自由摆放建筑、机械工厂/星港、空军、驾驶载具、联机和手机触屏操作尚未实现。角色与场景仍为原创几何体原型。
+当前采用固定建造点。自由摆放建筑、星港、空军、驾驶载具、联机和手机触屏操作尚未实现。角色与场景仍为原创几何体原型。
 
 ## 验证与继续开发
 
@@ -80,10 +91,10 @@ v0.5.1「敌军攻势」机制已完成，466 项实际运行检查通过。前�
 
 Unity 工程：`UnityProject/`，场景：`Assets/Scenes/Frontier.unity`。用全球版 Hub 添加工程并选择 6000.3.24f1。
 
-构建入口：`Assets/Editor/FrontierBuild.cs`。程序参数 `--frontier-check=assault|balance_rifle|balance_squad|construction|fortification|squad|guards|navigation|interaction|mechanics|victory|afk|defeat` 和 `--frontier-output=/绝对路径/报告.json` 可运行诊断；正常启动不启用。截图使用 `--frontier-check=capture --frontier-scene=assault-warning|assault-battle|construction|technology|expanded|fort|upgrade|battle|terminal`。
+构建入口：`Assets/Editor/FrontierBuild.cs`。程序参数 `--frontier-check=tank|enemy_defense|central|balance_prepared|assault|balance_rifle|balance_squad|construction|fortification|squad|guards|navigation|interaction|mechanics|victory|afk|defeat` 和 `--frontier-output=/绝对路径/报告.json` 可运行诊断；正常启动不启用。截图使用 `--frontier-check=capture --frontier-scene=v06-central|v06-intermission|v06-terminal|v06-factory|v06-squad|v06-enemy`。
 
 在工程根目录运行 `python3 Tools/serve_web.py`，访问 `http://127.0.0.1:8765` 可本机复测。在线试玩无需本机服务。
 
-发布沿用已有 Sites 站点，静态目录为 `WebSite/dist`。0.1、0.2、0.3、0.4、0.5 试玩包保留用于回退。当前攻势见 [v0.5.1 设计](Docs/v0.5.1设计.md)，小队与驻防见 [v0.5 设计](Docs/v0.5设计.md)，历史机制见 [v0.4 设计](Docs/v0.4设计.md) 和 [v0.3 设计](Docs/v0.3设计.md)。
+发布沿用已有 Sites 站点，静态目录为 `WebSite/dist`。0.1、0.2、0.3、0.4、0.5、0.5.1 试玩包保留用于回退。当前规则见 [v0.6 设计](Docs/v0.6设计.md)，上一版攻势见 [v0.5.1 设计](Docs/v0.5.1设计.md)，小队与驻防见 [v0.5 设计](Docs/v0.5设计.md)，历史机制见 [v0.4 设计](Docs/v0.4设计.md) 和 [v0.3 设计](Docs/v0.3设计.md)。
 
 字体 Frontier Sans 是 Noto Sans SC 的重命名精简衍生版本，许可见 `UnityProject/Assets/ThirdParty/` 与试玩包的 Licenses。字体更新工具为 `Tools/update_font.py`。模型和音效没有使用星际争霸素材。

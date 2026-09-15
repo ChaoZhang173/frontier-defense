@@ -147,6 +147,7 @@ namespace Frontier
     public sealed class AssaultDirector
     {
         public const float InitialWarning=4f,MemberInterval=.16f;
+        public const float MidWavePairInterval=20f,FinalWavePairInterval=18f;
         readonly GameWorld world;
         readonly List<AssaultBatch> schedule=new List<AssaultBatch>();
         readonly List<AssaultGroup> groups=new List<AssaultGroup>();
@@ -241,7 +242,7 @@ namespace Frontier
                 var roles=lanes[lane].GetRange(cursors[lane],count);cursors[lane]+=count;
                 // Heavy units leave the rift first, so followers meet them instead of outrunning them.
                 roles.Sort((a,b)=>Rank(a).CompareTo(Rank(b)));
-                float at=InitialWarning+(wave<3?index*(wave==1?18:17):(index/2)*(wave==5?20:22)+(index%2)*4);
+                float at=InitialWarning+(wave<3?index*(wave==1?18:17):(index/2)*(wave==5?FinalWavePairInterval:MidWavePairInterval)+(index%2)*InitialWarning);
                 schedule.Add(new AssaultBatch(index,lane,lane+2*(sources[lane]++%3),at,roles));index++;
             }
         }

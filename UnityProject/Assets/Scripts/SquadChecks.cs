@@ -15,7 +15,7 @@ namespace Frontier
                 SquadDirector.Names.Length==4&&squad.IsMercenarySlot(0)&&squad.IsMercenarySlot(1)&&!squad.IsMercenarySlot(2)&&!squad.IsMercenarySlot(3),
                 "The four slots are reserved for two mercenaries and two recruited guards");
             int credits=w.Credits;
-            check(!squad.Hire()&&w.Credits==credits,"Hiring requires the command terminal or intermission");
+            check(!squad.Hire()&&w.Credits==credits,"Hiring requires the nearby command terminal");
             check(w.TryOpenCommandTerminal()&&w.Paused,"The nearby command terminal pauses the battle");
             check(squad.Hire()&&squad.Count==1&&squad.Contracts==1&&squad.HasContract(0)&&w.Credits==credits-SquadDirector.HireCost,
                 "The first 120-supply purchase creates one living mercenary and one permanent contract");
@@ -103,10 +103,10 @@ namespace Frontier
             check(squad.Count==3&&w.MarinesAlive==baseCount&&squad.Losses==losses+1&&squad.Contracts==2&&squad.HasContract(1)&&
                 Mathf.Abs(squad.RespawnRemaining(1)-12)<.001f,
                 "A mercenary death retains its contract and starts a twelve-second free respawn without consuming a base defender");
-            w.Phase=Phase.Intermission;
+            w.Phase=Phase.Intermission;CheckCommand.Enter(w);
             check(!squad.CanHire&&!squad.Hire()&&w.Credits==credits&&squad.Contracts==2,
                 "A dead contracted mercenary cannot be repurchased or charged again during intermission");
-            w.Phase=Phase.Assault;w.SetPaused(true);float remaining=squad.RespawnRemaining(1);pausedTime=w.SimTime;
+            CheckCommand.Leave(w);w.Phase=Phase.Assault;w.SetPaused(true);float remaining=squad.RespawnRemaining(1);pausedTime=w.SimTime;
             w.Tick(5);squad.Tick(5);
             check(squad.Members[1]==null&&squad.RespawnRemaining(1)==remaining&&w.SimTime==pausedTime,
                 "Both world and squad updates leave the mercenary respawn timer frozen while paused");
@@ -169,12 +169,12 @@ namespace Frontier
             w.DefenseLevel=defense;
 
             w.Phase=Phase.Intermission;w.Credits=10000;
-            bool built=w.Construction.Build(1);w.Construction.Tick(22.1f);
+            CheckCommand.Enter(w);bool built=w.Construction.Build(1);CheckCommand.Leave(w);w.Construction.Tick(22.1f);CheckCommand.Enter(w);
             check(built&&w.Construction.ReserveOperational,"A real completed reinforcement barracks unlocks the mercenary training scenario");
             int credits=w.Credits;bool started=w.Tech.Research(Research.MercenaryTraining);
             check(started&&w.Tech.ActiveResearch==(int)Research.MercenaryTraining&&w.Credits==credits-300&&w.Tech.Duration==22,
                 "Elite mercenary training uses its real 300-supply purchase and twenty-two-second research timer");
-            w.Tech.Tick(21.75f);
+            CheckCommand.Leave(w);w.Tech.Tick(21.75f);
             check(!w.Tech.IsComplete(Research.MercenaryTraining)&&squad.Members[0].Self.Maximum==280&&squad.Members[0].RifleDamage==18+3*defense,
                 "Training bonuses are not granted before research finishes");
             squad.Members[0].Self.Damage(100,null);squad.Members[1].Self.Damage(60,null);squad.Members[2].Self.Damage(20,null);
@@ -189,12 +189,12 @@ namespace Frontier
                 squad.Members[2].RifleDamage==guardDamage&&squad.Members[3].Self.Maximum==170,
                 "Mercenary-specific training does not heal, strengthen or increase the health limit of ordinary recruited guards");
             firstHp=squad.Members[0].Self.Current;secondHp=squad.Members[1].Self.Current;
-            squad.ApplyMercenaryTraining();squad.ApplyMercenaryTraining();credits=w.Credits;
+            squad.ApplyMercenaryTraining();squad.ApplyMercenaryTraining();credits=w.Credits;CheckCommand.Enter(w);
             check(squad.Members[0].Self.Maximum==360&&squad.Members[1].Self.Maximum==360&&
                 squad.Members[0].Self.Current==firstHp&&squad.Members[1].Self.Current==secondHp&&
                 !w.Tech.Research(Research.MercenaryTraining)&&w.Credits==credits,
                 "Repeated training application and duplicate research cannot stack health, healing or supply charges");
-            w.Phase=Phase.Assault;
+            CheckCommand.Leave(w);w.Phase=Phase.Assault;
             float trainedHit=MemberHit(w,squad.Members[0]),unmodifiedGuardHit=MemberHit(w,squad.Members[2]);
             check(Mathf.Abs(trainedHit-mercenaryHit-6)<.01f&&Mathf.Abs(unmodifiedGuardHit-guardHit)<.01f,
                 "Completed training adds six damage to an actual mercenary bullet and leaves guard bullet damage unchanged");
@@ -207,7 +207,7 @@ namespace Frontier
             check(squad.Members[0].Self.Maximum==360&&squad.Members[0].Self.Current==firstHp&&squad.Members[0].RifleDamage==24+3*defense,
                 "Applying training after a trained respawn cannot grant a second bonus");
 
-            w.Phase=Phase.Intermission;started=w.Tech.Research(Research.InfantryArmor);w.Tech.Tick(16.1f);
+            w.Phase=Phase.Intermission;CheckCommand.Enter(w);started=w.Tech.Research(Research.InfantryArmor);CheckCommand.Leave(w);w.Tech.Tick(16.1f);
             bool protectedInfantry=started&&w.Tech.IsComplete(Research.InfantryArmor);
             w.Player.Self.Heal(1000);float hp=w.Player.Self.Current;w.Player.Self.Damage(20,null);
             protectedInfantry&=Mathf.Abs(hp-w.Player.Self.Current-17)<.01f;
@@ -242,10 +242,10 @@ namespace Frontier
             Vector3 originalPosition=w.Player.transform.position;float originalYaw=w.Player.Yaw;
             try
             {
-                w.Phase=Phase.Intermission;w.SetPaused(false);
+                w.Phase=Phase.Intermission;CheckCommand.Enter(w);
                 while(w.Squad.Contracts<SquadDirector.MercenaryCapacity)if(!w.Squad.Hire())return false;
                 if(w.Squad.MercenaryCount!=SquadDirector.MercenaryCapacity)return false;
-                w.Phase=Phase.Assault;
+                CheckCommand.Leave(w);w.Phase=Phase.Assault;
                 while(w.Squad.RecruitedGuardCount<SquadDirector.GuardCapacity)
                 {
                     bool recruited=false;
@@ -264,7 +264,7 @@ namespace Frontier
             }
             finally
             {
-                PlacePlayer(w,originalPosition-Vector3.up*.08f);w.Player.Yaw=originalYaw;w.Phase=originalPhase;
+                w.SetPaused(false);PlacePlayer(w,originalPosition-Vector3.up*.08f);w.Player.Yaw=originalYaw;w.Phase=originalPhase;
                 if(originalTerminal)w.TryOpenCommandTerminal();else w.SetPaused(originalPaused);
             }
         }

@@ -30,7 +30,7 @@ namespace Frontier
             kind == BaseUpgrade.BarracksProduction || kind == BaseUpgrade.RepairBarracks ? world.Barracks : world.Bunker;
         bool Available(BaseUpgrade kind,Health selected=null)
         {
-            if ((int)kind < 0 || (int)kind > 4 || world.Phase != Phase.Intermission || world.Paused || world.Ended) return false;
+            if ((int)kind < 0 || (int)kind > 4 || !world.CanManage) return false;
             if((int)kind<3)
             {
                 var buildings=kind==BaseUpgrade.BarracksProduction?world.BarracksBuildings:world.Bunkers;
@@ -63,7 +63,7 @@ namespace Frontier
                 case BaseUpgrade.RepairBunker: Building(kind,selected).Heal(600); break;
             }
             world.Sounds.Play(SoundId.Upgrade, .6f);
-            world.Notice((int)kind < 3 ? "建筑升级完成 · 下一波立即生效" : "维修完成 · 防线耐久已恢复");
+            world.Notice((int)kind < 3 ? "建筑升级完成 · 已应用到防线" : "维修完成 · 防线耐久已恢复");
             return true;
         }
         public string Description(BaseUpgrade kind,Health selected=null)

@@ -19,6 +19,8 @@ namespace Frontier
         public TechnologyDirector Tech;
         public BattleStats Stats;
         public AssaultDirector Assault;
+        public TankDirector Tanks;
+        public EnemyDefenseDirector EnemyDefenses;
         public int MarineCapacity => 8 + (Construction != null && Construction.ReserveOperational ? 4 : 0);
         public int PeakMarineCapacity = 8;
         public PlayerMotor Player;
@@ -41,7 +43,9 @@ namespace Frontier
         public float ToastLeft, WaveBannerLeft;
         public string Toast = "", Banner = "", Subtitle = "";
         public bool Ended => Phase == Phase.Victory || Phase == Phase.Defeat;
-        public bool Active => !Paused && Phase != Phase.Briefing && !Ended;
+        public bool Playing => Phase==Phase.Assault || Phase==Phase.Intermission;
+        public bool Active => !Paused && Playing;
+        public bool CanManage => CommandTerminalOpen && Paused && Playing && !Ended && NearCommand && !Fort.PlayerInside;
         public int RemainingToSpawn => Assault==null?0:Assault.Remaining;
         public int EnemyCountForWave => Wave > 0 ? WavePlan.Counts[Wave - 1] : 0;
         public float RifleDamage => 25 + WeaponLevel * 6;
@@ -85,7 +89,8 @@ namespace Frontier
             Upgrades=new BaseUpgrades(this);
             Fort=gameObject.AddComponent<BunkerDirector>();Fort.Setup();
             Construction=new ConstructionDirector(this);Tech=new TechnologyDirector(this);
-            Assault=new AssaultDirector(this);
+            Assault=new AssaultDirector(this);Tanks=new TankDirector(this);
+            EnemyDefenses=new EnemyDefenseDirector(this);Squad.RebuildNavigation();
             Hud = gameObject.AddComponent<GameHud>();
             ApplyQuality(Quality);
             if(Diagnostic) { Checks = gameObject.AddComponent<RuntimeChecks>(); Checks.Setup(this); }
@@ -131,6 +136,7 @@ namespace Frontier
             var collider=root.gameObject.AddComponent<BoxCollider>();collider.size=size;collider.center=new Vector3(0,size.y/2,0);
             root.gameObject.layer=Combat.WorldLayer;
             if(role==Role.Command)Art.CommandBuilding(root);
+            if(role==Role.Factory)TankArt.FactoryBuilding(root);
             if(role==Role.Barracks){Art.BarracksBuilding(root);BarracksBuildings.Add(h);}
             if(role==Role.Bunker)
             {
@@ -242,7 +248,7 @@ namespace Frontier
             {
                 Interact();
             }
-            if(!Diagnostic && !Paused && Phase==Phase.Assault && Player.LostControl)SetPaused(true);
+            if(!Diagnostic && !Paused && Playing && Player.LostControl)SetPaused(true);
             float dt=Time.deltaTime;
             ToastLeft=Mathf.Max(0,ToastLeft-Time.unscaledDeltaTime);
             WaveBannerLeft=Mathf.Max(0,WaveBannerLeft-Time.unscaledDeltaTime);
@@ -267,7 +273,7 @@ namespace Frontier
                 RespawnLeft-=dt;
                 if(RespawnLeft<=0) { Player.Respawn(); Notice("装甲已重启 · 重新加入防线"); }
             }
-            Construction.Tick(dt);Tech.Tick(dt);
+            Construction.Tick(dt);Tech.Tick(dt);Tanks.Tick(dt);EnemyDefenses.Tick(dt);
             if(Barracks!=null && Barracks.Alive && MarinesAlive<MarineCapacity)
             {
                 ProductionLeft-=dt;
@@ -294,9 +300,6 @@ namespace Frontier
                 if(IntermissionLeft<=0)
                 {
                     StartWave();
-#if UNITY_WEBGL && !UNITY_EDITOR
-                    if(!Diagnostic)SetPaused(true);
-#endif
                 }
             }
         }
@@ -313,7 +316,7 @@ namespace Frontier
             Wave++;if(Wave>5)return;
             SpawnedThisWave=0;
             Assault.StartWave(Wave);Stats.StartWave();
-            Phase=Phase.Assault;Paused=false;Time.timeScale=1;
+            Phase=Phase.Assault;CommandTerminalOpen=false;Paused=false;Time.timeScale=1;
             Banner="第 "+Wave+" 波 / "+WavePlan.Titles[Wave-1];
             Subtitle=WavePlan.Preview(Wave);
             WaveBannerLeft=5;
@@ -322,12 +325,11 @@ namespace Frontier
 
         void FinishWave()
         {
-            int reward=80+Wave*25;Credits+=reward;Stats.Earn(reward);Stats.Snapshot(true);
+            int reward=WaveReward(Wave);Credits+=reward;Stats.Earn(reward);Stats.Snapshot(true);
             if(Wave==5) { Phase=Phase.Victory;Player.ReleaseControl();Sounds.Play(SoundId.Win,.8f);return; }
             Phase=Phase.Intermission;IntermissionLeft=45;
-            Player.ReleaseControl();Player.Self.Heal(180);
-            Squad.Regroup();
-            Notice("防线稳住了 · 获得 "+(80+Wave*25)+" 补给");
+            Player.Self.Heal(180);Squad.Regroup();
+            Notice("防线稳住了 · 获得 "+reward+" 补给 · 可前往指挥中心升级");
             Sounds.Play(SoundId.Upgrade,.65f);
         }
 
@@ -337,6 +339,22 @@ namespace Frontier
             if(victim.Role==Role.Player)
             {
                 Deaths++;RespawnLeft=6;Player.PlayerKilled();Sounds.Play(SoundId.Down,.75f);return;
+            }
+            if(victim.Role==Role.EnemyTower)
+            {
+                if(EnemyDefenses.OnKilled(victim))
+                {
+                    Credits+=EnemyDefenseDirector.Reward;Stats.Earn(EnemyDefenseDirector.Reward);
+                    Notice("敌方防御塔已摧毁 · 额外获得 "+EnemyDefenseDirector.Reward+" 补给");
+                    Effects.Burst(victim.Aim,Art.Pink,3);
+                }
+                foreach(var r in victim.GetComponentsInChildren<Renderer>())r.sharedMaterial=Art.Mat(1);
+                return;
+            }
+            if(victim.Role==Role.Tank)
+            {
+                Tanks.OnKilled(victim);Effects.Burst(victim.Aim,Art.Amber,2.5f);
+                victim.gameObject.SetActive(false);Destroy(victim.gameObject);return;
             }
             if(victim.Faction==Faction.Invaders)
             {
@@ -351,7 +369,7 @@ namespace Frontier
             else
             {
                 if(victim.Role==Role.Bunker)Fort.OnDestroyed(victim);
-                Construction?.OnKilled(victim);
+                Construction?.OnKilled(victim);Tanks?.OnKilled(victim);
                 Effects.Burst(victim.Aim,Art.Amber,4);
                 if(victim.Role==Role.Command)
                 {
@@ -369,12 +387,13 @@ namespace Frontier
             victim.gameObject.SetActive(false);Destroy(victim.gameObject);
         }
 
-        public static int KillReward(Role role)=>role==Role.Colossus?36:role==Role.Spitter?13:7;
+        public static int KillReward(Role role)=>role==Role.Colossus?48:role==Role.Spitter?18:10;
+        public static int WaveReward(int wave)=>140+wave*35;
 
         public int UpgradeCost(int kind) => kind==0?90+WeaponLevel*80:kind==1?110+DefenseLevel*90:120;
         public bool Buy(int kind)
         {
-            if(Phase!=Phase.Intermission||Paused||kind<0||kind>2)return false;
+            if(!CanManage||kind<0||kind>2)return false;
             if((kind==0&&WeaponLevel>=4)||(kind==1&&DefenseLevel>=4))return false;
             if(kind==2&&Command.Current>=Command.Maximum)return false;
             int cost=UpgradeCost(kind);if(Credits<cost){Notice("补给不足");return false;}
@@ -390,13 +409,13 @@ namespace Frontier
             if(Ended||Phase==Phase.Briefing)return;
             Paused=pause;Time.timeScale=pause?0:1;
             if(!pause)CommandTerminalOpen=false;
-            if(pause)Player.ReleaseControl();else if(Phase==Phase.Assault)Player.RequestControl();
+            if(pause)Player.ReleaseControl();else if(Playing)Player.RequestControl();
         }
         public Health GuardRecruitTarget
         {
             get
             {
-                if(Player==null||!Player.Self.Alive||Player.View==null||Paused||Phase!=Phase.Assault||Fort.PlayerInside)return null;
+                if(Player==null||!Player.Self.Alive||Player.View==null||Paused||!Playing||Fort.PlayerInside)return null;
                 Ray ray=Player.View.ViewportPointToRay(new Vector3(.5f,.5f,0));
                 if(!Combat.Trace(ray.origin,ray.direction,14,Player.Self,out var hit))return null;
                 var guard=hit.collider.GetComponentInParent<Health>();
@@ -420,18 +439,18 @@ namespace Frontier
         public int LaneEnemies(int lane)
         {
             int count=0;
-            foreach(var h in Entities)if(h!=null&&h.Alive&&h.Faction==Faction.Invaders&&h.Lane==lane)count++;
+            foreach(var h in Entities)if(h!=null&&h.Alive&&h.Faction==Faction.Invaders&&!h.IsBuilding&&h.Lane==lane)count++;
             return count;
         }
         public bool LaneUnderAttack(int lane)
         {
             foreach(var h in Entities)
-                if(h!=null&&h.Alive&&h.Faction==Faction.Invaders&&h.Lane==lane&&h.transform.position.z<23)return true;
+                if(h!=null&&h.Alive&&h.Faction==Faction.Invaders&&!h.IsBuilding&&h.Lane==lane&&h.transform.position.z<23)return true;
             return false;
         }
         public bool TryOpenCommandTerminal()
         {
-            if(Paused||Phase!=Phase.Assault||!NearCommand)return false;
+            if(Paused||!Playing||!NearCommand||Fort.PlayerInside)return false;
             CommandTerminalOpen=true;SetPaused(true);return true;
         }
         public void Notice(string text){Toast=text;ToastLeft=4;}

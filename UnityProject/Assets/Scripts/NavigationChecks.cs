@@ -10,8 +10,8 @@ namespace Frontier
         {
             w.BeginCampaign();w.Phase=Phase.Intermission;w.IntermissionLeft=10000;w.Credits=10000;
             check(Mathf.Abs(w.Bunker.transform.position.x-20.5f)<.01f,"The east bunker leaves the infantry approach lane open at x = 20.5");
-            check(w.Construction.Build(1),"The navigation scenario constructs a real reinforcement barracks");
-            for(int i=0;i<445;i++){w.SimTime+=.05f;w.Construction.Tick(.05f);Physics.SyncTransforms();}
+            CheckCommand.Enter(w);check(w.Construction.Build(1),"The navigation scenario constructs a real reinforcement barracks");
+            CheckCommand.Leave(w);for(int i=0;i<445;i++){w.SimTime+=.05f;w.Construction.Tick(.05f);Physics.SyncTransforms();}
             check(w.Construction.Sites[1].State==SiteState.Ready&&w.MarineCapacity==12,"The reinforcement barracks unlocks all 12 real garrison destinations");
             CheckAllPosts(w,w.Barracks,"original",check);
             CheckAllPosts(w,w.Construction.Sites[1].Structure,"reinforcement",check);
@@ -67,8 +67,8 @@ namespace Frontier
             var previousNavigation=w.Squad.Navigation;
             check(previousNavigation.Clear(start,goal,.42f),"The guard's original route crosses a currently empty construction footprint");
             guard.Brain.NavigateTo(goal,.05f);float travelled=guard.Brain.Travelled;
-            check(w.Construction.Build(0)&&w.Squad.Navigation!=previousNavigation,"Starting construction replaces the shared navigation grid after the guard has already planned its route");
-            bool clear=true;
+            CheckCommand.Enter(w);check(w.Construction.Build(0)&&w.Squad.Navigation!=previousNavigation,"Starting construction replaces the shared navigation grid after the guard has already planned its route");
+            CheckCommand.Leave(w);bool clear=true;
             for(int i=0;i<700;i++)
             {
                 Physics.SyncTransforms();guard.Brain.NavigateTo(goal,.05f);clear&=BodyClear(guard.transform.position);

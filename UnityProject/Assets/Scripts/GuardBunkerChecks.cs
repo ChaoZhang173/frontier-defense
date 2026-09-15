@@ -10,7 +10,7 @@ namespace Frontier
         {
             check(w.Fort.GuardInside==0&&w.Fort.Occupants==0&&BunkerDirector.Capacity==5,"A fresh mission has five seats per bunker and no automatic occupants");
             w.BeginCampaign();w.Phase=Phase.Intermission;w.IntermissionLeft=1000;w.Credits=10000;
-            bool built=w.Construction.Build(0)&&w.Construction.Build(1);
+            CheckCommand.Enter(w);bool built=w.Construction.Build(0)&&w.Construction.Build(1);CheckCommand.Leave(w);
             for(int i=0;i<445;i++){w.SimTime+=.05f;w.Construction.Tick(.05f);}
             check(built&&w.Construction.ReserveOperational&&w.Construction.Sites[0].State==SiteState.Ready,"Real construction creates both a western bunker and enough ordinary guard slots for occupancy checks");
             FillPosts(w);w.Phase=Phase.Assault;
@@ -103,7 +103,7 @@ namespace Frontier
             check(released&&fort.GuardInsideFor(west)==0&&fort.GuardInsideFor(east)==5,
                 "Destroying the west bunker releases only its own guards while every east-bunker guard remains protected");
             StepGuards(w,westGuards,18);w.Phase=Phase.Intermission;FortificationChecks.PlacePlayer(w,new Vector3(0,0,3));
-            bool rebuilding=w.Construction.Build(0);
+            CheckCommand.Enter(w);bool rebuilding=w.Construction.Build(0);CheckCommand.Leave(w);
             for(int i=0;i<365;i++){w.SimTime+=.05f;w.Construction.Tick(.05f);}
             Health replacement=w.Construction.Sites[0].Structure;w.Phase=Phase.Assault;StepGuards(w,westGuards,30);
             if(fort.GuardInsideFor(replacement)!=5)LogGuards(w,westGuards,"rebuilt_west");
