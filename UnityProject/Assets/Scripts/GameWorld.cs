@@ -13,6 +13,12 @@ namespace Frontier
         public static bool DeployOnLoad;
         public readonly List<Health> Entities = new List<Health>(100);
         public Health Command, Barracks, Bunker;
+        public readonly List<Health> Bunkers = new List<Health>();
+        public readonly List<Health> BarracksBuildings = new List<Health>();
+        public ConstructionDirector Construction;
+        public TechnologyDirector Tech;
+        public int MarineCapacity => 8 + (Construction != null && Construction.ReserveOperational ? 4 : 0);
+        public int PeakMarineCapacity = 8;
         public PlayerMotor Player;
         public Effects Effects;
         public Soundscape Sounds;
@@ -43,12 +49,14 @@ namespace Frontier
         List<SpawnOrder> orders;
         int nextSpawn;
         float spawnLeft, missionDuration;
-        readonly Health[] garrison = new Health[8];
+        readonly Health[] garrison = new Health[12];
         public static readonly Vector3[] DefensePosts = {
             new Vector3(-13.5f,0,15.5f),new Vector3(13.5f,0,15.5f),
             new Vector3(-16.2f,0,12.5f),new Vector3(16.2f,0,12.5f),
             new Vector3(-11f,0,12.5f),new Vector3(11f,0,12.5f),
-            new Vector3(-15,0,18.5f),new Vector3(15,0,18.5f)
+            new Vector3(-15,0,18.5f),new Vector3(15,0,18.5f),
+            new Vector3(-19,0,16),new Vector3(19,0,16),
+            new Vector3(-11,0,19),new Vector3(11,0,19)
         };
 
         void Awake()
@@ -74,6 +82,7 @@ namespace Frontier
             Squad=gameObject.AddComponent<SquadDirector>();Squad.Setup();
             Upgrades=new BaseUpgrades(this);
             Fort=gameObject.AddComponent<BunkerDirector>();Fort.Setup();
+            Construction=new ConstructionDirector(this);Tech=new TechnologyDirector(this);
             Hud = gameObject.AddComponent<GameHud>();
             ApplyQuality(Quality);
             if(Diagnostic) { Checks = gameObject.AddComponent<RuntimeChecks>(); Checks.Setup(this); }
@@ -112,17 +121,17 @@ namespace Frontier
             PlayerPrefs.SetInt("Frontier.Quality",Quality);
         }
 
-        Health CreateBuilding(Role role,Vector3 position,float hp,Vector3 size)
+        public Health CreateBuilding(Role role,Vector3 position,float hp,Vector3 size)
         {
             Transform root=Art.Root(role.ToString(),transform,position);
             Health h=root.gameObject.AddComponent<Health>();h.Setup(role,Faction.Defense,hp,size.y*.52f,Mathf.Max(size.x,size.z)*.45f);
             var collider=root.gameObject.AddComponent<BoxCollider>();collider.size=size;collider.center=new Vector3(0,size.y/2,0);
             root.gameObject.layer=Combat.WorldLayer;
             if(role==Role.Command)Art.CommandBuilding(root);
-            if(role==Role.Barracks)Art.BarracksBuilding(root);
+            if(role==Role.Barracks){Art.BarracksBuilding(root);BarracksBuildings.Add(h);}
             if(role==Role.Bunker)
             {
-                h.Rig=Art.BunkerBuilding(root);
+                Bunkers.Add(h);h.Rig=Art.BunkerBuilding(root);
                 var brain=root.gameObject.AddComponent<ActorBrain>();brain.Setup(h,position);h.AimHeight=3.2f;
             }
             return h;
@@ -139,12 +148,14 @@ namespace Frontier
             Physics.IgnoreLayerCollision(Combat.PlayerLayer,Combat.UnitLayer,true);
         }
 
-        public Health SpawnMarine(int slot=-1,bool deploy=true)
+        public Health SpawnMarine(int slot=-1,bool deploy=true,Health producer=null)
         {
-            if(MarinesAlive>=8)return null;
-            if(slot<0)for(int i=0;i<garrison.Length;i++)if(garrison[i]==null||!garrison[i].Alive){slot=i;break;}
-            if(slot<0)return null;
-            Vector3 spawn=deploy?new Vector3(-14+(slot%3-1)*.5f,0,-3.8f):DefensePosts[slot];
+            if(MarinesAlive>=MarineCapacity)return null;
+            if(slot<0)for(int i=0;i<MarineCapacity;i++)if(garrison[i]==null||!garrison[i].Alive){slot=i;break;}
+            if(slot<0||slot>=MarineCapacity||(garrison[slot]!=null&&garrison[slot].Alive))return null;
+            if(producer==null)producer=Barracks;
+            if(deploy&&(producer==null||!producer.Alive))return null;
+            Vector3 spawn=deploy?producer.transform.TransformPoint(new Vector3((slot%3-1)*.5f,0,5.2f)):DefensePosts[slot];
             Transform root=Art.Root("Auto-deployed marine",transform,spawn);
             Health h=root.gameObject.AddComponent<Health>();h.Setup(Role.Marine,Faction.Defense,170,1.2f,.5f);h.Lane=slot%2;h.Slot=slot;
             h.Rig=Art.Marine(root,false);
@@ -233,7 +244,8 @@ namespace Frontier
                 RespawnLeft-=dt;
                 if(RespawnLeft<=0) { Player.Respawn(); Notice("装甲已重启 · 重新加入防线"); }
             }
-            if(Barracks.Alive && MarinesAlive<8)
+            Construction.Tick(dt);Tech.Tick(dt);
+            if(Barracks!=null && Barracks.Alive && MarinesAlive<MarineCapacity)
             {
                 ProductionLeft-=dt;
                 if(ProductionLeft<=0){SpawnMarine();ProductionLeft=ProductionInterval;}
@@ -317,7 +329,8 @@ namespace Frontier
             else if(victim.Role==Role.Squad) { Squad.OnLost(victim);Effects.Burst(victim.Aim,Art.Amber,.6f); }
             else
             {
-                if(victim.Role==Role.Bunker)Fort.OnDestroyed();
+                if(victim.Role==Role.Bunker)Fort.OnDestroyed(victim);
+                Construction?.OnKilled(victim);
                 Effects.Burst(victim.Aim,Art.Amber,4);
                 if(victim.Role==Role.Command)
                 {
@@ -325,7 +338,7 @@ namespace Frontier
                     foreach(var r in victim.GetComponentsInChildren<Renderer>())r.sharedMaterial=Art.Mat(1);
                     return;
                 }
-                Notice(victim.Role==Role.Barracks?"兵营失守 · 自动补员停止":"地堡失守 · 固定火力已中断");
+
             }
             if(victim.IsBuilding)
             {

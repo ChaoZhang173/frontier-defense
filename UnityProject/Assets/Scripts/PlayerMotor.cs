@@ -183,7 +183,8 @@ namespace Frontier
         public void EnterBunker(Vector3 position)
         {
             controller.enabled=false;Self.IsSheltered=true;transform.position=position;
-            Yaw=GameWorld.I.Bunker.transform.eulerAngles.y;Pitch=2;RecoilPitch=0;recoilYaw=0;recoil=0;
+            var bunker=GameWorld.I.Fort.PlayerBunker;
+            Yaw=bunker!=null?bunker.transform.eulerAngles.y:0;Pitch=2;RecoilPitch=0;recoilYaw=0;recoil=0;
             gravity=0;horizontalVelocity=Vector3.zero;Aiming=false;Sprinting=false;AimTarget=null;BarrelBlocked=false;
             AimPoint=GameWorld.I.Fort.PlayerMuzzle+Quaternion.Euler(Pitch,Yaw,0)*Vector3.forward*100;
             SetArmorVisible(false);UpdateCamera(1);

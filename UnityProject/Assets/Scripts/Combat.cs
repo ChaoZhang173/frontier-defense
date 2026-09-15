@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Frontier
 {
     public enum Faction { Defense, Invaders }
-    public enum Role { Player, Marine, Runner, Spitter, Colossus, Command, Barracks, Bunker, Squad }
+    public enum Role { Player, Marine, Runner, Spitter, Colossus, Command, Barracks, Bunker, Squad, Construction }
     public enum Phase { Briefing, Assault, Intermission, Victory, Defeat }
 
     public sealed class Health : MonoBehaviour
@@ -22,7 +22,7 @@ namespace Frontier
         public Vector3 WeakPoint;
         public float WeakRadius;
         public Vector3 Aim => transform.position + Vector3.up * AimHeight;
-        public bool IsBuilding => Role == Role.Command || Role == Role.Barracks || Role == Role.Bunker;
+        public bool IsBuilding => Role == Role.Command || Role == Role.Barracks || Role == Role.Bunker || Role == Role.Construction;
 
         public void Setup(Role role, Faction faction, float hp, float height, float radius)
         {
@@ -33,7 +33,11 @@ namespace Frontier
         public void Damage(float amount, Health source, bool critical = false)
         {
             if (!Alive || IsSheltered || GameWorld.I.Ended || (source != null && source.Faction == Faction)) return;
-            if (Role == Role.Colossus) amount *= .72f;
+            var tech=GameWorld.I.Tech;
+            if (Faction==Faction.Defense && (Role==Role.Player||Role==Role.Marine||Role==Role.Squad) &&
+                tech!=null && tech.IsComplete(Research.InfantryArmor)) amount*=.85f;
+            if (Role == Role.Colossus) amount *= tech!=null && tech.IsComplete(Research.ArmorPiercing) &&
+                source!=null && source.Faction==Faction.Defense ? .90f : .72f;
             if (critical) amount *= 1.65f;
             float applied=Mathf.Min(Current,amount);
             Current = Mathf.Max(0, Current - amount);
@@ -218,12 +222,14 @@ namespace Frontier
             Vector3 direction = (desired + separation * 1.2f).normalized;
             Vector3 start = transform.position + Vector3.up * .8f;
             float check = speed * dt + Self.Radius * .8f;
-            if (Physics.SphereCast(start, Self.Radius * .55f, direction, out var hit, check, Combat.WorldMask, QueryTriggerInteraction.Ignore) && hit.normal.y<.6f)
+            // Marines must clear walls with their full capsule, including when sliding around corners.
+            float bodyRadius=Self.Role==Role.Marine?.42f:Self.Radius*.55f;
+            if (Physics.SphereCast(start, bodyRadius, direction, out var hit, check, Combat.WorldMask, QueryTriggerInteraction.Ignore) && hit.normal.y<.6f)
             {
                 Vector3 tangent = Vector3.ProjectOnPlane(direction, hit.normal); tangent.y = 0;
                 if (tangent.sqrMagnitude < .08f) tangent = Vector3.Cross(hit.normal, Vector3.up) * (Self.Lane == 0 ? 1 : -1);
                 direction = tangent.normalized;
-                if (Physics.SphereCast(start, Self.Radius * .5f, direction, out var tangentHit, check, Combat.WorldMask, QueryTriggerInteraction.Ignore) && tangentHit.normal.y<.6f) return;
+                if (Physics.SphereCast(start, Self.Role==Role.Marine?bodyRadius:Self.Radius*.5f, direction, out var tangentHit, check, Combat.WorldMask, QueryTriggerInteraction.Ignore) && tangentHit.normal.y<.6f) return;
             }
             Vector3 position = transform.position + direction * speed * dt;
             position.y = GameWorld.GroundHeight(position.x, position.z);

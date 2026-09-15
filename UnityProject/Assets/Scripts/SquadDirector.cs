@@ -29,6 +29,11 @@ namespace Frontier
             marker.positionCount=49;marker.startWidth=marker.endWidth=.06f;marker.startColor=marker.endColor=Art.Amber;
             marker.shadowCastingMode=ShadowCastingMode.Off;marker.receiveShadows=false;marker.enabled=false;
         }
+        public void RebuildNavigation()
+        {
+            Navigation=new SquadNavigation();
+            foreach(var member in Members)if(member!=null)member.Replan();
+        }
         public bool Hire()
         {
             var w=GameWorld.I;
@@ -51,7 +56,7 @@ namespace Frontier
             var w=GameWorld.I;
             if(w.Paused||w.Ended||w.Phase!=Phase.Assault||!w.Player.Self.Alive)return false;
             if(Count==0){w.Notice("小队尚未组建 · 靠近指挥中心按 E 雇佣");return false;}
-            if(order==SquadOrder.Bunker&&(w.Fort==null||!w.Fort.NearEntrance))return false;
+            if(order==SquadOrder.Bunker&&(w.Fort==null||!w.Fort.TryAssignSquadBunker()))return false;
             if(order!=SquadOrder.Bunker)w.Fort?.ReleaseSquad();
             Order=order;HoldPoint=Navigation.Resolve(w.Fort!=null&&w.Fort.PlayerInside?w.Fort.Entrance:w.Player.transform.position);holdYaw=w.Player.Yaw;
             foreach(var m in Members)if(m!=null)m.Replan();
@@ -70,7 +75,8 @@ namespace Frontier
         public Vector3 Destination(int slot)
         {
             var p=GameWorld.I.Player;
-            if(Order==SquadOrder.Bunker&&GameWorld.I.Bunker.Alive)return GameWorld.I.Fort.Entrance;
+            var fort=GameWorld.I.Fort;
+            if(Order==SquadOrder.Bunker&&fort!=null&&fort.SquadBunker!=null&&fort.SquadBunker.Alive)return fort.SquadEntrance;
             Vector3 center=Order==SquadOrder.Hold?HoldPoint:rally;
             float yaw=Order==SquadOrder.Hold?holdYaw:p.Yaw;
             Vector3 offset=slot==0?new Vector3(-2.6f,0,-2.6f):slot==1?new Vector3(2.6f,0,-2.6f):new Vector3(0,0,-4.6f);
@@ -95,10 +101,11 @@ namespace Frontier
             Losses++;Members[h.Slot]=null;
             GameWorld.I.Notice(Names[h.Slot]+" 阵亡 · 可在指挥中心补充队员");
         }
-        public void OnBunkerUnavailable()
+        public void OnBunkerUnavailable(){OnBunkerUnavailable(GameWorld.I.Fort.SquadEntrance);}
+        public void OnBunkerUnavailable(Vector3 entrance)
         {
             if(Order!=SquadOrder.Bunker)return;
-            Order=SquadOrder.Hold;HoldPoint=GameWorld.I.Fort.Entrance;holdYaw=0;
+            Order=SquadOrder.Hold;HoldPoint=Navigation.Resolve(entrance);holdYaw=0;
             foreach(var member in Members)if(member!=null)member.Replan();
             marker.enabled=false;
         }
@@ -124,7 +131,7 @@ namespace Frontier
             director=squad;Self=health;Slot=slot;replan=-1;
             armor=Self.Rig.GetComponentsInChildren<Renderer>();colliders=GetComponentsInChildren<Collider>();colliderStates=new bool[colliders.Length];
         }
-        public void Replan(){replan=-1;}
+        public void Replan(){replan=-1;path.Clear();waypoint=0;}
         public void Tick(float dt)
         {
             if(!Self.Alive)return;

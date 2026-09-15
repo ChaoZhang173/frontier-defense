@@ -1,0 +1,48 @@
+{
+  "totalChecks": 233,
+  "passed": true,
+  "results": [
+    {
+      "mode": "construction",
+      "passed": true,
+      "checks": 108,
+      "failures": []
+    },
+    {
+      "mode": "mechanics",
+      "passed": true,
+      "checks": 22,
+      "failures": []
+    },
+    {
+      "mode": "fortification",
+      "passed": true,
+      "checks": 57,
+      "failures": []
+    },
+    {
+      "mode": "squad",
+      "passed": true,
+      "checks": 32,
+      "failures": []
+    },
+    {
+      "mode": "victory",
+      "passed": true,
+      "checks": 8,
+      "failures": []
+    },
+    {
+      "mode": "afk",
+      "passed": true,
+      "checks": 3,
+      "failures": []
+    },
+    {
+      "mode": "defeat",
+      "passed": true,
+      "checks": 3,
+      "failures": []
+    }
+  ]
+}

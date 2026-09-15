@@ -1,29 +1,42 @@
-# 边境防线 · Frontier Defense v0.3
+# 边境防线 · Frontier Defense v0.4
 
 原创 3D 第三人称基地防守试玩：五波共 308 个敌人、两处入口、三人小队。使用全球版 Unity 6000.3.24f1 / URP 17.3.0，电脑键鼠操作。
 
-## 开始试玩
+v0.4「建造与科技」已完成，233 项运行检查通过，Mac / Windows / Web 均已构建，原在线试玩地址已更新。发布记录见 [开发进度](Docs/开发进度.md)。
+
+## 开始试玩（v0.4）
 
 - **网页：** [在线试玩](https://frontier-defense-outpost-07.fumeshroom.chatgpt.site)。
-- **Mac：** 打开 `Builds/Mac/Frontier Defense.app`，或解压 `Releases/FrontierDefense-0.3-Mac.zip`。
-- **Windows：** 完整解压 `Releases/FrontierDefense-0.3-Windows.zip`，打开其中的 `Frontier Defense.exe`。
-- `Releases/FrontierDefense-0.3-Web.zip` 可用于其他静态 HTTP(S) 托管，不能双击 index.html 直接运行。
+- **Mac：** 解压 `Releases/FrontierDefense-0.4-Mac.zip`，打开其中的 `Frontier Defense.app`。
+- **Windows：** 完整解压 `Releases/FrontierDefense-0.4-Windows.zip`，打开其中的 `Frontier Defense.exe`。
+- `Releases/FrontierDefense-0.4-Web.zip` 可用于其他静态 HTTP(S) 托管，不能双击 index.html 直接运行。
 
 | 操作 | 按键 |
 | --- | --- |
 | 移动 / 冲刺 | WASD / Shift |
 | 转动视角 / 射击 | 鼠标 / 左键 |
 | 精确瞄准 / 换弹 | 右键 / R |
-| 指挥中心小队终端 | 靠近指挥中心正门按 E |
+| 指挥中心：建造、科技、小队 | 靠近指挥中心正门按 E |
 | 进入 / 退出地堡 | 靠近地堡后门按 E；驻守时 E 退出 |
-| 命令小队入驻地堡 | 靠近后门或驻守时按 B |
+| 命令小队入驻指定地堡 | 靠近目标地堡后门或驻守时按 B |
 | 小队跟随 / 撤出跟随 | F |
 | 小队驻守 / 撤出驻守 | G |
 | 暂停 / 释放鼠标 | Esc |
 
-小队指令和地堡进出在开战后使用；波间通过整备界面购买升级、维修或补充队员。
+小队指令和地堡进出在开战后使用。v0.4 的指挥中心默认打开“建造科技”，可切换到小队页；波间整备可切换“防线升级 / 建造科技”。战斗中打开终端会暂停战场，返回后才继续施工与研究；波间整备正常计时。
 
-## v0.3 新增
+## v0.4 新增
+
+- **固定点施工：** 建设西侧地堡（320 补给，18 秒）与增援兵营（400 补给，22 秒）；主兵营和原东侧地堡被毁后可按相同费用、工期原址重建。工地有耐久，会受到攻击，完工前不提供建筑功能。
+- **扩建兵营：** 增援兵营独立补员，将驻军上限从 8 提高到 12，并解锁科技。被毁后上限恢复 8，现有士兵保留；原址重建后恢复功能。
+- **两项科技：** 复合装甲（240 补给，16 秒）让玩家、小队与驻军受伤降低 15%；穿甲弹药（280 补给，20 秒）将友军攻击铁甲兽时的护甲减伤从 28% 降到 10%。一次研究一项。研究所需的增援兵营被毁时保留进度，重建后继续；已完成科技本局持续生效。
+- **双地堡：** 每座各有 4 席，玩家可把小队留在一座、自己进入另一座。进出、入驻目标、射孔与摧毁撤离分别绑定到对应地堡；一座失守不撤走另一座驻军。
+- **经营界面：** 工地显示待建、施工、已建成、已摧毁、生命与倒计时；战场显示工程进度。建筑升级作用于全体同类建筑，新建和重建的地堡继承装甲等级；每座建筑可在波间单独维修。
+- **敌数保持：** 五波仍为 30 / 44 / 60 / 76 / 98，总计 308，继续沿用 v0.3 出兵节奏与同屏存活上限。
+
+完整规则、价格和验证范围见 [v0.4 设计](Docs/v0.4设计.md)。
+
+## v0.3 新增（历史）
 
 - **更多敌人：** 每波 30 / 44 / 60 / 76 / 98 个，总数从 198 增至 308，约增加 56%。加密出兵节奏，保留 55 个同时存活敌人的上限，超出时等待生成。
 - **四席地堡：** 玩家和三名队员可入驻。玩家用固定射孔视角继续使用步枪；队员实际走到后门再入驻，并从各自射孔自动攻击。地堡承受攻击，驻守单位受保护；地堡摧毁后从后门撤离。
@@ -33,11 +46,11 @@
 
 ## 核心玩法
 
-守住指挥中心并消灭全部五波敌人。兵营周期补员，地堡自动攻击；开局 160 补给，可花 120 雇佣第一名队员，最多三人，与兵营的八名驻军分开计数。玩家射击可标记小队集火目标。
+守住指挥中心并消灭全部五波敌人。兵营周期补员，地堡自动攻击；开局 160 补给，可花 120 雇佣第一名队员，最多三人，与兵营驻军分开计数；v0.4 中驻军上限随增援兵营是否存活在 8 / 12 之间变化。玩家射击可标记小队集火目标。
 
 玩家脱战五秒后自动修复，阵亡六秒后重生；队员脱战后自动修复，阵亡需要重新雇佣。指挥中心被毁则失败。波间保留原有步枪强化、协同火力和指挥中心维修。
 
-尚未实现自由建造、机械工厂/星港、空军、驾驶载具、联机和手机触屏操作。角色与场景仍为原创几何体原型。
+v0.4 采用固定建造点。自由摆放建筑、机械工厂/星港、空军、驾驶载具、联机和手机触屏操作尚未实现。角色与场景仍为原创几何体原型。
 
 ## 验证与继续开发
 
@@ -45,10 +58,10 @@
 
 Unity 工程：`UnityProject/`，场景：`Assets/Scenes/Frontier.unity`。用全球版 Hub 添加工程并选择 6000.3.24f1。
 
-构建入口：`Assets/Editor/FrontierBuild.cs`。程序参数 `--frontier-check=fortification|squad|mechanics|victory|afk|defeat` 和 `--frontier-output=/绝对路径/报告.json` 可运行诊断；正常启动不启用。截图使用 `--frontier-check=capture --frontier-scene=fort|upgrade|battle|terminal`。
+构建入口：`Assets/Editor/FrontierBuild.cs`。程序参数 `--frontier-check=construction|fortification|squad|mechanics|victory|afk|defeat` 和 `--frontier-output=/绝对路径/报告.json` 可运行诊断；正常启动不启用。截图使用 `--frontier-check=capture --frontier-scene=construction|technology|expanded|fort|upgrade|battle|terminal`。
 
 在工程根目录运行 `python3 Tools/serve_web.py`，访问 `http://127.0.0.1:8765` 可本机复测。在线试玩无需本机服务。
 
-发布沿用已有 Sites 站点，静态目录为 `WebSite/dist`。0.1、0.2 试玩包保留用于回退。详细机制及数值见 [v0.3 设计](Docs/v0.3设计.md)。
+发布沿用已有 Sites 站点，静态目录为 `WebSite/dist`。0.1、0.2、0.3 试玩包保留用于回退。当前机制及数值见 [v0.4 设计](Docs/v0.4设计.md)，历史机制见 [v0.3 设计](Docs/v0.3设计.md)。
 
 字体 Frontier Sans 是 Noto Sans SC 的重命名精简衍生版本，许可见 `UnityProject/Assets/ThirdParty/` 与试玩包的 Licenses。字体更新工具为 `Tools/update_font.py`。模型和音效没有使用星际争霸素材。

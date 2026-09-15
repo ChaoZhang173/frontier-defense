@@ -74,6 +74,41 @@ namespace Frontier
             root.gameObject.layer = layer; foreach (Transform t in root) Layer(t, layer);
         }
 
+        public static Transform BuildSiteMarker(Transform parent,Vector3 position,Role role)
+        {
+            Transform root=Root("Expansion site",parent,position);
+            Vector3 size=ConstructionDirector.Size(role);
+            for(int side=-1;side<=1;side+=2)
+            {
+                Part(root,"Site boundary",new Vector3(side*(size.x*.5f+.25f),.045f,0),new Vector3(.12f,.035f,size.z+.6f),6);
+                Part(root,"Site boundary",new Vector3(0,.045f,side*(size.z*.5f+.25f)),new Vector3(size.x+.6f,.035f,.12f),6);
+                for(int end=-1;end<=1;end+=2)
+                    Part(root,"Site beacon",new Vector3(side*(size.x*.5f+.25f),.26f,end*(size.z*.5f+.25f)),new Vector3(.18f,.5f,.18f),7);
+            }
+            Part(root,"Build marker",new Vector3(0,.05f,0),new Vector3(1.8f,.035f,.13f),6);
+            Part(root,"Build marker",new Vector3(0,.05f,0),new Vector3(.13f,.035f,1.8f),6);
+            return root;
+        }
+
+        public static void ConstructionFrame(Transform root,Role role)
+        {
+            Vector3 size=ConstructionDirector.Size(role);
+            Part(root,"Construction foundation",new Vector3(0,.18f,0),new Vector3(size.x,.36f,size.z),2);
+            for(int side=-1;side<=1;side+=2)
+            {
+                for(int end=-1;end<=1;end+=2)
+                {
+                    Part(root,"Scaffold upright",new Vector3(side*(size.x*.5f-.18f),size.y*.5f,end*(size.z*.5f-.18f)),new Vector3(.22f,size.y,.22f),7);
+                    Part(root,"Scaffold light",new Vector3(side*(size.x*.5f-.18f),size.y+.06f,end*(size.z*.5f-.18f)),new Vector3(.27f,.12f,.27f),6);
+                }
+                Part(root,"Scaffold beam",new Vector3(side*(size.x*.5f-.18f),size.y,0),new Vector3(.18f,.2f,size.z),7);
+                Part(root,"Scaffold beam",new Vector3(0,size.y,side*(size.z*.5f-.18f)),new Vector3(size.x,.2f,.18f),7);
+                Part(root,"Worksite barrier",new Vector3(0,.9f,side*(size.z*.5f-.1f)),new Vector3(size.x-.3f,.35f,.18f),7);
+            }
+            Part(root,"Delivered components",new Vector3(-1,.7f,-.4f),new Vector3(2,1,2),0);
+            Part(root,"Delivered components",new Vector3(1.4f,.55f,.7f),new Vector3(1.4f,.7f,1.6f),3);
+        }
+
         public static ArtRig Marine(Transform parent, bool player,bool squad=false)
         {
             var rig = parent.gameObject.AddComponent<ArtRig>(); rig.Humanoid = true;

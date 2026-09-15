@@ -13,7 +13,7 @@ namespace Frontier
         {
             public string mode, outcome, version;public bool passed;public float simulatedSeconds,hqHealth;
             public int wave,spawned,kills,playerKills,deaths,peakEnemies,peakMarines,squadKills,squadHired,squadPeak,criticalHits;
-            public int barracksLevel,bunkerArmorLevel,bunkerFirepowerLevel;
+            public int barracksLevel,bunkerArmorLevel,bunkerFirepowerLevel,readySites,completedResearch;
             public List<string> actors=new List<string>();public List<string> checks=new List<string>();public List<string> failures=new List<string>();
         }
         public static string Argument(string key)
@@ -38,16 +38,22 @@ namespace Frontier
             }
             if(frames==6)
             {
-                if(mode=="squad"||mode=="fortification")
+                if(mode=="squad"||mode=="fortification"||mode=="construction")
                 {
                     if(restartReport!=null)
                     {
                         report=restartReport;restartReport=null;
                         Check(world.Squad.Count==0&&world.Squad.Kills==0&&world.Wave==1&&world.Credits==160,"Restart clears the previous squad, orders, credits and battle state");
                         if(mode=="fortification")FortificationChecks.CheckRestart(world,Check);
+                        if(mode=="construction")ConstructionChecks.CheckRestart(world,Check);
                         Complete();return;
                     }
-                    try { if(mode=="squad")SquadChecks.Run(world,Check);else FortificationChecks.Run(world,Check); }
+                    try
+                    {
+                        if(mode=="squad")SquadChecks.Run(world,Check);
+                        else if(mode=="construction")ConstructionChecks.Run(world,Check);
+                        else FortificationChecks.Run(world,Check);
+                    }
                     catch(Exception exception){Check(false,mode+" diagnostic exception: "+exception);Complete();return;}
                     restartReport=report;finished=true;world.Restart();return;
                 }
@@ -148,6 +154,7 @@ namespace Frontier
         {
             string path=Argument("--frontier-output");if(path=="")path=Application.persistentDataPath+"/capture.png";
             string scene=Argument("--frontier-scene");
+            if(scene=="construction"||scene=="technology"||scene=="expanded")ConstructionChecks.PrepareCapture(world,scene);
             if(scene=="terminal"||scene=="battle"||scene=="fort")
             {
                 world.BeginCampaign();world.TryOpenCommandTerminal();world.Credits=1000;
@@ -200,6 +207,8 @@ namespace Frontier
             report.peakEnemies=world.PeakEnemies;report.peakMarines=world.PeakMarines;
             report.squadKills=world.Squad.Kills;report.squadHired=world.Squad.Hired;report.squadPeak=world.Squad.PeakCount;report.criticalHits=world.Player.CriticalHits;
             report.barracksLevel=world.Upgrades.BarracksLevel;report.bunkerArmorLevel=world.Upgrades.ArmorLevel;report.bunkerFirepowerLevel=world.Upgrades.FirepowerLevel;
+            foreach(var site in world.Construction.Sites)if(site.State==SiteState.Ready)report.readySites++;
+            foreach(Research research in Enum.GetValues(typeof(Research)))if(world.Tech.IsComplete(research))report.completedResearch++;
             foreach(var h in world.Entities)if(h!=null&&h.Alive)report.actors.Add(h.Role+" "+h.transform.position+" hp="+h.Current+" moved="+(h.Brain!=null?h.Brain.Travelled:0)+" visible="+Combat.Visible(world.Player.Self,h));
             string path=Argument("--frontier-output");if(path=="")path=Application.persistentDataPath+"/"+mode+".json";
             File.WriteAllText(path,JsonUtility.ToJson(report,true));
