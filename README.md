@@ -19,7 +19,7 @@
 
 GitHub 自动生成的 “Source code” 压缩包只包含源码；试玩请下载上表中的平台 ZIP。完整包清单与 SHA-256 见 [发行记录](ReleaseAssets/github-release-2026-11-01.json) 和发行页的 `SHA256SUMS.txt`。所有包都保留第三方许可。本次 GitHub 上传不代表小红书审核、手机真机验收或 Sites 站点更新。
 
-源代码目录：`UnityProject/` 为 Unity 工程，`XhsMiniTool/dist/` 为兼容版可编辑源文件，`Tools/` 为构建与打包工具，`Docs/` 与 `Verification/` 保存设计及历史验证证据。生成目录、缓存、日志与 ZIP 不进入 Git 历史。
+源代码目录：`UnityProject/` 为 Unity 工程，`XhsMiniTool/dist/` 为兼容版可编辑源文件，`Tools/` 为构建与打包工具，`Docs/` 与 `Verification/` 保存设计及历史验证证据。主分支不保存生成目录、缓存、日志与 ZIP，下载包位于 GitHub Releases。
 
 实际构建、诊断、浏览器验证及限制见 [v0.7 测试报告](Docs/v0.7测试报告.md)。机制与参数见 [v0.7 设计](Docs/v0.7设计.md)。
 
