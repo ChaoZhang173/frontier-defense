@@ -1,0 +1,1218 @@
+{
+  "balanceObservations": [
+    {
+      "severity": "balance-review",
+      "mode": "afk",
+      "message": "Unattended initial-base strategy wins without player actions or paid upgrades.",
+      "spawned": 232,
+      "suppressed": 376,
+      "commandHpAtEnd": 2300,
+      "workerRepairHp": 2216.4
+    }
+  ],
+  "at": "2026-09-22T10:12:05.414Z",
+  "sources": {
+    "core.js": "4c1322d338c0eafb5592887ddcf03f23735094b891b110e6442e4905bf2b6736",
+    "support.js": "e72e0e671ae2231a5831223b2e1e1b5968ef31121374fc1c8a419b7e065b2734"
+  },
+  "method": "Actual core + support loaded with native CommonJS require (no VM) at dt=0.1, seed 741903. AFK performs no player action. Managed strategy is the earlier v0.6 defensive bot: collision-aware movement, perfect center autoaim at visible mobile enemies within rifle range, actual fire/reload, two nearby marine recruits, shop visits during intermissions, and paid upgrades/buildings from earned supplies. Player remains in friendly base; outgoing NPCs fight naturally without target, HP, damage, currency, spawn or wave overrides. Observer wrappers measure actual assault damage and worker healing. 1200 simulated seconds maximum per run. This demonstrates one ideal-aim strategy rather than phone/human difficulty; no browser/GPU test.",
+  "results": [
+    {
+      "mode": "afk",
+      "wallSeconds": 1.8,
+      "phase": "victory",
+      "wave": 5,
+      "seconds": 799.4,
+      "planned": 608,
+      "spawned": 232,
+      "suppressed": 376,
+      "allScheduledAccounted": true,
+      "maxEnemies": 50,
+      "kills": 300,
+      "playerKills": 0,
+      "deaths": 0,
+      "command": 2300,
+      "credits": 10005,
+      "tankProduced": 0,
+      "shots": 0,
+      "records": [
+        {
+          "wave": 1,
+          "phase": "assault",
+          "time": 0.1,
+          "command": 2300,
+          "credits": 160,
+          "spawned": 0,
+          "suppressed": 0,
+          "tankProduced": 0
+        },
+        {
+          "wave": 2,
+          "phase": "assault",
+          "time": 119.9,
+          "command": 2300,
+          "credits": 1354,
+          "spawned": 56,
+          "suppressed": 0,
+          "tankProduced": 0
+        },
+        {
+          "wave": 3,
+          "phase": "assault",
+          "time": 302.5,
+          "command": 2300,
+          "credits": 4095,
+          "spawned": 136,
+          "suppressed": 0,
+          "tankProduced": 0
+        },
+        {
+          "wave": 4,
+          "phase": "assault",
+          "time": 540.4,
+          "command": 2300,
+          "credits": 7239,
+          "spawned": 194,
+          "suppressed": 58,
+          "tankProduced": 0
+        },
+        {
+          "wave": 5,
+          "phase": "assault",
+          "time": 728.4,
+          "command": 2300,
+          "credits": 8766,
+          "spawned": 232,
+          "suppressed": 176,
+          "tankProduced": 0
+        }
+      ],
+      "samples": [
+        {
+          "time": 60,
+          "wave": 1,
+          "phase": "assault",
+          "mobiles": 32,
+          "assaults": 7,
+          "rallied": 1,
+          "attacking": 6,
+          "assaultWaves": 1,
+          "portalHp": [
+            1800,
+            1800,
+            2600,
+            2600,
+            3600,
+            3600
+          ],
+          "command": 2300
+        },
+        {
+          "time": 120.1,
+          "wave": 2,
+          "phase": "assault",
+          "mobiles": 20,
+          "assaults": 12,
+          "rallied": 2,
+          "attacking": 10,
+          "assaultWaves": 2,
+          "portalHp": [
+            396,
+            1800,
+            2600,
+            2600,
+            3600,
+            3600
+          ],
+          "command": 2300
+        },
+        {
+          "time": 180.1,
+          "wave": 2,
+          "phase": "assault",
+          "mobiles": 20,
+          "assaults": 13,
+          "rallied": 4,
+          "attacking": 9,
+          "assaultWaves": 3,
+          "portalHp": [
+            0,
+            744,
+            2600,
+            2600,
+            3600,
+            3600
+          ],
+          "command": 2300
+        },
+        {
+          "time": 240.1,
+          "wave": 2,
+          "phase": "assault",
+          "mobiles": 20,
+          "assaults": 9,
+          "rallied": 5,
+          "attacking": 4,
+          "assaultWaves": 4,
+          "portalHp": [
+            0,
+            744,
+            2600,
+            2600,
+            3600,
+            3600
+          ],
+          "command": 2300
+        },
+        {
+          "time": 300.1,
+          "wave": 2,
+          "phase": "intermission",
+          "mobiles": 12,
+          "assaults": 13,
+          "rallied": 1,
+          "attacking": 12,
+          "assaultWaves": 6,
+          "portalHp": [
+            0,
+            0,
+            2600,
+            2600,
+            3600,
+            3600
+          ],
+          "command": 2300
+        },
+        {
+          "time": 360,
+          "wave": 3,
+          "phase": "assault",
+          "mobiles": 50,
+          "assaults": 8,
+          "rallied": 2,
+          "attacking": 6,
+          "assaultWaves": 7,
+          "portalHp": [
+            0,
+            0,
+            2600,
+            716,
+            3600,
+            3600
+          ],
+          "command": 2300
+        },
+        {
+          "time": 420,
+          "wave": 3,
+          "phase": "assault",
+          "mobiles": 17,
+          "assaults": 9,
+          "rallied": 3,
+          "attacking": 6,
+          "assaultWaves": 8,
+          "portalHp": [
+            0,
+            0,
+            2600,
+            716,
+            3600,
+            3600
+          ],
+          "command": 2300
+        },
+        {
+          "time": 480,
+          "wave": 3,
+          "phase": "assault",
+          "mobiles": 13,
+          "assaults": 13,
+          "rallied": 5,
+          "attacking": 8,
+          "assaultWaves": 9,
+          "portalHp": [
+            0,
+            0,
+            968,
+            716,
+            3600,
+            3600
+          ],
+          "command": 2300
+        },
+        {
+          "time": 540,
+          "wave": 3,
+          "phase": "intermission",
+          "mobiles": 2,
+          "assaults": 13,
+          "rallied": 0,
+          "attacking": 13,
+          "assaultWaves": 11,
+          "portalHp": [
+            0,
+            0,
+            0,
+            0,
+            3600,
+            3600
+          ],
+          "command": 2300
+        },
+        {
+          "time": 600,
+          "wave": 4,
+          "phase": "assault",
+          "mobiles": 42,
+          "assaults": 8,
+          "rallied": 2,
+          "attacking": 6,
+          "assaultWaves": 12,
+          "portalHp": [
+            0,
+            0,
+            0,
+            0,
+            3600,
+            3600
+          ],
+          "command": 2300
+        },
+        {
+          "time": 660,
+          "wave": 4,
+          "phase": "assault",
+          "mobiles": 9,
+          "assaults": 9,
+          "rallied": 3,
+          "attacking": 6,
+          "assaultWaves": 13,
+          "portalHp": [
+            0,
+            0,
+            0,
+            0,
+            3600,
+            3600
+          ],
+          "command": 2300
+        },
+        {
+          "time": 720,
+          "wave": 4,
+          "phase": "intermission",
+          "mobiles": 5,
+          "assaults": 14,
+          "rallied": 4,
+          "attacking": 10,
+          "assaultWaves": 14,
+          "portalHp": [
+            0,
+            0,
+            0,
+            0,
+            1812,
+            3600
+          ],
+          "command": 2300
+        },
+        {
+          "time": 780,
+          "wave": 5,
+          "phase": "assault",
+          "mobiles": 0,
+          "assaults": 19,
+          "rallied": 0,
+          "attacking": 0,
+          "assaultWaves": 15,
+          "portalHp": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "command": 2300
+        }
+      ],
+      "issues": [],
+      "squad": 0,
+      "upgrades": {
+        "weapon": 0,
+        "defense": 0,
+        "armor": 0,
+        "firepower": 0,
+        "production": 0
+      },
+      "tech": [
+        false,
+        false,
+        false
+      ],
+      "siteStates": [
+        [
+          "west",
+          "ready",
+          1200,
+          1200
+        ],
+        [
+          "reserve",
+          "empty",
+          null,
+          null
+        ],
+        [
+          "barracks",
+          "ready",
+          1100,
+          1100
+        ],
+        [
+          "east",
+          "destroyed",
+          0,
+          1200
+        ],
+        [
+          "factory",
+          "empty",
+          null,
+          null
+        ]
+      ],
+      "purchases": [],
+      "raids": {
+        "totalProduced": 94,
+        "departedUnits": 90,
+        "departedWaves": 15,
+        "firstDeparture": 53.9,
+        "maxSimultaneous": 19,
+        "furthestZ": 102,
+        "firstPortalDamage": 106.5,
+        "firstPortalKill": 122.4,
+        "damageByRole": {
+          "stalker": 4812,
+          "runner": 8888,
+          "spitter": 6678,
+          "tower": 15600,
+          "portal": 16000,
+          "siege": 5397.6,
+          "nest": 1000,
+          "heavy": 10790
+        },
+        "portalsAlive": 0,
+        "towersAlive": 0,
+        "nestsAlive": 4,
+        "idleRaids": [],
+        "liveUnits": [
+          {
+            "id": 359,
+            "x": -5,
+            "z": 9.1,
+            "hp": 147,
+            "state": "reserve",
+            "stage": 3,
+            "attackBase": null
+          },
+          {
+            "id": 393,
+            "x": -3,
+            "z": 9,
+            "hp": 155,
+            "state": "reserve",
+            "stage": 3,
+            "attackBase": null
+          },
+          {
+            "id": 396,
+            "x": -1,
+            "z": 9,
+            "hp": 195,
+            "state": "reserve",
+            "stage": 3,
+            "attackBase": null
+          },
+          {
+            "id": 399,
+            "x": 1,
+            "z": 9,
+            "hp": 179,
+            "state": "reserve",
+            "stage": 3,
+            "attackBase": null
+          },
+          {
+            "id": 401,
+            "x": 3,
+            "z": 9.1,
+            "hp": 195,
+            "state": "reserve",
+            "stage": 3,
+            "attackBase": null
+          },
+          {
+            "id": 403,
+            "x": 5,
+            "z": 9,
+            "hp": 195,
+            "state": "reserve",
+            "stage": 3,
+            "attackBase": null
+          },
+          {
+            "id": 405,
+            "x": -5,
+            "z": 11,
+            "hp": 115,
+            "state": "reserve",
+            "stage": 3,
+            "attackBase": null
+          },
+          {
+            "id": 407,
+            "x": -3,
+            "z": 11,
+            "hp": 195,
+            "state": "reserve",
+            "stage": 3,
+            "attackBase": null
+          },
+          {
+            "id": 410,
+            "x": -1.1,
+            "z": 11.1,
+            "hp": 155,
+            "state": "reserve",
+            "stage": 3,
+            "attackBase": null
+          },
+          {
+            "id": 411,
+            "x": 1.1,
+            "z": 11.1,
+            "hp": 195,
+            "state": "reserve",
+            "stage": 3,
+            "attackBase": null
+          },
+          {
+            "id": 412,
+            "x": 3.1,
+            "z": 11.2,
+            "hp": 195,
+            "state": "reserve",
+            "stage": 3,
+            "attackBase": null
+          },
+          {
+            "id": 413,
+            "x": 5,
+            "z": 11,
+            "hp": 195,
+            "state": "reserve",
+            "stage": 3,
+            "attackBase": null
+          },
+          {
+            "id": 414,
+            "x": -4.9,
+            "z": 13.1,
+            "hp": 195,
+            "state": "reserve",
+            "stage": 3,
+            "attackBase": null
+          },
+          {
+            "id": 416,
+            "x": -3,
+            "z": 13,
+            "hp": 195,
+            "state": "reserve",
+            "stage": 3,
+            "attackBase": null
+          },
+          {
+            "id": 417,
+            "x": -0.9,
+            "z": 13.2,
+            "hp": 195,
+            "state": "reserve",
+            "stage": 3,
+            "attackBase": null
+          },
+          {
+            "id": 418,
+            "x": 1,
+            "z": 13,
+            "hp": 195,
+            "state": "reserve",
+            "stage": 0,
+            "attackBase": null
+          },
+          {
+            "id": 419,
+            "x": 3,
+            "z": 13,
+            "hp": 195,
+            "state": "reserve",
+            "stage": 0,
+            "attackBase": null
+          },
+          {
+            "id": 420,
+            "x": 5,
+            "z": 13,
+            "hp": 195,
+            "state": "reserve",
+            "stage": 0,
+            "attackBase": null
+          },
+          {
+            "id": 421,
+            "x": -5,
+            "z": 15,
+            "hp": 195,
+            "state": "reserve",
+            "stage": 0,
+            "attackBase": null
+          }
+        ]
+      },
+      "repairs": {
+        "hp": 2216.4,
+        "activeSeconds": 369.6,
+        "byRole": {
+          "command": 156,
+          "bunker": 2060.4
+        }
+      }
+    },
+    {
+      "mode": "managed",
+      "wallSeconds": 0.9,
+      "phase": "victory",
+      "wave": 5,
+      "seconds": 533.9,
+      "planned": 608,
+      "spawned": 104,
+      "suppressed": 504,
+      "allScheduledAccounted": true,
+      "maxEnemies": 33,
+      "kills": 158,
+      "playerKills": 88,
+      "deaths": 0,
+      "command": 3600,
+      "credits": 502,
+      "tankProduced": 1,
+      "shots": 466,
+      "records": [
+        {
+          "wave": 1,
+          "phase": "assault",
+          "time": 0.1,
+          "command": 2300,
+          "credits": 40,
+          "spawned": 0,
+          "suppressed": 0,
+          "tankProduced": 0
+        },
+        {
+          "wave": 2,
+          "phase": "assault",
+          "time": 113.8,
+          "command": 2300,
+          "credits": 916,
+          "spawned": 56,
+          "suppressed": 0,
+          "tankProduced": 0
+        },
+        {
+          "wave": 3,
+          "phase": "assault",
+          "time": 218.7,
+          "command": 2950,
+          "credits": 1219,
+          "spawned": 104,
+          "suppressed": 32,
+          "tankProduced": 0
+        },
+        {
+          "wave": 4,
+          "phase": "assault",
+          "time": 340.8,
+          "command": 3600,
+          "credits": 82,
+          "spawned": 104,
+          "suppressed": 148,
+          "tankProduced": 1
+        },
+        {
+          "wave": 5,
+          "phase": "assault",
+          "time": 462.9,
+          "command": 3600,
+          "credits": 112,
+          "spawned": 104,
+          "suppressed": 304,
+          "tankProduced": 1
+        }
+      ],
+      "samples": [
+        {
+          "time": 60,
+          "wave": 1,
+          "phase": "assault",
+          "mobiles": 21,
+          "assaults": 7,
+          "rallied": 1,
+          "attacking": 6,
+          "assaultWaves": 1,
+          "portalHp": [
+            1800,
+            1800,
+            2600,
+            2600,
+            3600,
+            3600
+          ],
+          "command": 2300
+        },
+        {
+          "time": 120.1,
+          "wave": 2,
+          "phase": "assault",
+          "mobiles": 20,
+          "assaults": 13,
+          "rallied": 3,
+          "attacking": 10,
+          "assaultWaves": 2,
+          "portalHp": [
+            0,
+            1260,
+            2600,
+            2600,
+            3600,
+            3600
+          ],
+          "command": 2300
+        },
+        {
+          "time": 180.1,
+          "wave": 2,
+          "phase": "intermission",
+          "mobiles": 7,
+          "assaults": 18,
+          "rallied": 1,
+          "attacking": 17,
+          "assaultWaves": 4,
+          "portalHp": [
+            0,
+            0,
+            2600,
+            0,
+            3600,
+            3600
+          ],
+          "command": 2950
+        },
+        {
+          "time": 240.1,
+          "wave": 3,
+          "phase": "assault",
+          "mobiles": 0,
+          "assaults": 19,
+          "rallied": 5,
+          "attacking": 14,
+          "assaultWaves": 5,
+          "portalHp": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            1272
+          ],
+          "command": 2950
+        },
+        {
+          "time": 300.1,
+          "wave": 3,
+          "phase": "intermission",
+          "mobiles": 0,
+          "assaults": 19,
+          "rallied": 0,
+          "attacking": 0,
+          "assaultWaves": 5,
+          "portalHp": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "command": 3600
+        },
+        {
+          "time": 360,
+          "wave": 4,
+          "phase": "assault",
+          "mobiles": 0,
+          "assaults": 19,
+          "rallied": 0,
+          "attacking": 0,
+          "assaultWaves": 5,
+          "portalHp": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "command": 3600
+        },
+        {
+          "time": 420,
+          "wave": 4,
+          "phase": "intermission",
+          "mobiles": 0,
+          "assaults": 19,
+          "rallied": 0,
+          "attacking": 0,
+          "assaultWaves": 5,
+          "portalHp": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "command": 3600
+        },
+        {
+          "time": 480,
+          "wave": 5,
+          "phase": "assault",
+          "mobiles": 0,
+          "assaults": 19,
+          "rallied": 0,
+          "attacking": 0,
+          "assaultWaves": 5,
+          "portalHp": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "command": 3600
+        }
+      ],
+      "issues": [],
+      "squad": 4,
+      "upgrades": {
+        "weapon": 4,
+        "defense": 4,
+        "armor": 2,
+        "firepower": 2,
+        "production": 2
+      },
+      "tech": [
+        true,
+        true,
+        true
+      ],
+      "siteStates": [
+        [
+          "west",
+          "ready",
+          3200,
+          3200
+        ],
+        [
+          "reserve",
+          "ready",
+          1550,
+          1550
+        ],
+        [
+          "barracks",
+          "ready",
+          1550,
+          1550
+        ],
+        [
+          "east",
+          "ready",
+          3200,
+          3200
+        ],
+        [
+          "factory",
+          "ready",
+          2100,
+          2100
+        ]
+      ],
+      "purchases": [
+        {
+          "time": 0,
+          "action": "hire",
+          "paid": 120
+        },
+        {
+          "time": 71.7,
+          "action": "hire",
+          "paid": 120
+        },
+        {
+          "time": 71.7,
+          "action": "build:reserve",
+          "paid": 400
+        },
+        {
+          "time": 71.7,
+          "action": "weapon",
+          "paid": 90
+        },
+        {
+          "time": 71.7,
+          "action": "defense",
+          "paid": 110
+        },
+        {
+          "time": 71.7,
+          "action": "defense",
+          "paid": 200
+        },
+        {
+          "time": 176.7,
+          "action": "weapon",
+          "paid": 170
+        },
+        {
+          "time": 176.7,
+          "action": "build:factory",
+          "paid": 650
+        },
+        {
+          "time": 176.7,
+          "action": "tech:1",
+          "paid": 280
+        },
+        {
+          "time": 176.7,
+          "action": "defense",
+          "paid": 290
+        },
+        {
+          "time": 176.7,
+          "action": "defense",
+          "paid": 380
+        },
+        {
+          "time": 176.7,
+          "action": "armor",
+          "paid": 180
+        },
+        {
+          "time": 176.7,
+          "action": "production",
+          "paid": 200
+        },
+        {
+          "time": 176.7,
+          "action": "weapon",
+          "paid": 250
+        },
+        {
+          "time": 176.7,
+          "action": "weapon",
+          "paid": 330
+        },
+        {
+          "time": 176.7,
+          "action": "firepower",
+          "paid": 220
+        },
+        {
+          "time": 176.7,
+          "action": "fortify:command",
+          "paid": 120
+        },
+        {
+          "time": 176.7,
+          "action": "fortify:east",
+          "paid": 120
+        },
+        {
+          "time": 176.7,
+          "action": "fortify:west",
+          "paid": 120
+        },
+        {
+          "time": 176.7,
+          "action": "fortify:barracks",
+          "paid": 100
+        },
+        {
+          "time": 298.8,
+          "action": "tech:0",
+          "paid": 240
+        },
+        {
+          "time": 298.8,
+          "action": "armor",
+          "paid": 300
+        },
+        {
+          "time": 298.8,
+          "action": "production",
+          "paid": 320
+        },
+        {
+          "time": 298.8,
+          "action": "firepower",
+          "paid": 360
+        },
+        {
+          "time": 298.8,
+          "action": "fortify:command",
+          "paid": 240
+        },
+        {
+          "time": 298.8,
+          "action": "fortify:east",
+          "paid": 240
+        },
+        {
+          "time": 298.8,
+          "action": "fortify:west",
+          "paid": 240
+        },
+        {
+          "time": 298.8,
+          "action": "fortify:factory",
+          "paid": 180
+        },
+        {
+          "time": 298.8,
+          "action": "fortify:reserve",
+          "paid": 100
+        },
+        {
+          "time": 420.8,
+          "action": "tech:2",
+          "paid": 300
+        }
+      ],
+      "raids": {
+        "totalProduced": 35,
+        "departedUnits": 30,
+        "departedWaves": 5,
+        "firstDeparture": 53.9,
+        "maxSimultaneous": 19,
+        "furthestZ": 102.1,
+        "firstPortalDamage": 85.3,
+        "firstPortalKill": 98.8,
+        "damageByRole": {
+          "runner": 1489.8,
+          "stalker": 1550,
+          "tower": 15600,
+          "spitter": 1642.7,
+          "portal": 16000,
+          "siege": 353,
+          "nest": 1000,
+          "heavy": 2398.6
+        },
+        "portalsAlive": 0,
+        "towersAlive": 0,
+        "nestsAlive": 4,
+        "idleRaids": [],
+        "liveUnits": [
+          {
+            "id": 140,
+            "x": -5,
+            "z": 9.1,
+            "hp": 195,
+            "state": "reserve",
+            "stage": 3,
+            "attackBase": null
+          },
+          {
+            "id": 164,
+            "x": -3,
+            "z": 9,
+            "hp": 161,
+            "state": "reserve",
+            "stage": 3,
+            "attackBase": null
+          },
+          {
+            "id": 165,
+            "x": -1,
+            "z": 9,
+            "hp": 161,
+            "state": "reserve",
+            "stage": 3,
+            "attackBase": null
+          },
+          {
+            "id": 166,
+            "x": 0.9,
+            "z": 9.2,
+            "hp": 155,
+            "state": "reserve",
+            "stage": 3,
+            "attackBase": null
+          },
+          {
+            "id": 183,
+            "x": 3,
+            "z": 9,
+            "hp": 195,
+            "state": "reserve",
+            "stage": 3,
+            "attackBase": null
+          },
+          {
+            "id": 201,
+            "x": 5,
+            "z": 9.1,
+            "hp": 195,
+            "state": "reserve",
+            "stage": 3,
+            "attackBase": null
+          },
+          {
+            "id": 205,
+            "x": -5,
+            "z": 11,
+            "hp": 195,
+            "state": "reserve",
+            "stage": 3,
+            "attackBase": null
+          },
+          {
+            "id": 206,
+            "x": -3,
+            "z": 11,
+            "hp": 155,
+            "state": "reserve",
+            "stage": 3,
+            "attackBase": null
+          },
+          {
+            "id": 208,
+            "x": -1,
+            "z": 11,
+            "hp": 195,
+            "state": "reserve",
+            "stage": 3,
+            "attackBase": null
+          },
+          {
+            "id": 210,
+            "x": 1,
+            "z": 11,
+            "hp": 195,
+            "state": "reserve",
+            "stage": 3,
+            "attackBase": null
+          },
+          {
+            "id": 211,
+            "x": 3,
+            "z": 11,
+            "hp": 195,
+            "state": "reserve",
+            "stage": 3,
+            "attackBase": null
+          },
+          {
+            "id": 213,
+            "x": 5,
+            "z": 11,
+            "hp": 195,
+            "state": "reserve",
+            "stage": 3,
+            "attackBase": null
+          },
+          {
+            "id": 214,
+            "x": -5,
+            "z": 13,
+            "hp": 195,
+            "state": "reserve",
+            "stage": 3,
+            "attackBase": null
+          },
+          {
+            "id": 216,
+            "x": -3,
+            "z": 13,
+            "hp": 195,
+            "state": "reserve",
+            "stage": 3,
+            "attackBase": null
+          },
+          {
+            "id": 217,
+            "x": -1.1,
+            "z": 12.8,
+            "hp": 195,
+            "state": "reserve",
+            "stage": 0,
+            "attackBase": null
+          },
+          {
+            "id": 218,
+            "x": 0.9,
+            "z": 12.8,
+            "hp": 195,
+            "state": "reserve",
+            "stage": 0,
+            "attackBase": null
+          },
+          {
+            "id": 219,
+            "x": 3,
+            "z": 13,
+            "hp": 195,
+            "state": "reserve",
+            "stage": 0,
+            "attackBase": null
+          },
+          {
+            "id": 222,
+            "x": 4.9,
+            "z": 13,
+            "hp": 195,
+            "state": "reserve",
+            "stage": 0,
+            "attackBase": null
+          },
+          {
+            "id": 223,
+            "x": -4.9,
+            "z": 15,
+            "hp": 195,
+            "state": "reserve",
+            "stage": 0,
+            "attackBase": null
+          }
+        ]
+      },
+      "repairs": {
+        "hp": 0,
+        "activeSeconds": 0,
+        "byRole": {}
+      }
+    }
+  ]
+}

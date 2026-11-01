@@ -1,0 +1,455 @@
+{
+  "at": "2026-09-16T12:48:44.123Z",
+  "sources": {
+    "app.js": "92348d5ac652517aadeace0a5deafc27f5806f8c5b0f656f356d338870045136",
+    "core.js": "1e5f038e67837a6ca5182f95b7f36711d92bcfb9e29e3ba2e5d74d8ac4a4da75",
+    "menu-scroll.js": "325e59f47f1e9485900a865b774c4279f59eda967c01882d66e1a94fbc1ba532"
+  },
+  "method": "Actual app/core/menu-scroll scripts with DOM event simulation. Physical pointer deltas are mapped for all four display modes; firing is verified with real ammunition consumption. This is not browser/device validation.",
+  "checks": [
+    {
+      "name": "cw-landscape fire owner drags continuously while firing; sensitivity 0.4",
+      "pass": false,
+      "yaw": 0,
+      "pitch": 0.1,
+      "fire": true,
+      "shots": 3
+    },
+    {
+      "name": "cw-landscape fire owner drags continuously while firing; sensitivity 1",
+      "pass": false,
+      "yaw": 0,
+      "pitch": 0.1,
+      "fire": true,
+      "shots": 3
+    },
+    {
+      "name": "cw-landscape fire owner drags continuously while firing; sensitivity 1.8",
+      "pass": false,
+      "yaw": 0,
+      "pitch": 0.1,
+      "fire": true,
+      "shots": 3
+    },
+    {
+      "name": "portrait fire owner drags continuously while firing; sensitivity 0.4",
+      "pass": false,
+      "yaw": 0,
+      "pitch": 0.1,
+      "fire": true,
+      "shots": 3
+    },
+    {
+      "name": "portrait fire owner drags continuously while firing; sensitivity 1",
+      "pass": false,
+      "yaw": 0,
+      "pitch": 0.1,
+      "fire": true,
+      "shots": 3
+    },
+    {
+      "name": "portrait fire owner drags continuously while firing; sensitivity 1.8",
+      "pass": false,
+      "yaw": 0,
+      "pitch": 0.1,
+      "fire": true,
+      "shots": 3
+    },
+    {
+      "name": "ccw-portrait fire owner drags continuously while firing; sensitivity 0.4",
+      "pass": false,
+      "yaw": 0,
+      "pitch": 0.1,
+      "fire": true,
+      "shots": 3
+    },
+    {
+      "name": "ccw-portrait fire owner drags continuously while firing; sensitivity 1",
+      "pass": false,
+      "yaw": 0,
+      "pitch": 0.1,
+      "fire": true,
+      "shots": 3
+    },
+    {
+      "name": "ccw-portrait fire owner drags continuously while firing; sensitivity 1.8",
+      "pass": false,
+      "yaw": 0,
+      "pitch": 0.1,
+      "fire": true,
+      "shots": 3
+    },
+    {
+      "name": "landscape fire owner drags continuously while firing; sensitivity 0.4",
+      "pass": false,
+      "yaw": 0,
+      "pitch": 0.1,
+      "fire": true,
+      "shots": 3
+    },
+    {
+      "name": "landscape fire owner drags continuously while firing; sensitivity 1",
+      "pass": false,
+      "yaw": 0,
+      "pitch": 0.1,
+      "fire": true,
+      "shots": 3
+    },
+    {
+      "name": "landscape fire owner drags continuously while firing; sensitivity 1.8",
+      "pass": false,
+      "yaw": 0,
+      "pitch": 0.1,
+      "fire": true,
+      "shots": 3
+    },
+    {
+      "name": "cw-landscape separate look and fire pointers add independent drag deltas",
+      "pass": false,
+      "yaw": -0.18,
+      "pitch": 0.07500000000000001,
+      "fire": true
+    },
+    {
+      "name": "portrait separate look and fire pointers add independent drag deltas",
+      "pass": false,
+      "yaw": -0.18,
+      "pitch": 0.07500000000000001,
+      "fire": true
+    },
+    {
+      "name": "ccw-portrait separate look and fire pointers add independent drag deltas",
+      "pass": false,
+      "yaw": -0.18,
+      "pitch": 0.07500000000000001,
+      "fire": true
+    },
+    {
+      "name": "landscape separate look and fire pointers add independent drag deltas",
+      "pass": false,
+      "yaw": -0.18,
+      "pitch": 0.07500000000000001,
+      "fire": true
+    },
+    {
+      "name": "cw-landscape left joystick and fire aim work together",
+      "pass": false,
+      "x": 0.46511627906976744,
+      "z": 0.6976744186046512,
+      "yaw": 0,
+      "pitch": 0.1,
+      "fire": true
+    },
+    {
+      "name": "portrait left joystick and fire aim work together",
+      "pass": false,
+      "x": 0.46511627906976744,
+      "z": 0.6976744186046512,
+      "yaw": 0,
+      "pitch": 0.1,
+      "fire": true
+    },
+    {
+      "name": "ccw-portrait left joystick and fire aim work together",
+      "pass": false,
+      "x": 0.46511627906976744,
+      "z": 0.6976744186046512,
+      "yaw": 0,
+      "pitch": 0.1,
+      "fire": true
+    },
+    {
+      "name": "landscape left joystick and fire aim work together",
+      "pass": false,
+      "x": 0.46511627906976744,
+      "z": 0.6976744186046512,
+      "yaw": 0,
+      "pitch": 0.1,
+      "fire": true
+    },
+    {
+      "name": "cw-landscape non-owner fire events cannot steal, stop or shift owner anchor",
+      "pass": false,
+      "yaw": 0,
+      "pitch": 0.1,
+      "fire": true
+    },
+    {
+      "name": "portrait non-owner fire events cannot steal, stop or shift owner anchor",
+      "pass": false,
+      "yaw": 0,
+      "pitch": 0.1,
+      "fire": true
+    },
+    {
+      "name": "ccw-portrait non-owner fire events cannot steal, stop or shift owner anchor",
+      "pass": false,
+      "yaw": 0,
+      "pitch": 0.1,
+      "fire": true
+    },
+    {
+      "name": "landscape non-owner fire events cannot steal, stop or shift owner anchor",
+      "pass": false,
+      "yaw": 0,
+      "pitch": 0.1,
+      "fire": true
+    },
+    {
+      "name": "cw-landscape pointerup clears fire and aim owner, next press gets a fresh origin",
+      "pass": false,
+      "cleared": true,
+      "oldYaw": 0,
+      "newYaw": 0
+    },
+    {
+      "name": "portrait pointerup clears fire and aim owner, next press gets a fresh origin",
+      "pass": false,
+      "cleared": true,
+      "oldYaw": 0,
+      "newYaw": 0
+    },
+    {
+      "name": "ccw-portrait pointerup clears fire and aim owner, next press gets a fresh origin",
+      "pass": false,
+      "cleared": true,
+      "oldYaw": 0,
+      "newYaw": 0
+    },
+    {
+      "name": "landscape pointerup clears fire and aim owner, next press gets a fresh origin",
+      "pass": false,
+      "cleared": true,
+      "oldYaw": 0,
+      "newYaw": 0
+    },
+    {
+      "name": "cw-landscape pointercancel clears fire and aim owner, next press gets a fresh origin",
+      "pass": false,
+      "cleared": true,
+      "oldYaw": 0,
+      "newYaw": 0
+    },
+    {
+      "name": "portrait pointercancel clears fire and aim owner, next press gets a fresh origin",
+      "pass": false,
+      "cleared": true,
+      "oldYaw": 0,
+      "newYaw": 0
+    },
+    {
+      "name": "ccw-portrait pointercancel clears fire and aim owner, next press gets a fresh origin",
+      "pass": false,
+      "cleared": true,
+      "oldYaw": 0,
+      "newYaw": 0
+    },
+    {
+      "name": "landscape pointercancel clears fire and aim owner, next press gets a fresh origin",
+      "pass": false,
+      "cleared": true,
+      "oldYaw": 0,
+      "newYaw": 0
+    },
+    {
+      "name": "cw-landscape lostpointercapture clears fire and aim owner, next press gets a fresh origin",
+      "pass": false,
+      "cleared": true,
+      "oldYaw": 0,
+      "newYaw": 0
+    },
+    {
+      "name": "portrait lostpointercapture clears fire and aim owner, next press gets a fresh origin",
+      "pass": false,
+      "cleared": true,
+      "oldYaw": 0,
+      "newYaw": 0
+    },
+    {
+      "name": "ccw-portrait lostpointercapture clears fire and aim owner, next press gets a fresh origin",
+      "pass": false,
+      "cleared": true,
+      "oldYaw": 0,
+      "newYaw": 0
+    },
+    {
+      "name": "landscape lostpointercapture clears fire and aim owner, next press gets a fresh origin",
+      "pass": false,
+      "cleared": true,
+      "oldYaw": 0,
+      "newYaw": 0
+    },
+    {
+      "name": "cw-landscape pause clears old fire drag",
+      "pass": true,
+      "fire": false,
+      "yaw": 0,
+      "pitch": 0.1
+    },
+    {
+      "name": "portrait pause clears old fire drag",
+      "pass": true,
+      "fire": false,
+      "yaw": 0,
+      "pitch": 0.1
+    },
+    {
+      "name": "ccw-portrait pause clears old fire drag",
+      "pass": true,
+      "fire": false,
+      "yaw": 0,
+      "pitch": 0.1
+    },
+    {
+      "name": "landscape pause clears old fire drag",
+      "pass": true,
+      "fire": false,
+      "yaw": 0,
+      "pitch": 0.1
+    },
+    {
+      "name": "cw-landscape rotation clears old fire drag",
+      "pass": true,
+      "fire": false,
+      "yaw": 0,
+      "pitch": 0.1
+    },
+    {
+      "name": "portrait rotation clears old fire drag",
+      "pass": true,
+      "fire": false,
+      "yaw": 0,
+      "pitch": 0.1
+    },
+    {
+      "name": "ccw-portrait rotation clears old fire drag",
+      "pass": true,
+      "fire": false,
+      "yaw": 0,
+      "pitch": 0.1
+    },
+    {
+      "name": "landscape rotation clears old fire drag",
+      "pass": true,
+      "fire": false,
+      "yaw": 0,
+      "pitch": 0.1
+    },
+    {
+      "name": "cw-landscape resize clears old fire drag",
+      "pass": true,
+      "fire": false,
+      "yaw": 0,
+      "pitch": 0.1
+    },
+    {
+      "name": "portrait resize clears old fire drag",
+      "pass": true,
+      "fire": false,
+      "yaw": 0,
+      "pitch": 0.1
+    },
+    {
+      "name": "ccw-portrait resize clears old fire drag",
+      "pass": true,
+      "fire": false,
+      "yaw": 0,
+      "pitch": 0.1
+    },
+    {
+      "name": "landscape resize clears old fire drag",
+      "pass": true,
+      "fire": false,
+      "yaw": 0,
+      "pitch": 0.1
+    },
+    {
+      "name": "cw-landscape blur clears old fire drag",
+      "pass": true,
+      "fire": false,
+      "yaw": 0,
+      "pitch": 0.1
+    },
+    {
+      "name": "portrait blur clears old fire drag",
+      "pass": true,
+      "fire": false,
+      "yaw": 0,
+      "pitch": 0.1
+    },
+    {
+      "name": "ccw-portrait blur clears old fire drag",
+      "pass": true,
+      "fire": false,
+      "yaw": 0,
+      "pitch": 0.1
+    },
+    {
+      "name": "landscape blur clears old fire drag",
+      "pass": true,
+      "fire": false,
+      "yaw": 0,
+      "pitch": 0.1
+    },
+    {
+      "name": "cw-landscape visibility clears old fire drag",
+      "pass": true,
+      "fire": false,
+      "yaw": 0,
+      "pitch": 0.1
+    },
+    {
+      "name": "portrait visibility clears old fire drag",
+      "pass": true,
+      "fire": false,
+      "yaw": 0,
+      "pitch": 0.1
+    },
+    {
+      "name": "ccw-portrait visibility clears old fire drag",
+      "pass": true,
+      "fire": false,
+      "yaw": 0,
+      "pitch": 0.1
+    },
+    {
+      "name": "landscape visibility clears old fire drag",
+      "pass": true,
+      "fire": false,
+      "yaw": 0,
+      "pitch": 0.1
+    },
+    {
+      "name": "cw-landscape fire aim pitch clamps then reverses immediately",
+      "pass": false,
+      "bottom": 0.1,
+      "bottomReverse": 0.1,
+      "top": 0.1,
+      "topReverse": 0.1
+    },
+    {
+      "name": "portrait fire aim pitch clamps then reverses immediately",
+      "pass": false,
+      "bottom": 0.1,
+      "bottomReverse": 0.1,
+      "top": 0.1,
+      "topReverse": 0.1
+    },
+    {
+      "name": "ccw-portrait fire aim pitch clamps then reverses immediately",
+      "pass": false,
+      "bottom": 0.1,
+      "bottomReverse": 0.1,
+      "top": 0.1,
+      "topReverse": 0.1
+    },
+    {
+      "name": "landscape fire aim pitch clamps then reverses immediately",
+      "pass": false,
+      "bottom": 0.1,
+      "bottomReverse": 0.1,
+      "top": 0.1,
+      "topReverse": 0.1
+    }
+  ]
+}

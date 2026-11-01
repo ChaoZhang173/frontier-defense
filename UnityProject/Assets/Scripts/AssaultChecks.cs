@@ -59,7 +59,7 @@ namespace Frontier
                         Roles[group.Batch.Index].Add(unit.Role);
                         Times[group.Batch.Index].Add(assault.Elapsed);
                         SourcesCorrect&=unit.Lane==group.Batch.Lane&&group.Batch.SourceSite%2==unit.Lane&&
-                            Vector3.Distance(unit.transform.position,GameWorld.EnemySpawnPoints[group.Batch.SourceSite])<2.3f;
+                            Vector3.Distance(unit.transform.position,GameWorld.EnemySpawnPoints[group.Batch.SourceSite]+Vector3.back*5)<2.3f;
                         BindingsCorrect&=unit.Brain!=null&&unit.Brain.Group==group;
                     }
                 }
@@ -98,6 +98,18 @@ namespace Frontier
 
         public static void Run(GameWorld w,Action<bool,string> check)
         {
+            // This diagnostic audits the untouched five-wave queue. Temporarily
+            // suspend expedition production through its normal barracks condition
+            // so the independent allies cannot destroy and suppress its sources.
+            var producers=new Dictionary<Health,Role>();
+            foreach(var building in w.BarracksBuildings)if(building!=null)
+            {producers[building]=building.Role;building.Role=Role.Construction;}
+            try { RunScenario(w,check); }
+            finally { foreach(var entry in producers)if(entry.Key!=null)entry.Key.Role=entry.Value; }
+        }
+
+        static void RunScenario(GameWorld w,Action<bool,string> check)
+        {
             w.BeginCampaign();w.Player.Bot=false;w.Player.ReleaseControl();
             w.ProductionLeft=10000;
             PlacePlayer(w,new Vector3(0,0,-17));
@@ -106,8 +118,10 @@ namespace Frontier
                     unit.transform.position=new Vector3(-23+unit.Slot*.8f,0,-18);
             Physics.SyncTransforms();
             int scheduledTotal=0,extraSpawns=0;
-            check(WavePlan.TotalCount==460&&GameWorld.EnemyLimit==65,
-                "The expanded grouped assault has 460 scheduled invaders and a 65-enemy concurrency limit");
+            check(WavePlan.TotalCount==608&&GameWorld.EnemyLimit==100,
+                "The expanded grouped assault has 608 scheduled invaders and a 100-mobile limit shared with base sentries");
+            check(!w.Expeditions.Operational&&w.Expeditions.Produced==0,
+                "The scheduler fixture suspends independent expedition production while retaining every living enemy base");
 
             for(int wave=1;wave<=5;wave++)
             {
@@ -132,21 +146,23 @@ namespace Frontier
                 if(wave>=3)check(audit.DualLane,"Wave "+wave+" has real living attackers on both lanes simultaneously");
                 if(w.Ended&&wave<5)return;
             }
-            check(scheduledTotal==460&&w.TotalSpawned==460+extraSpawns&&w.Kills==w.TotalSpawned,
-                "All 460 grouped campaign enemies and the separately counted cap-test enemies really spawn and die");
+            check(scheduledTotal==608&&w.TotalSpawned==608+extraSpawns&&w.Kills==w.TotalSpawned&&w.Assault.TotalSuppressed==0,
+                "All 608 grouped campaign enemies and the separately counted cap-test enemies really spawn and die without source suppression");
             check(Array.TrueForAll(w.SpawnPointUses,n=>n>0),"The complete campaign rotates actual spawns through all six rifts");
             check(w.Phase==Phase.Victory&&w.Wave==5&&w.EnemiesAlive==0&&w.RemainingToSpawn==0,
                 "Victory occurs only after the complete fifth-wave queue and its final living enemy are cleared");
-            bool towersRemain=w.EnemyDefenses.DestroyedCount==0;
+            bool towersRemain=w.EnemyDefenses.Towers.Count==12&&w.EnemyDefenses.DestroyedCount==0&&w.EnemyDefenses.DestroyedPortals==0;
             foreach(var tower in w.EnemyDefenses.Towers)towersRemain&=tower!=null&&tower.Alive;
-            check(towersRemain,"Six surviving rift defenses neither prevent five-wave victory nor enter the assault cleanup count");
-            check(w.PeakEnemies<=GameWorld.EnemyLimit,"Actual concurrent enemies never exceed 65 during queue backpressure and the campaign");
+            foreach(var site in w.EnemyDefenses.Bases)towersRemain&=site.Portal!=null&&site.Portal.Alive;
+            check(towersRemain,"Twelve surviving towers and six intact portals neither prevent five-wave victory nor enter the assault cleanup count");
+            check(w.PeakEnemies<=GameWorld.EnemyLimit,"Actual concurrent mobile enemies, including base sentries, never exceed 100 during backpressure and the campaign");
+            check(w.Expeditions.Produced==0,"The complete scheduler audit remains isolated from automatic allied expeditions");
         }
 
         static void CheckPlan(GameWorld w,Action<bool,string> check)
         {
             int count=0;bool valid=true,sorted=true;float at=-1;
-            var expected=new int[2,3];var actual=new int[2,3];
+            var expected=new int[2,5];var actual=new int[2,5];
             foreach(var order in WavePlan.Create(w.Wave))expected[order.Lane,RoleIndex(order.Role)]++;
             foreach(var batch in w.Assault.Schedule)
             {
@@ -157,13 +173,13 @@ namespace Frontier
             }
             check(valid&&sorted&&count==WavePlan.Counts[w.Wave-1]&&w.Assault.BatchCount==w.Assault.Schedule.Count,
                 "Wave "+w.Wave+" has ordered, nonempty multi-enemy batches on valid lane-specific rifts");
-            bool same=true;for(int lane=0;lane<2;lane++)for(int role=0;role<3;role++)same&=actual[lane,role]==expected[lane,role];
+            bool same=true;for(int lane=0;lane<2;lane++)for(int role=0;role<5;role++)same&=actual[lane,role]==expected[lane,role];
             check(same,"Wave "+w.Wave+" preserves the original role and lane totals when regrouping spawn orders");
-            int[] expectedCounts={40,58,92,120,150};
-            int[,] expectedRoles={{40,0,0},{44,14,0},{64,19,9},{70,30,20},{67,53,30}};
+            int[] expectedCounts={56,80,116,156,200};
+            int[,] expectedRoles={{48,0,0,8,0},{49,15,0,10,6},{64,19,8,16,9},{73,30,21,20,12},{70,56,32,27,15}};
             bool balance=WavePlan.Counts[w.Wave-1]==expectedCounts[w.Wave-1];
-            for(int role=0;role<3;role++)balance&=actual[0,role]+actual[1,role]==expectedRoles[w.Wave-1,role];
-            check(balance,"Wave "+w.Wave+" matches its approved total and runner, ranged and armored composition");
+            for(int role=0;role<5;role++)balance&=actual[0,role]+actual[1,role]==expectedRoles[w.Wave-1,role];
+            check(balance,"Wave "+w.Wave+" matches its approved runner, spitter, colossus, stalker and siege composition");
             if(w.Wave>=3)
             {
                 bool timing=w.Assault.Schedule.Count==8;
@@ -180,7 +196,7 @@ namespace Frontier
         static int CheckPauseAndCapacity(GameWorld w,Audit audit,Action<bool,string> check)
         {
             audit.Step(1);
-            check(w.EnemiesAlive==0&&w.RemainingToSpawn==40&&w.Phase==Phase.Assault,
+            check(w.EnemiesAlive==0&&w.RemainingToSpawn==56&&w.Phase==Phase.Assault,
                 "An empty battlefield cannot finish a wave while its warned spawn queue is still pending");
             float time=w.SimTime,elapsed=w.Assault.Elapsed,countdown=w.Assault.Countdown;
             int warning=w.Assault.WarningLaneMask,remaining=w.RemainingToSpawn;
@@ -190,17 +206,19 @@ namespace Frontier
                 "World and direct director updates freeze warning, batch and spawn timers while paused");
             w.SetPaused(false);w.Player.ReleaseControl();
             var blockers=new List<Health>();
-            for(int i=0;i<GameWorld.EnemyLimit;i++)
+            int baseSentries=w.EnemyMobileCount-w.EnemiesAlive;
+            int available=GameWorld.EnemyLimit-w.EnemyMobileCount;
+            for(int i=0;i<available;i++)
                 blockers.Add(w.SpawnEnemy(Role.Runner,i%2,new Vector3(-32+(i%10)*.15f,-4,77+(i/10)*.15f)));
             audit.Step(8);
-            check(w.EnemiesAlive==65&&w.SpawnedThisWave==0&&w.RemainingToSpawn==40&&w.Assault.Spawned==0,
-                "Sixty-five real live enemies hold the first batch without consuming or discarding any queued order");
+            check(w.EnemyMobileCount==100&&w.EnemiesAlive==100-baseSentries&&w.SpawnedThisWave==0&&w.RemainingToSpawn==56&&w.Assault.Spawned==0,
+                "One hundred real mobile enemies, including existing sentries, hold the first batch without consuming any queued order");
             blockers[0].Damage(10000,null);audit.Step(.5f);
-            check(w.EnemiesAlive==65&&w.SpawnedThisWave==1&&w.RemainingToSpawn==39,
+            check(w.EnemyMobileCount==100&&w.EnemiesAlive==100-baseSentries&&w.SpawnedThisWave==1&&w.RemainingToSpawn==55,
                 "Freeing one real concurrency slot admits exactly one pending enemy and refills the cap");
             foreach(var blocker in blockers)if(blocker!=null&&blocker.Alive)blocker.Damage(10000,null);
             audit.Step(.5f);
-            check(w.SpawnedThisWave>1&&w.RemainingToSpawn==40-w.SpawnedThisWave,
+            check(w.SpawnedThisWave>1&&w.RemainingToSpawn==56-w.SpawnedThisWave,
                 "Releasing the remaining blockers resumes the same batch with no skipped or duplicated orders");
             return blockers.Count;
         }
@@ -301,7 +319,7 @@ namespace Frontier
                 if(w.RemainingToSpawn==0)
                 {
                     Health last=null;
-                    foreach(var unit in w.Entities.ToArray())if(unit!=null&&unit.Alive&&unit.Faction==Faction.Invaders&&!unit.IsBuilding)
+                    foreach(var unit in w.Entities.ToArray())if(unit!=null&&unit.Alive&&unit.Faction==Faction.Invaders&&!unit.IsBuilding&&!unit.BaseGuard)
                     {if(last==null)last=unit;else unit.Damage(10000,null);}
                     if(last!=null)
                     {
@@ -312,7 +330,7 @@ namespace Frontier
                     }
                 }
                 foreach(var unit in w.Entities.ToArray())
-                    if(unit!=null&&unit.Alive&&unit.Faction==Faction.Invaders&&!unit.IsBuilding&&
+                    if(unit!=null&&unit.Alive&&unit.Faction==Faction.Invaders&&!unit.IsBuilding&&!unit.BaseGuard&&
                         audit.Born.TryGetValue(unit.GetInstanceID(),out var born)&&w.Assault.Elapsed-born>12)
                         unit.Damage(10000,null);
                 audit.Step(StepSize);
@@ -328,10 +346,10 @@ namespace Frontier
             {
                 expectedSources[batch.SourceSite]+=batch.Count;
                 if(!audit.Roles.TryGetValue(batch.Index,out var actual)){roles=false;continue;}
-                var expected=new int[3];var got=new int[3];
+                var expected=new int[5];var got=new int[5];
                 foreach(var role in batch.Roles)expected[RoleIndex(role)]++;
                 foreach(var role in actual)got[RoleIndex(role)]++;
-                for(int i=0;i<3;i++)roles&=expected[i]==got[i];
+                for(int i=0;i<5;i++)roles&=expected[i]==got[i];
                 var times=audit.Times[batch.Index];
                 for(int i=3;i<times.Count;i++)if(times[i]-times[i-3]<3)burst=true;
             }
@@ -341,7 +359,7 @@ namespace Frontier
         }
 
         static bool HasRole(IReadOnlyList<Role> roles,Role wanted){foreach(var role in roles)if(role==wanted)return true;return false;}
-        static int RoleIndex(Role role)=>role==Role.Runner?0:role==Role.Spitter?1:2;
+        static int RoleIndex(Role role)=>role==Role.Runner?0:role==Role.Spitter?1:role==Role.Colossus?2:role==Role.Stalker?3:4;
         static float FlatDistance(Vector3 a,Vector3 b){a.y=b.y=0;return Vector3.Distance(a,b);}
         static Dictionary<int,Vector3> Positions(AssaultGroup group)
         {

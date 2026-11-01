@@ -1,0 +1,483 @@
+{
+  "at": "2026-09-22T10:06:13.874Z",
+  "sources": {
+    "three.min.js": "d409477142aebf12684b278c536a6db2591edcdff6a66c65c081f797321ae6d0",
+    "support.js": "bc65416a6ab7bd3720ff88749b0d72f63707925467b966d4e519de04e4352deb",
+    "core.js": "44443dd38723c2934e581e3d5976fe9c0ad879e98337e647ff85417996b9cb69",
+    "scene.js": "c111c448821d253a2d85992697d6c6452110237ab1ec7eec8598bd2c73af044a"
+  },
+  "threeRevision": "160",
+  "method": "Actual bundled Three.js geometry, Scene and camera classes; WebGLRenderer replaced with a counting fake. Render calls are conservative visible-object submissions without frustum culling, not measured GPU calls/frame rate. Pixel budget is configured backing canvas size. No browser or phone used.",
+  "checks": [
+    {
+      "name": "Local Three scene geometry is finite and nonempty",
+      "pass": true,
+      "invalid": 0,
+      "meshes": 21,
+      "conservativeTrianglesIfAll100AttackersUseHighestPolyModel": 111086,
+      "uniqueGeometries": 21,
+      "totalTrianglesAllSceneMeshes": 94106,
+      "byCacheKey": {
+        "player-false-false": 268,
+        "command-false-false": 192,
+        "bunker-false-false": 96,
+        "barracks-false-false": 96,
+        "marine-false-false": 268,
+        "portal-false-false": 580,
+        "nest-false-false": 338,
+        "tower-false-false": 162,
+        "spitter-false-false": 478,
+        "stalker-false-false": 486,
+        "worker-false-false": 340,
+        "factory-false-false": 148,
+        "merc-false-true": 268,
+        "marine-false-true": 268,
+        "tank-false-false": 288,
+        "assault-false-false": 268,
+        "siege-false-false": 642,
+        "heavy-false-false": 414,
+        "runner-false-false": 414
+      }
+    },
+    {
+      "name": "Default render budget stays within 100 conservative calls and 2M pixels",
+      "pass": true,
+      "calls": 27,
+      "triangles": 94106,
+      "lines": 6,
+      "pixels": 1998100,
+      "ratio": 0.9820927516479826,
+      "effects": 6
+    },
+    {
+      "name": "Low render budget stays within 50 conservative calls and 1M pixels",
+      "pass": true,
+      "calls": 21,
+      "triangles": 94106,
+      "lines": 0,
+      "pixels": 999750,
+      "ratio": 0.6944444444444444,
+      "effects": 0,
+      "hiddenAttackers": 0
+    },
+    {
+      "name": "Viewport combinations respect render pixel budgets",
+      "pass": true,
+      "results": [
+        {
+          "w": 390,
+          "h": 844,
+          "dpr": 3,
+          "low": false,
+          "pixels": 644826,
+          "ratio": 1.4,
+          "pass": true
+        },
+        {
+          "w": 390,
+          "h": 844,
+          "dpr": 3,
+          "low": true,
+          "pixels": 329160,
+          "ratio": 1,
+          "pass": true
+        },
+        {
+          "w": 844,
+          "h": 390,
+          "dpr": 3,
+          "low": false,
+          "pixels": 644826,
+          "ratio": 1.4,
+          "pass": true
+        },
+        {
+          "w": 844,
+          "h": 390,
+          "dpr": 3,
+          "low": true,
+          "pixels": 329160,
+          "ratio": 1,
+          "pass": true
+        },
+        {
+          "w": 1920,
+          "h": 1080,
+          "dpr": 2,
+          "low": false,
+          "pixels": 1998100,
+          "ratio": 0.9820927516479826,
+          "pass": true
+        },
+        {
+          "w": 1920,
+          "h": 1080,
+          "dpr": 2,
+          "low": true,
+          "pixels": 999750,
+          "ratio": 0.6944444444444444,
+          "pass": true
+        },
+        {
+          "w": 3840,
+          "h": 2160,
+          "dpr": 3,
+          "low": false,
+          "pixels": 1998100,
+          "ratio": 0.4910463758239913,
+          "pass": true
+        },
+        {
+          "w": 3840,
+          "h": 2160,
+          "dpr": 3,
+          "low": true,
+          "pixels": 999750,
+          "ratio": 0.3472222222222222,
+          "pass": true
+        },
+        {
+          "w": 1,
+          "h": 1,
+          "dpr": 1,
+          "low": false,
+          "pixels": 1,
+          "ratio": 1,
+          "pass": true
+        },
+        {
+          "w": 1,
+          "h": 1,
+          "dpr": 1,
+          "low": true,
+          "pixels": 1,
+          "ratio": 1,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "name": "Shared entity geometry survives one entity death and variant change",
+      "pass": true,
+      "same": true,
+      "disposed": 0
+    },
+    {
+      "name": "View disposal releases each owned geometry once and preserves shared material",
+      "pass": true,
+      "geometries": 21,
+      "materials": 1,
+      "sharedDisposed": 0
+    },
+    {
+      "name": "Slow frames trigger downgrade then persistent-low error",
+      "pass": true,
+      "lowered": true,
+      "persistentFailureReported": true
+    },
+    {
+      "name": "Paused frame observations cannot trigger downgrade",
+      "pass": true
+    },
+    {
+      "name": "Low visual settings leave simulation entities and wave counts intact",
+      "pass": true,
+      "attackers": 100,
+      "wave": 5
+    },
+    {
+      "name": "Visible enemy requirement under dense low-mode combat",
+      "pass": true,
+      "hiddenNearbyAttackers": 0,
+      "note": "Gameplay visibility risk if live enemies inside clear combat range are hidden by a render-count cap"
+    },
+    {
+      "name": "Instanced batches contain every live entity and clear count on death",
+      "pass": true,
+      "expected": 186,
+      "actual": 186,
+      "before": 26,
+      "after": 25,
+      "withinAllocatedCapacity": true
+    },
+    {
+      "name": "InstancedMesh instance buffers receive explicit dispose on view destruction",
+      "pass": true,
+      "expected": 11,
+      "disposals": 11,
+      "note": "InstancedMesh.dispose notifies Three to release its per-instance matrix/color buffers; distinct from shared geometry.dispose"
+    },
+    {
+      "name": "Consistently very slow active frames cannot evade downgrade",
+      "pass": true,
+      "lowered": true,
+      "warned": true,
+      "frameSeconds": 0.4
+    },
+    {
+      "name": "Logical orientation viewport sets camera and renderer dimensions",
+      "pass": true,
+      "results": [
+        {
+          "pw": 390,
+          "ph": 844,
+          "w": 844,
+          "h": 390,
+          "r": 90,
+          "low": false,
+          "actualWidth": 844,
+          "actualHeight": 390,
+          "aspect": 2.164102564102564,
+          "pixels": 644826,
+          "pass": true
+        },
+        {
+          "pw": 390,
+          "ph": 844,
+          "w": 844,
+          "h": 390,
+          "r": 90,
+          "low": true,
+          "actualWidth": 844,
+          "actualHeight": 390,
+          "aspect": 2.164102564102564,
+          "pixels": 329160,
+          "pass": true
+        },
+        {
+          "pw": 844,
+          "ph": 390,
+          "w": 390,
+          "h": 844,
+          "r": -90,
+          "low": false,
+          "actualWidth": 390,
+          "actualHeight": 844,
+          "aspect": 0.46208530805687204,
+          "pixels": 644826,
+          "pass": true
+        },
+        {
+          "pw": 844,
+          "ph": 390,
+          "w": 390,
+          "h": 844,
+          "r": -90,
+          "low": true,
+          "actualWidth": 390,
+          "actualHeight": 844,
+          "aspect": 0.46208530805687204,
+          "pixels": 329160,
+          "pass": true
+        },
+        {
+          "pw": 390,
+          "ph": 844,
+          "w": 390,
+          "h": 844,
+          "r": 0,
+          "low": false,
+          "actualWidth": 390,
+          "actualHeight": 844,
+          "aspect": 0.46208530805687204,
+          "pixels": 644826,
+          "pass": true
+        },
+        {
+          "pw": 390,
+          "ph": 844,
+          "w": 390,
+          "h": 844,
+          "r": 0,
+          "low": true,
+          "actualWidth": 390,
+          "actualHeight": 844,
+          "aspect": 0.46208530805687204,
+          "pixels": 329160,
+          "pass": true
+        },
+        {
+          "pw": 844,
+          "ph": 390,
+          "w": 844,
+          "h": 390,
+          "r": 0,
+          "low": false,
+          "actualWidth": 844,
+          "actualHeight": 390,
+          "aspect": 2.164102564102564,
+          "pixels": 644826,
+          "pass": true
+        },
+        {
+          "pw": 844,
+          "ph": 390,
+          "w": 844,
+          "h": 390,
+          "r": 0,
+          "low": true,
+          "actualWidth": 844,
+          "actualHeight": 390,
+          "aspect": 2.164102564102564,
+          "pixels": 329160,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "name": "Core corpse pruning removes instances before the very next rendered frame",
+      "pass": true,
+      "actuallyPruned": true,
+      "stillMapped": false,
+      "before": 26,
+      "after": 25,
+      "rendered": 185,
+      "expected": 185
+    },
+    {
+      "name": "Destroyed portal rings are absent from entity and batch rendering immediately",
+      "pass": true,
+      "before": 6,
+      "after": 5,
+      "stillMapped": false
+    }
+  ],
+  "measurements": {
+    "geometry": {
+      "meshes": 21,
+      "conservativeTrianglesIfAll100AttackersUseHighestPolyModel": 111086,
+      "uniqueGeometries": 21,
+      "totalTrianglesAllSceneMeshes": 94106,
+      "byCacheKey": {
+        "player-false-false": 268,
+        "command-false-false": 192,
+        "bunker-false-false": 96,
+        "barracks-false-false": 96,
+        "marine-false-false": 268,
+        "portal-false-false": 580,
+        "nest-false-false": 338,
+        "tower-false-false": 162,
+        "spitter-false-false": 478,
+        "stalker-false-false": 486,
+        "worker-false-false": 340,
+        "factory-false-false": 148,
+        "merc-false-true": 268,
+        "marine-false-true": 268,
+        "tank-false-false": 288,
+        "assault-false-false": 268,
+        "siege-false-false": 642,
+        "heavy-false-false": 414,
+        "runner-false-false": 414
+      }
+    },
+    "default": {
+      "calls": 27,
+      "triangles": 94106,
+      "lines": 6,
+      "pixels": 1998100,
+      "ratio": 0.9820927516479826,
+      "effects": 6
+    },
+    "low": {
+      "calls": 21,
+      "triangles": 94106,
+      "lines": 0,
+      "pixels": 999750,
+      "ratio": 0.6944444444444444,
+      "effects": 0,
+      "hiddenAttackers": 0
+    },
+    "viewports": [
+      {
+        "w": 390,
+        "h": 844,
+        "dpr": 3,
+        "low": false,
+        "pixels": 644826,
+        "ratio": 1.4,
+        "pass": true
+      },
+      {
+        "w": 390,
+        "h": 844,
+        "dpr": 3,
+        "low": true,
+        "pixels": 329160,
+        "ratio": 1,
+        "pass": true
+      },
+      {
+        "w": 844,
+        "h": 390,
+        "dpr": 3,
+        "low": false,
+        "pixels": 644826,
+        "ratio": 1.4,
+        "pass": true
+      },
+      {
+        "w": 844,
+        "h": 390,
+        "dpr": 3,
+        "low": true,
+        "pixels": 329160,
+        "ratio": 1,
+        "pass": true
+      },
+      {
+        "w": 1920,
+        "h": 1080,
+        "dpr": 2,
+        "low": false,
+        "pixels": 1998100,
+        "ratio": 0.9820927516479826,
+        "pass": true
+      },
+      {
+        "w": 1920,
+        "h": 1080,
+        "dpr": 2,
+        "low": true,
+        "pixels": 999750,
+        "ratio": 0.6944444444444444,
+        "pass": true
+      },
+      {
+        "w": 3840,
+        "h": 2160,
+        "dpr": 3,
+        "low": false,
+        "pixels": 1998100,
+        "ratio": 0.4910463758239913,
+        "pass": true
+      },
+      {
+        "w": 3840,
+        "h": 2160,
+        "dpr": 3,
+        "low": true,
+        "pixels": 999750,
+        "ratio": 0.3472222222222222,
+        "pass": true
+      },
+      {
+        "w": 1,
+        "h": 1,
+        "dpr": 1,
+        "low": false,
+        "pixels": 1,
+        "ratio": 1,
+        "pass": true
+      },
+      {
+        "w": 1,
+        "h": 1,
+        "dpr": 1,
+        "low": true,
+        "pixels": 1,
+        "ratio": 1,
+        "pass": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "method": "Local packaging, source-reference and ZIP byte audit; not a platform upload review.",
+  "version": "0.7.0",
+  "zipSha256": "782308bd82b69eea5ba4df9dd078504a068b992702e8944c684b225e1bf1a625",
+  "checks": [
+    {
+      "name": "All page scripts and styles are local files",
+      "urls": [
+        "./style.css",
+        "./three.min.js",
+        "./support.js",
+        "./core.js",
+        "./scene.js",
+        "./menu-scroll.js",
+        "./app.js"
+      ],
+      "pass": true
+    },
+    {
+      "name": "Support module loads before core and application",
+      "pass": true
+    },
+    {
+      "name": "Version is visible on start screen",
+      "pass": true
+    },
+    {
+      "name": "Game code has no network or persistent account calls",
+      "pass": true
+    },
+    {
+      "name": "Original vendor license included",
+      "pass": true
+    },
+    {
+      "name": "Archive CRC integrity",
+      "pass": true
+    },
+    {
+      "name": "One root index.html",
+      "pass": true
+    },
+    {
+      "name": "ZIP matches tested static files byte for byte",
+      "pass": true
+    },
+    {
+      "name": "ZIP is under 10 MiB",
+      "bytes": 204348,
+      "pass": true
+    }
+  ],
+  "pass": true
+}

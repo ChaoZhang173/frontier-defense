@@ -26,7 +26,7 @@ namespace Frontier
             Snapshot(false);
             current=new WaveResult{wave=world.Wave};Waves.Add(current);
             startCredits=world.Credits;startEarned=SuppliesEarned;startSpawned=world.TotalSpawned;
-            startKills=world.Kills;startDeaths=world.Deaths;
+            startKills=world.ScheduledKills;startDeaths=world.Deaths;
         }
         public void Earn(int amount){SuppliesEarned+=amount;}
         public void RecordDamage(Health victim,float amount)
@@ -63,7 +63,7 @@ namespace Frontier
         public void Snapshot(bool cleared)
         {
             if(current==null)return;
-            current.spawned=world.TotalSpawned-startSpawned;current.killed=world.Kills-startKills;
+            current.spawned=world.TotalSpawned-startSpawned;current.killed=world.ScheduledKills-startKills;
             current.playerDeaths=world.Deaths-startDeaths;current.suppliesEarned=SuppliesEarned-startEarned;
             current.endingSupplies=world.Credits;current.suppliesSpent=startCredits+current.suppliesEarned-world.Credits;
             current.hqHealth=world.Command.Current;current.cleared|=cleared;

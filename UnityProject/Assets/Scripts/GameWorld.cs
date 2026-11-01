@@ -21,6 +21,10 @@ namespace Frontier
         public AssaultDirector Assault;
         public TankDirector Tanks;
         public EnemyDefenseDirector EnemyDefenses;
+        public ExpeditionDirector Expeditions;
+        public RepairDirector Repairs;
+        public int CommandFortifyLevel;
+        public int EnemyMobileCount { get { int count=0;foreach(var h in Entities)if(h!=null&&h.Alive&&h.Faction==Faction.Invaders&&!h.IsBuilding)count++;return count;} }
         public int MarineCapacity => 8 + (Construction != null && Construction.ReserveOperational ? 4 : 0);
         public int PeakMarineCapacity = 8;
         public PlayerMotor Player;
@@ -31,14 +35,14 @@ namespace Frontier
         public SquadDirector Squad;
         public BunkerDirector Fort;
         public BaseUpgrades Upgrades;
-        public const int EnemyLimit = 65;
+        public const int EnemyLimit = 100;
         public float ProductionInterval => 12 - 2 * (Upgrades == null ? 0 : Upgrades.BarracksLevel);
         public float BunkerDamage => 15 + 4 * DefenseLevel + 5 * (Upgrades == null ? 0 : Upgrades.FirepowerLevel);
         public bool CommandTerminalOpen {get;private set;}
         public Phase Phase = Phase.Briefing;
         public bool Paused, Diagnostic;
         public int Wave, Credits = 160, WeaponLevel, DefenseLevel, Kills, PlayerKills, Deaths;
-        public int EnemiesAlive, MarinesAlive, SpawnedThisWave, TotalSpawned, PeakEnemies, PeakMarines;
+        public int EnemiesAlive, MarinesAlive, SpawnedThisWave, TotalSpawned, ScheduledKills, PeakEnemies, PeakMarines;
         public float SimTime, IntermissionLeft, ProductionLeft = 10, RespawnLeft;
         public float ToastLeft, WaveBannerLeft;
         public string Toast = "", Banner = "", Subtitle = "";
@@ -80,7 +84,8 @@ namespace Frontier
             EnemyFronts.Build(transform);
             Command = CreateBuilding(Role.Command, new Vector3(0,0,-7), 2300, new Vector3(9.5f,5.3f,8.2f));
             Barracks = CreateBuilding(Role.Barracks, new Vector3(-14,0,-9), 1100, new Vector3(7.5f,4.2f,8.3f));
-            Bunker = CreateBuilding(Role.Bunker, new Vector3(20.5f,0,6), 1200, new Vector3(7.4f,3,6.1f));
+            Bunker = CreateBuilding(Role.Bunker, new Vector3(20.5f,0,20), 1200, new Vector3(7.4f,3,6.1f));
+            CreateBuilding(Role.Bunker,new Vector3(-20.5f,0,20),1200,new Vector3(7.4f,3,6.1f));
             Effects = gameObject.AddComponent<Effects>(); Effects.Setup();
             Sounds = gameObject.AddComponent<Soundscape>(); Sounds.Setup();
             SpawnPlayer();
@@ -91,6 +96,7 @@ namespace Frontier
             Construction=new ConstructionDirector(this);Tech=new TechnologyDirector(this);
             Assault=new AssaultDirector(this);Tanks=new TankDirector(this);
             EnemyDefenses=new EnemyDefenseDirector(this);Squad.RebuildNavigation();
+            Expeditions=new ExpeditionDirector(this);Repairs=new RepairDirector(this);
             Hud = gameObject.AddComponent<GameHud>();
             ApplyQuality(Quality);
             if(Diagnostic) { Checks = gameObject.AddComponent<RuntimeChecks>(); Checks.Setup(this); }
@@ -183,13 +189,13 @@ namespace Frontier
             garrison[slot]=null;MarinesAlive=Mathf.Max(0,MarinesAlive-1);return true;
         }
         public static readonly Vector3[] EnemySpawnPoints={
-            new Vector3(-13.5f,-4,64),new Vector3(13.5f,-4,64),
-            new Vector3(-29,-4,58),new Vector3(29,-4,58),
-            new Vector3(-5,-4,74),new Vector3(5,-4,74)
+            new Vector3(-27,-4,82),new Vector3(27,-4,82),
+            new Vector3(-44,-4,104),new Vector3(44,-4,104),
+            new Vector3(-16,-4,121),new Vector3(16,-4,121)
         };
         readonly int[] laneSpawns=new int[2];
         public readonly int[] SpawnPointUses=new int[6];
-        public Health SpawnEnemy(Role role,int lane,Vector3? overridePosition=null,int sourceSite=-1)
+        public Health SpawnEnemy(Role role,int lane,Vector3? overridePosition=null,int sourceSite=-1,bool baseGuard=false)
         {
             lane=Mathf.Clamp(lane,0,1);
             Vector3 p;
@@ -197,19 +203,19 @@ namespace Frontier
             else
             {
                 int site=sourceSite>=0&&sourceSite<EnemySpawnPoints.Length&&sourceSite%2==lane?sourceSite:lane+2*(laneSpawns[lane]++%3);SpawnPointUses[site]++;
-                p=EnemySpawnPoints[site]+new Vector3(UnityEngine.Random.Range(-1.5f,1.5f),0,UnityEngine.Random.Range(-1f,1f));
+                p=EnemySpawnPoints[site]+new Vector3(UnityEngine.Random.Range(-1.5f,1.5f),0,-5+UnityEngine.Random.Range(-1f,1f));
             }
             Transform root=Art.Root(role.ToString(),transform,p);root.rotation=Quaternion.Euler(0,180,0);
-            float hp=role==Role.Colossus?790:role==Role.Spitter?160:95;
-            float height=role==Role.Colossus?1.8f:role==Role.Spitter?.95f:.6f;
-            float radius=role==Role.Colossus?1.12f:role==Role.Spitter?.68f:.52f;
-            Health h=root.gameObject.AddComponent<Health>();h.Setup(role,Faction.Invaders,hp,height,radius);h.Lane=lane;
+            float hp=role==Role.Colossus?790:role==Role.Siege?420:role==Role.Spitter?160:role==Role.Stalker?120:95;
+            float height=role==Role.Colossus?1.8f:role==Role.Siege?1.7f:role==Role.Spitter?.95f:role==Role.Stalker?.85f:.6f;
+            float radius=role==Role.Colossus?1.12f:role==Role.Siege?1.05f:role==Role.Spitter?.68f:.52f;
+            Health h=root.gameObject.AddComponent<Health>();h.Setup(role,Faction.Invaders,hp,height,radius);h.Lane=lane;h.BaseGuard=baseGuard;h.BaseId=sourceSite;
             h.Rig=Art.Creature(root,role);
             h.WeakPoint=role==Role.Colossus?new Vector3(0,2.55f,.33f):role==Role.Spitter?new Vector3(0,1.19f,-.40f):new Vector3(0,.56f,.79f);
             h.WeakRadius=role==Role.Colossus?.4f:role==Role.Spitter?.34f:.28f;
             var col=root.gameObject.AddComponent<CapsuleCollider>();col.radius=radius;col.height=height*1.8f;col.center=Vector3.up*(height*.8f);col.isTrigger=true;root.gameObject.layer=Combat.UnitLayer;
             root.gameObject.AddComponent<ActorBrain>().Setup(h,Vector3.zero);
-            EnemiesAlive++;TotalSpawned++;PeakEnemies=Mathf.Max(PeakEnemies,EnemiesAlive);
+            if(!baseGuard){EnemiesAlive++;TotalSpawned++;}PeakEnemies=Mathf.Max(PeakEnemies,EnemyMobileCount);
             return h;
         }
 
@@ -229,6 +235,7 @@ namespace Frontier
                 if(h==null||!h.Alive||h.IsSheltered||h.Faction==from.Faction)continue;
                 float distance=Vector3.Distance(h.Aim,from.Aim)-h.Radius;
                 if(distance>range)continue;
+                if(from.Faction==Faction.Defense&&(from.Role==Role.Bunker||from.Role==Role.Marine)&&!Combat.Visible(from,h))continue;
                 float score=distance;
                 if(from.Faction==Faction.Invaders)
                 {
@@ -273,7 +280,7 @@ namespace Frontier
                 RespawnLeft-=dt;
                 if(RespawnLeft<=0) { Player.Respawn(); Notice("装甲已重启 · 重新加入防线"); }
             }
-            Construction.Tick(dt);Tech.Tick(dt);Tanks.Tick(dt);EnemyDefenses.Tick(dt);
+            Construction.Tick(dt);Tech.Tick(dt);Tanks.Tick(dt);EnemyDefenses.Tick(dt);Expeditions.Tick(dt);Repairs.Tick(dt);
             if(Barracks!=null && Barracks.Alive && MarinesAlive<MarineCapacity)
             {
                 ProductionLeft-=dt;
@@ -340,12 +347,12 @@ namespace Frontier
             {
                 Deaths++;RespawnLeft=6;Player.PlayerKilled();Sounds.Play(SoundId.Down,.75f);return;
             }
-            if(victim.Role==Role.EnemyTower)
+            if(victim.Role==Role.EnemyTower||victim.Role==Role.EnemyPortal||victim.Role==Role.EnemyNest)
             {
                 if(EnemyDefenses.OnKilled(victim))
                 {
-                    Credits+=EnemyDefenseDirector.Reward;Stats.Earn(EnemyDefenseDirector.Reward);
-                    Notice("敌方防御塔已摧毁 · 额外获得 "+EnemyDefenseDirector.Reward+" 补给");
+                    int reward=victim.Role==Role.EnemyPortal?300:victim.Role==Role.EnemyNest?90:EnemyDefenseDirector.Reward;Credits+=reward;Stats.Earn(reward);
+                    Notice(victim.Role==Role.EnemyPortal?"传送门摧毁 · 据点停止增援":"敌方防御建筑已摧毁 · +"+reward+" 补给");
                     Effects.Burst(victim.Aim,Art.Pink,3);
                 }
                 foreach(var r in victim.GetComponentsInChildren<Renderer>())r.sharedMaterial=Art.Mat(1);
@@ -358,7 +365,7 @@ namespace Frontier
             }
             if(victim.Faction==Faction.Invaders)
             {
-                EnemiesAlive=Mathf.Max(0,EnemiesAlive-1);Kills++;
+                if(!victim.BaseGuard){EnemiesAlive=Mathf.Max(0,EnemiesAlive-1);ScheduledKills++;}Kills++;
                 if(source!=null && source.Role==Role.Player)PlayerKills++;
                 if(source!=null && source.Role==Role.Squad)Squad.Kills++;
                 int reward=KillReward(victim.Role);Credits+=reward;Stats.Earn(reward);
@@ -366,6 +373,7 @@ namespace Frontier
             }
             else if(victim.Role==Role.Marine) { Fort.ReleaseGuard(victim);MarinesAlive=Mathf.Max(0,MarinesAlive-1);Effects.Burst(victim.Aim,Art.Cyan,.6f); }
             else if(victim.Role==Role.Squad) { Squad.OnLost(victim);Effects.Burst(victim.Aim,Art.Amber,.6f); }
+            else if(victim.Role==Role.AssaultMarine||victim.Role==Role.Worker){Effects.Burst(victim.Aim,Art.Cyan,.6f);}
             else
             {
                 if(victim.Role==Role.Bunker)Fort.OnDestroyed(victim);
@@ -387,20 +395,20 @@ namespace Frontier
             victim.gameObject.SetActive(false);Destroy(victim.gameObject);
         }
 
-        public static int KillReward(Role role)=>role==Role.Colossus?48:role==Role.Spitter?18:10;
+        public static int KillReward(Role role)=>role==Role.Colossus?48:role==Role.Siege?38:role==Role.Spitter?18:role==Role.Stalker?15:10;
         public static int WaveReward(int wave)=>140+wave*35;
 
-        public int UpgradeCost(int kind) => kind==0?90+WeaponLevel*80:kind==1?110+DefenseLevel*90:120;
+        public int UpgradeCost(int kind) => kind==0?90+WeaponLevel*80:kind==1?110+DefenseLevel*90:120*(CommandFortifyLevel+1);
         public bool Buy(int kind)
         {
             if(!CanManage||kind<0||kind>2)return false;
             if((kind==0&&WeaponLevel>=4)||(kind==1&&DefenseLevel>=4))return false;
-            if(kind==2&&Command.Current>=Command.Maximum)return false;
+            if(kind==2&&CommandFortifyLevel>=3)return false;
             int cost=UpgradeCost(kind);if(Credits<cost){Notice("补给不足");return false;}
             Credits-=cost;
             if(kind==0)WeaponLevel++;
             if(kind==1)DefenseLevel++;
-            if(kind==2)Command.Heal(650);
+            if(kind==2){CommandFortifyLevel++;Command.Maximum+=650;Command.Heal(650);}
             Sounds.Play(SoundId.Upgrade,.6f);return true;
         }
 
@@ -439,7 +447,7 @@ namespace Frontier
         public int LaneEnemies(int lane)
         {
             int count=0;
-            foreach(var h in Entities)if(h!=null&&h.Alive&&h.Faction==Faction.Invaders&&!h.IsBuilding&&h.Lane==lane)count++;
+            foreach(var h in Entities)if(h!=null&&h.Alive&&h.Faction==Faction.Invaders&&!h.IsBuilding&&h.Lane==lane&&(!h.BaseGuard||h.transform.position.z<50))count++;
             return count;
         }
         public bool LaneUnderAttack(int lane)

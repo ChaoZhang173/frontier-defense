@@ -1,0 +1,2685 @@
+{
+  "at": "2026-09-16T13:10:40.253Z",
+  "baseline": false,
+  "sources": {
+    "core.js": "1221cd684ee69f14ef8c829fe15010329db353a6c8d135ce62f579616f4482ca",
+    "scene.js": "fc71d7870ae052ca409709e9d96b6f9d54249869a2000c25eee7d1aecc2139c3",
+    "app.js": "d7f8609c4610633456aeeea949b3ec275d4fbb5fee863d1b7f2d0c6b46668231",
+    "three.min.js": "d409477142aebf12684b278c536a6db2591edcdff6a66c65c081f797321ae6d0"
+  },
+  "method": "Actual Three camera, world/instance matrices, geometry, core raycast/fire, actual app pointer/keyboard/minimap draw calls. WebGLRenderer mocked; tests use east/right, north/up, physical projected turns and observed draw calls, not old yaw-sign expectations.",
+  "limitations": [
+    "No browser, GPU culling image or phone measurements",
+    "Native lighting appearance not judged; matrix-space placement tested"
+  ],
+  "summary": {
+    "pass": 11,
+    "fail": 0,
+    "total": 11
+  },
+  "checks": [
+    {
+      "name": "Six spawn markers and five building centers preserve east/right in overview",
+      "pass": true,
+      "passed": 44,
+      "total": 44,
+      "results": [
+        {
+          "layout": "landscape",
+          "kind": "spawn",
+          "i": 0,
+          "coreX": -13.5,
+          "screenRelativeToCenter": -0.10006284442062058,
+          "positionError": 9.536743172944284e-8,
+          "localMatchError": 9.536743172944284e-8,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "kind": "spawn",
+          "i": 1,
+          "coreX": 13.5,
+          "screenRelativeToCenter": 0.08765949867053872,
+          "positionError": 9.536743172944284e-8,
+          "localMatchError": 9.536743172944284e-8,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "kind": "spawn",
+          "i": 2,
+          "coreX": -29,
+          "screenRelativeToCenter": -0.24487256989189293,
+          "positionError": 9.536743172944284e-8,
+          "localMatchError": 9.536743172944284e-8,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "kind": "spawn",
+          "i": 3,
+          "coreX": 29,
+          "screenRelativeToCenter": 0.18138871049597324,
+          "positionError": 9.536743172944284e-8,
+          "localMatchError": 9.536743172944284e-8,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "kind": "spawn",
+          "i": 4,
+          "coreX": -5,
+          "screenRelativeToCenter": -0.03335821365833,
+          "positionError": 9.536743172944284e-8,
+          "localMatchError": 9.536743172944284e-8,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "kind": "spawn",
+          "i": 5,
+          "coreX": 5,
+          "screenRelativeToCenter": 0.03187773209450906,
+          "positionError": 9.536743172944284e-8,
+          "localMatchError": 9.536743172944284e-8,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "kind": "building",
+          "id": "west",
+          "coreX": -20.5,
+          "screenRelativeToCenter": -0.2678019796797029,
+          "positionError": 0,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "kind": "building",
+          "id": "reserve",
+          "coreX": 9,
+          "screenRelativeToCenter": 0.09671526192824109,
+          "positionError": 0,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "kind": "building",
+          "id": "barracks",
+          "coreX": -14,
+          "screenRelativeToCenter": -0.19677374207799475,
+          "positionError": 0,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "kind": "building",
+          "id": "east",
+          "coreX": 20.5,
+          "screenRelativeToCenter": 0.18314599535535575,
+          "positionError": 0,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "kind": "building",
+          "id": "factory",
+          "coreX": 20,
+          "screenRelativeToCenter": 0.19026089108553812,
+          "positionError": 0,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "kind": "spawn",
+          "i": 0,
+          "coreX": -13.5,
+          "screenRelativeToCenter": -0.46862831257861404,
+          "positionError": 9.536743172944284e-8,
+          "localMatchError": 9.536743172944284e-8,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "kind": "spawn",
+          "i": 1,
+          "coreX": 13.5,
+          "screenRelativeToCenter": 0.4105392284350878,
+          "positionError": 9.536743172944284e-8,
+          "localMatchError": 9.536743172944284e-8,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "kind": "spawn",
+          "i": 2,
+          "coreX": -29,
+          "screenRelativeToCenter": -1.1468214789382738,
+          "positionError": 9.536743172944284e-8,
+          "localMatchError": 9.536743172944284e-8,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "kind": "spawn",
+          "i": 3,
+          "coreX": 29,
+          "screenRelativeToCenter": 0.8495049867183406,
+          "positionError": 9.536743172944284e-8,
+          "localMatchError": 9.536743172944284e-8,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "kind": "spawn",
+          "i": 4,
+          "coreX": -5,
+          "screenRelativeToCenter": -0.15622785328415623,
+          "positionError": 9.536743172944284e-8,
+          "localMatchError": 9.536743172944284e-8,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "kind": "spawn",
+          "i": 5,
+          "coreX": 5,
+          "screenRelativeToCenter": 0.1492942548933217,
+          "positionError": 9.536743172944284e-8,
+          "localMatchError": 9.536743172944284e-8,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "kind": "building",
+          "id": "west",
+          "coreX": -20.5,
+          "screenRelativeToCenter": -1.2542076988633848,
+          "positionError": 0,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "kind": "building",
+          "id": "reserve",
+          "coreX": 9,
+          "screenRelativeToCenter": 0.4529504458968807,
+          "positionError": 0,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "kind": "building",
+          "id": "barracks",
+          "coreX": -14,
+          "screenRelativeToCenter": -0.9215583191115743,
+          "positionError": 0,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "kind": "building",
+          "id": "east",
+          "coreX": 20.5,
+          "screenRelativeToCenter": 0.8577349490299325,
+          "positionError": 0,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "kind": "building",
+          "id": "factory",
+          "coreX": 20,
+          "screenRelativeToCenter": 0.8910564241440362,
+          "positionError": 0,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "kind": "spawn",
+          "i": 0,
+          "coreX": -13.5,
+          "screenRelativeToCenter": -0.10006284442062058,
+          "positionError": 9.536743172944284e-8,
+          "localMatchError": 9.536743172944284e-8,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "kind": "spawn",
+          "i": 1,
+          "coreX": 13.5,
+          "screenRelativeToCenter": 0.08765949867053872,
+          "positionError": 9.536743172944284e-8,
+          "localMatchError": 9.536743172944284e-8,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "kind": "spawn",
+          "i": 2,
+          "coreX": -29,
+          "screenRelativeToCenter": -0.24487256989189293,
+          "positionError": 9.536743172944284e-8,
+          "localMatchError": 9.536743172944284e-8,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "kind": "spawn",
+          "i": 3,
+          "coreX": 29,
+          "screenRelativeToCenter": 0.18138871049597324,
+          "positionError": 9.536743172944284e-8,
+          "localMatchError": 9.536743172944284e-8,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "kind": "spawn",
+          "i": 4,
+          "coreX": -5,
+          "screenRelativeToCenter": -0.03335821365833,
+          "positionError": 9.536743172944284e-8,
+          "localMatchError": 9.536743172944284e-8,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "kind": "spawn",
+          "i": 5,
+          "coreX": 5,
+          "screenRelativeToCenter": 0.03187773209450906,
+          "positionError": 9.536743172944284e-8,
+          "localMatchError": 9.536743172944284e-8,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "kind": "building",
+          "id": "west",
+          "coreX": -20.5,
+          "screenRelativeToCenter": -0.2678019796797029,
+          "positionError": 0,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "kind": "building",
+          "id": "reserve",
+          "coreX": 9,
+          "screenRelativeToCenter": 0.09671526192824109,
+          "positionError": 0,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "kind": "building",
+          "id": "barracks",
+          "coreX": -14,
+          "screenRelativeToCenter": -0.19677374207799475,
+          "positionError": 0,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "kind": "building",
+          "id": "east",
+          "coreX": 20.5,
+          "screenRelativeToCenter": 0.18314599535535575,
+          "positionError": 0,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "kind": "building",
+          "id": "factory",
+          "coreX": 20,
+          "screenRelativeToCenter": 0.19026089108553812,
+          "positionError": 0,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "kind": "spawn",
+          "i": 0,
+          "coreX": -13.5,
+          "screenRelativeToCenter": -0.46862831257861404,
+          "positionError": 9.536743172944284e-8,
+          "localMatchError": 9.536743172944284e-8,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "kind": "spawn",
+          "i": 1,
+          "coreX": 13.5,
+          "screenRelativeToCenter": 0.4105392284350878,
+          "positionError": 9.536743172944284e-8,
+          "localMatchError": 9.536743172944284e-8,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "kind": "spawn",
+          "i": 2,
+          "coreX": -29,
+          "screenRelativeToCenter": -1.1468214789382738,
+          "positionError": 9.536743172944284e-8,
+          "localMatchError": 9.536743172944284e-8,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "kind": "spawn",
+          "i": 3,
+          "coreX": 29,
+          "screenRelativeToCenter": 0.8495049867183406,
+          "positionError": 9.536743172944284e-8,
+          "localMatchError": 9.536743172944284e-8,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "kind": "spawn",
+          "i": 4,
+          "coreX": -5,
+          "screenRelativeToCenter": -0.15622785328415623,
+          "positionError": 9.536743172944284e-8,
+          "localMatchError": 9.536743172944284e-8,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "kind": "spawn",
+          "i": 5,
+          "coreX": 5,
+          "screenRelativeToCenter": 0.1492942548933217,
+          "positionError": 9.536743172944284e-8,
+          "localMatchError": 9.536743172944284e-8,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "kind": "building",
+          "id": "west",
+          "coreX": -20.5,
+          "screenRelativeToCenter": -1.2542076988633848,
+          "positionError": 0,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "kind": "building",
+          "id": "reserve",
+          "coreX": 9,
+          "screenRelativeToCenter": 0.4529504458968807,
+          "positionError": 0,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "kind": "building",
+          "id": "barracks",
+          "coreX": -14,
+          "screenRelativeToCenter": -0.9215583191115743,
+          "positionError": 0,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "kind": "building",
+          "id": "east",
+          "coreX": 20.5,
+          "screenRelativeToCenter": 0.8577349490299325,
+          "positionError": 0,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "kind": "building",
+          "id": "factory",
+          "coreX": 20,
+          "screenRelativeToCenter": 0.8910564241440362,
+          "positionError": 0,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "name": "Default north-facing gameplay shows west spawn/gate on left and east on right",
+      "pass": true,
+      "results": [
+        {
+          "layout": "landscape",
+          "name": "west-gate",
+          "x": -13.5,
+          "ndc": -0.3778992586155267,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "name": "east-gate",
+          "x": 13.5,
+          "ndc": 0.33313070533006367,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "name": "spawn-0",
+          "x": -13.5,
+          "ndc": -0.15418422718193336,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "name": "spawn-1",
+          "x": 13.5,
+          "ndc": 0.1359184999199622,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "name": "spawn-2",
+          "x": -29,
+          "ndc": -0.35250230065924976,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "name": "spawn-3",
+          "x": 29,
+          "ndc": 0.33242679274900766,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "name": "spawn-4",
+          "x": -5,
+          "ndc": -0.0546452602420143,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "name": "spawn-5",
+          "x": 5,
+          "ndc": 0.03876544102638622,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "name": "west-gate",
+          "x": -13.5,
+          "ndc": -1.7698306790608143,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "name": "east-gate",
+          "x": 13.5,
+          "ndc": 1.560164326837582,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "name": "spawn-0",
+          "x": -13.5,
+          "ndc": -0.7220971443383938,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "name": "spawn-1",
+          "x": 13.5,
+          "ndc": 0.6365525349045771,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "name": "spawn-2",
+          "x": -29,
+          "ndc": -1.6508880923235194,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "name": "spawn-3",
+          "x": 29,
+          "ndc": 1.5568676649550108,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "name": "spawn-4",
+          "x": -5,
+          "ndc": -0.2559223280720282,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "name": "spawn-5",
+          "x": 5,
+          "ndc": 0.18155173700836194,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "name": "west-gate",
+          "x": -13.5,
+          "ndc": -0.3778992586155267,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "name": "east-gate",
+          "x": 13.5,
+          "ndc": 0.33313070533006367,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "name": "spawn-0",
+          "x": -13.5,
+          "ndc": -0.15418422718193336,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "name": "spawn-1",
+          "x": 13.5,
+          "ndc": 0.1359184999199622,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "name": "spawn-2",
+          "x": -29,
+          "ndc": -0.35250230065924976,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "name": "spawn-3",
+          "x": 29,
+          "ndc": 0.33242679274900766,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "name": "spawn-4",
+          "x": -5,
+          "ndc": -0.0546452602420143,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "name": "spawn-5",
+          "x": 5,
+          "ndc": 0.03876544102638622,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "name": "west-gate",
+          "x": -13.5,
+          "ndc": -1.7698306790608143,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "name": "east-gate",
+          "x": 13.5,
+          "ndc": 1.560164326837582,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "name": "spawn-0",
+          "x": -13.5,
+          "ndc": -0.7220971443383938,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "name": "spawn-1",
+          "x": 13.5,
+          "ndc": 0.6365525349045771,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "name": "spawn-2",
+          "x": -29,
+          "ndc": -1.6508880923235194,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "name": "spawn-3",
+          "x": 29,
+          "ndc": 1.5568676649550108,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "name": "spawn-4",
+          "x": -5,
+          "ndc": -0.2559223280720282,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "name": "spawn-5",
+          "x": 5,
+          "ndc": 0.18155173700836194,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "name": "Instance transforms retain semantic forward direction for player, enemy and tank",
+      "pass": true,
+      "results": [
+        {
+          "role": "player",
+          "yaw": 0,
+          "dot": 1,
+          "pass": true
+        },
+        {
+          "role": "player",
+          "yaw": 1.5707963267948966,
+          "dot": 1,
+          "pass": true
+        },
+        {
+          "role": "player",
+          "yaw": 3.141592653589793,
+          "dot": 1,
+          "pass": true
+        },
+        {
+          "role": "player",
+          "yaw": -1.5707963267948966,
+          "dot": 1,
+          "pass": true
+        },
+        {
+          "role": "player",
+          "yaw": 0.63,
+          "dot": 1,
+          "pass": true
+        },
+        {
+          "role": "player",
+          "yaw": -2.17,
+          "dot": 1,
+          "pass": true
+        },
+        {
+          "role": "runner",
+          "yaw": 0,
+          "dot": 1,
+          "pass": true
+        },
+        {
+          "role": "runner",
+          "yaw": 1.5707963267948966,
+          "dot": 1,
+          "pass": true
+        },
+        {
+          "role": "runner",
+          "yaw": 3.141592653589793,
+          "dot": 1,
+          "pass": true
+        },
+        {
+          "role": "runner",
+          "yaw": -1.5707963267948966,
+          "dot": 1,
+          "pass": true
+        },
+        {
+          "role": "runner",
+          "yaw": 0.63,
+          "dot": 1,
+          "pass": true
+        },
+        {
+          "role": "runner",
+          "yaw": -2.17,
+          "dot": 1,
+          "pass": true
+        },
+        {
+          "role": "tank",
+          "yaw": 0,
+          "dot": 1,
+          "pass": true
+        },
+        {
+          "role": "tank",
+          "yaw": 1.5707963267948966,
+          "dot": 1,
+          "pass": true
+        },
+        {
+          "role": "tank",
+          "yaw": 3.141592653589793,
+          "dot": 1,
+          "pass": true
+        },
+        {
+          "role": "tank",
+          "yaw": -1.5707963267948966,
+          "dot": 1,
+          "pass": true
+        },
+        {
+          "role": "tank",
+          "yaw": 0.63,
+          "dot": 1,
+          "pass": true
+        },
+        {
+          "role": "tank",
+          "yaw": -2.17,
+          "dot": 1,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "name": "Left shoulder remains left across yaw, pitch, aiming and rotated layouts",
+      "pass": true,
+      "passed": 144,
+      "total": 144,
+      "results": [
+        {
+          "layout": "landscape",
+          "yaw": 0,
+          "pitch": -0.55,
+          "aiming": false,
+          "screenX": -0.15099296953075625,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": 0,
+          "pitch": -0.55,
+          "aiming": true,
+          "screenX": -0.2844910485009726,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": 0,
+          "pitch": 0.1,
+          "aiming": false,
+          "screenX": -0.12072629777152853,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": 0,
+          "pitch": 0.1,
+          "aiming": true,
+          "screenX": -0.23581397493793382,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": 0,
+          "pitch": 1.05,
+          "aiming": false,
+          "screenX": -0.10331389243604273,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": 0,
+          "pitch": 1.05,
+          "aiming": true,
+          "screenX": -0.19473064805512466,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": 1.5707963267948966,
+          "pitch": -0.55,
+          "aiming": false,
+          "screenX": -0.15099296953075664,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": 1.5707963267948966,
+          "pitch": -0.55,
+          "aiming": true,
+          "screenX": -0.2844910485009716,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": 1.5707963267948966,
+          "pitch": 0.1,
+          "aiming": false,
+          "screenX": -0.12072629777152864,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": 1.5707963267948966,
+          "pitch": 0.1,
+          "aiming": true,
+          "screenX": -0.2358139749379332,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": 1.5707963267948966,
+          "pitch": 1.05,
+          "aiming": false,
+          "screenX": -0.10331389243604279,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": 1.5707963267948966,
+          "pitch": 1.05,
+          "aiming": true,
+          "screenX": -0.19473064805512352,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": 3.141592653589793,
+          "pitch": -0.55,
+          "aiming": false,
+          "screenX": -0.15099296953075625,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": 3.141592653589793,
+          "pitch": -0.55,
+          "aiming": true,
+          "screenX": -0.28449104850097173,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": 3.141592653589793,
+          "pitch": 0.1,
+          "aiming": false,
+          "screenX": -0.12072629777152849,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": 3.141592653589793,
+          "pitch": 0.1,
+          "aiming": true,
+          "screenX": -0.23581397493793313,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": 3.141592653589793,
+          "pitch": 1.05,
+          "aiming": false,
+          "screenX": -0.10331389243604273,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": 3.141592653589793,
+          "pitch": 1.05,
+          "aiming": true,
+          "screenX": -0.19473064805512444,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": -1.5707963267948966,
+          "pitch": -0.55,
+          "aiming": false,
+          "screenX": -0.15099296953075664,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": -1.5707963267948966,
+          "pitch": -0.55,
+          "aiming": true,
+          "screenX": -0.2844910485009716,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": -1.5707963267948966,
+          "pitch": 0.1,
+          "aiming": false,
+          "screenX": -0.12072629777152864,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": -1.5707963267948966,
+          "pitch": 0.1,
+          "aiming": true,
+          "screenX": -0.23581397493793327,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": -1.5707963267948966,
+          "pitch": 1.05,
+          "aiming": false,
+          "screenX": -0.10331389243604279,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": -1.5707963267948966,
+          "pitch": 1.05,
+          "aiming": true,
+          "screenX": -0.19473064805512352,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": 0.63,
+          "pitch": -0.55,
+          "aiming": false,
+          "screenX": -0.15099296953075675,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": 0.63,
+          "pitch": -0.55,
+          "aiming": true,
+          "screenX": -0.28449104850097173,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": 0.63,
+          "pitch": 0.1,
+          "aiming": false,
+          "screenX": -0.12072629777152803,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": 0.63,
+          "pitch": 0.1,
+          "aiming": true,
+          "screenX": -0.2358139749379355,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": 0.63,
+          "pitch": 1.05,
+          "aiming": false,
+          "screenX": -0.10331389243604239,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": 0.63,
+          "pitch": 1.05,
+          "aiming": true,
+          "screenX": -0.19473064805512488,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": -2.17,
+          "pitch": -0.55,
+          "aiming": false,
+          "screenX": -0.15099296953075675,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": -2.17,
+          "pitch": -0.55,
+          "aiming": true,
+          "screenX": -0.28449104850097584,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": -2.17,
+          "pitch": 0.1,
+          "aiming": false,
+          "screenX": -0.12072629777152862,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": -2.17,
+          "pitch": 0.1,
+          "aiming": true,
+          "screenX": -0.23581397493793327,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": -2.17,
+          "pitch": 1.05,
+          "aiming": false,
+          "screenX": -0.10331389243604279,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": -2.17,
+          "pitch": 1.05,
+          "aiming": true,
+          "screenX": -0.1947306480551259,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": 0,
+          "pitch": -0.55,
+          "aiming": false,
+          "screenX": -0.7071514000240682,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": 0,
+          "pitch": -0.55,
+          "aiming": true,
+          "screenX": -1.3323682809006496,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": 0,
+          "pitch": 0.1,
+          "aiming": false,
+          "screenX": -0.5654022882930936,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": 0,
+          "pitch": 0.1,
+          "aiming": true,
+          "screenX": -1.1043969996803946,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": 0,
+          "pitch": 1.05,
+          "aiming": false,
+          "screenX": -0.48385407549191933,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": 0,
+          "pitch": 1.05,
+          "aiming": true,
+          "screenX": -0.9119898153385618,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": 1.5707963267948966,
+          "pitch": -0.55,
+          "aiming": false,
+          "screenX": -0.7071514000240701,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": 1.5707963267948966,
+          "pitch": -0.55,
+          "aiming": true,
+          "screenX": -1.3323682809006447,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": 1.5707963267948966,
+          "pitch": 0.1,
+          "aiming": false,
+          "screenX": -0.5654022882930941,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": 1.5707963267948966,
+          "pitch": 0.1,
+          "aiming": true,
+          "screenX": -1.1043969996803915,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": 1.5707963267948966,
+          "pitch": 1.05,
+          "aiming": false,
+          "screenX": -0.4838540754919196,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": 1.5707963267948966,
+          "pitch": 1.05,
+          "aiming": true,
+          "screenX": -0.9119898153385565,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": 3.141592653589793,
+          "pitch": -0.55,
+          "aiming": false,
+          "screenX": -0.7071514000240682,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": 3.141592653589793,
+          "pitch": -0.55,
+          "aiming": true,
+          "screenX": -1.3323682809006454,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": 3.141592653589793,
+          "pitch": 0.1,
+          "aiming": false,
+          "screenX": -0.5654022882930936,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": 3.141592653589793,
+          "pitch": 0.1,
+          "aiming": true,
+          "screenX": -1.1043969996803913,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": 3.141592653589793,
+          "pitch": 1.05,
+          "aiming": false,
+          "screenX": -0.48385407549191933,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": 3.141592653589793,
+          "pitch": 1.05,
+          "aiming": true,
+          "screenX": -0.9119898153385608,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": -1.5707963267948966,
+          "pitch": -0.55,
+          "aiming": false,
+          "screenX": -0.7071514000240701,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": -1.5707963267948966,
+          "pitch": -0.55,
+          "aiming": true,
+          "screenX": -1.3323682809006447,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": -1.5707963267948966,
+          "pitch": 0.1,
+          "aiming": false,
+          "screenX": -0.5654022882930941,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": -1.5707963267948966,
+          "pitch": 0.1,
+          "aiming": true,
+          "screenX": -1.104396999680392,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": -1.5707963267948966,
+          "pitch": 1.05,
+          "aiming": false,
+          "screenX": -0.4838540754919196,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": -1.5707963267948966,
+          "pitch": 1.05,
+          "aiming": true,
+          "screenX": -0.9119898153385565,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": 0.63,
+          "pitch": -0.55,
+          "aiming": false,
+          "screenX": -0.7071514000240705,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": 0.63,
+          "pitch": -0.55,
+          "aiming": true,
+          "screenX": -1.3323682809006454,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": 0.63,
+          "pitch": 0.1,
+          "aiming": false,
+          "screenX": -0.5654022882930914,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": 0.63,
+          "pitch": 0.1,
+          "aiming": true,
+          "screenX": -1.1043969996804024,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": 0.63,
+          "pitch": 1.05,
+          "aiming": false,
+          "screenX": -0.4838540754919178,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": 0.63,
+          "pitch": 1.05,
+          "aiming": true,
+          "screenX": -0.9119898153385629,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": -2.17,
+          "pitch": -0.55,
+          "aiming": false,
+          "screenX": -0.7071514000240705,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": -2.17,
+          "pitch": -0.55,
+          "aiming": true,
+          "screenX": -1.332368280900665,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": -2.17,
+          "pitch": 0.1,
+          "aiming": false,
+          "screenX": -0.5654022882930941,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": -2.17,
+          "pitch": 0.1,
+          "aiming": true,
+          "screenX": -1.1043969996803917,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": -2.17,
+          "pitch": 1.05,
+          "aiming": false,
+          "screenX": -0.4838540754919196,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": -2.17,
+          "pitch": 1.05,
+          "aiming": true,
+          "screenX": -0.9119898153385678,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": 0,
+          "pitch": -0.55,
+          "aiming": false,
+          "screenX": -0.15099296953075625,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": 0,
+          "pitch": -0.55,
+          "aiming": true,
+          "screenX": -0.2844910485009726,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": 0,
+          "pitch": 0.1,
+          "aiming": false,
+          "screenX": -0.12072629777152853,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": 0,
+          "pitch": 0.1,
+          "aiming": true,
+          "screenX": -0.23581397493793382,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": 0,
+          "pitch": 1.05,
+          "aiming": false,
+          "screenX": -0.10331389243604273,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": 0,
+          "pitch": 1.05,
+          "aiming": true,
+          "screenX": -0.19473064805512466,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": 1.5707963267948966,
+          "pitch": -0.55,
+          "aiming": false,
+          "screenX": -0.15099296953075664,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": 1.5707963267948966,
+          "pitch": -0.55,
+          "aiming": true,
+          "screenX": -0.2844910485009716,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": 1.5707963267948966,
+          "pitch": 0.1,
+          "aiming": false,
+          "screenX": -0.12072629777152864,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": 1.5707963267948966,
+          "pitch": 0.1,
+          "aiming": true,
+          "screenX": -0.2358139749379332,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": 1.5707963267948966,
+          "pitch": 1.05,
+          "aiming": false,
+          "screenX": -0.10331389243604279,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": 1.5707963267948966,
+          "pitch": 1.05,
+          "aiming": true,
+          "screenX": -0.19473064805512352,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": 3.141592653589793,
+          "pitch": -0.55,
+          "aiming": false,
+          "screenX": -0.15099296953075625,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": 3.141592653589793,
+          "pitch": -0.55,
+          "aiming": true,
+          "screenX": -0.28449104850097173,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": 3.141592653589793,
+          "pitch": 0.1,
+          "aiming": false,
+          "screenX": -0.12072629777152849,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": 3.141592653589793,
+          "pitch": 0.1,
+          "aiming": true,
+          "screenX": -0.23581397493793313,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": 3.141592653589793,
+          "pitch": 1.05,
+          "aiming": false,
+          "screenX": -0.10331389243604273,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": 3.141592653589793,
+          "pitch": 1.05,
+          "aiming": true,
+          "screenX": -0.19473064805512444,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": -1.5707963267948966,
+          "pitch": -0.55,
+          "aiming": false,
+          "screenX": -0.15099296953075664,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": -1.5707963267948966,
+          "pitch": -0.55,
+          "aiming": true,
+          "screenX": -0.2844910485009716,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": -1.5707963267948966,
+          "pitch": 0.1,
+          "aiming": false,
+          "screenX": -0.12072629777152864,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": -1.5707963267948966,
+          "pitch": 0.1,
+          "aiming": true,
+          "screenX": -0.23581397493793327,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": -1.5707963267948966,
+          "pitch": 1.05,
+          "aiming": false,
+          "screenX": -0.10331389243604279,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": -1.5707963267948966,
+          "pitch": 1.05,
+          "aiming": true,
+          "screenX": -0.19473064805512352,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": 0.63,
+          "pitch": -0.55,
+          "aiming": false,
+          "screenX": -0.15099296953075675,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": 0.63,
+          "pitch": -0.55,
+          "aiming": true,
+          "screenX": -0.28449104850097173,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": 0.63,
+          "pitch": 0.1,
+          "aiming": false,
+          "screenX": -0.12072629777152803,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": 0.63,
+          "pitch": 0.1,
+          "aiming": true,
+          "screenX": -0.2358139749379355,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": 0.63,
+          "pitch": 1.05,
+          "aiming": false,
+          "screenX": -0.10331389243604239,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": 0.63,
+          "pitch": 1.05,
+          "aiming": true,
+          "screenX": -0.19473064805512488,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": -2.17,
+          "pitch": -0.55,
+          "aiming": false,
+          "screenX": -0.15099296953075675,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": -2.17,
+          "pitch": -0.55,
+          "aiming": true,
+          "screenX": -0.28449104850097584,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": -2.17,
+          "pitch": 0.1,
+          "aiming": false,
+          "screenX": -0.12072629777152862,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": -2.17,
+          "pitch": 0.1,
+          "aiming": true,
+          "screenX": -0.23581397493793327,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": -2.17,
+          "pitch": 1.05,
+          "aiming": false,
+          "screenX": -0.10331389243604279,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": -2.17,
+          "pitch": 1.05,
+          "aiming": true,
+          "screenX": -0.1947306480551259,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": 0,
+          "pitch": -0.55,
+          "aiming": false,
+          "screenX": -0.7071514000240682,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": 0,
+          "pitch": -0.55,
+          "aiming": true,
+          "screenX": -1.3323682809006496,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": 0,
+          "pitch": 0.1,
+          "aiming": false,
+          "screenX": -0.5654022882930936,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": 0,
+          "pitch": 0.1,
+          "aiming": true,
+          "screenX": -1.1043969996803946,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": 0,
+          "pitch": 1.05,
+          "aiming": false,
+          "screenX": -0.48385407549191933,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": 0,
+          "pitch": 1.05,
+          "aiming": true,
+          "screenX": -0.9119898153385618,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": 1.5707963267948966,
+          "pitch": -0.55,
+          "aiming": false,
+          "screenX": -0.7071514000240701,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": 1.5707963267948966,
+          "pitch": -0.55,
+          "aiming": true,
+          "screenX": -1.3323682809006447,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": 1.5707963267948966,
+          "pitch": 0.1,
+          "aiming": false,
+          "screenX": -0.5654022882930941,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": 1.5707963267948966,
+          "pitch": 0.1,
+          "aiming": true,
+          "screenX": -1.1043969996803915,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": 1.5707963267948966,
+          "pitch": 1.05,
+          "aiming": false,
+          "screenX": -0.4838540754919196,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": 1.5707963267948966,
+          "pitch": 1.05,
+          "aiming": true,
+          "screenX": -0.9119898153385565,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": 3.141592653589793,
+          "pitch": -0.55,
+          "aiming": false,
+          "screenX": -0.7071514000240682,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": 3.141592653589793,
+          "pitch": -0.55,
+          "aiming": true,
+          "screenX": -1.3323682809006454,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": 3.141592653589793,
+          "pitch": 0.1,
+          "aiming": false,
+          "screenX": -0.5654022882930936,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": 3.141592653589793,
+          "pitch": 0.1,
+          "aiming": true,
+          "screenX": -1.1043969996803913,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": 3.141592653589793,
+          "pitch": 1.05,
+          "aiming": false,
+          "screenX": -0.48385407549191933,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": 3.141592653589793,
+          "pitch": 1.05,
+          "aiming": true,
+          "screenX": -0.9119898153385608,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": -1.5707963267948966,
+          "pitch": -0.55,
+          "aiming": false,
+          "screenX": -0.7071514000240701,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": -1.5707963267948966,
+          "pitch": -0.55,
+          "aiming": true,
+          "screenX": -1.3323682809006447,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": -1.5707963267948966,
+          "pitch": 0.1,
+          "aiming": false,
+          "screenX": -0.5654022882930941,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": -1.5707963267948966,
+          "pitch": 0.1,
+          "aiming": true,
+          "screenX": -1.104396999680392,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": -1.5707963267948966,
+          "pitch": 1.05,
+          "aiming": false,
+          "screenX": -0.4838540754919196,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": -1.5707963267948966,
+          "pitch": 1.05,
+          "aiming": true,
+          "screenX": -0.9119898153385565,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": 0.63,
+          "pitch": -0.55,
+          "aiming": false,
+          "screenX": -0.7071514000240705,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": 0.63,
+          "pitch": -0.55,
+          "aiming": true,
+          "screenX": -1.3323682809006454,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": 0.63,
+          "pitch": 0.1,
+          "aiming": false,
+          "screenX": -0.5654022882930914,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": 0.63,
+          "pitch": 0.1,
+          "aiming": true,
+          "screenX": -1.1043969996804024,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": 0.63,
+          "pitch": 1.05,
+          "aiming": false,
+          "screenX": -0.4838540754919178,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": 0.63,
+          "pitch": 1.05,
+          "aiming": true,
+          "screenX": -0.9119898153385629,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": -2.17,
+          "pitch": -0.55,
+          "aiming": false,
+          "screenX": -0.7071514000240705,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": -2.17,
+          "pitch": -0.55,
+          "aiming": true,
+          "screenX": -1.332368280900665,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": -2.17,
+          "pitch": 0.1,
+          "aiming": false,
+          "screenX": -0.5654022882930941,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": -2.17,
+          "pitch": 0.1,
+          "aiming": true,
+          "screenX": -1.1043969996803917,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": -2.17,
+          "pitch": 1.05,
+          "aiming": false,
+          "screenX": -0.4838540754919196,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": -2.17,
+          "pitch": 1.05,
+          "aiming": true,
+          "screenX": -0.9119898153385678,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "name": "Physical right-turn gesture turns camera and minimap clockwise together",
+      "pass": true,
+      "passed": 48,
+      "total": 48,
+      "results": [
+        {
+          "layout": "landscape",
+          "target": "look-zone",
+          "yaw": 0,
+          "cameraScreenDelta": 0.12881228759543856,
+          "minimapClockwiseRadians": 0.1799999999999997,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "target": "fire",
+          "yaw": 0,
+          "cameraScreenDelta": 0.12881228759543856,
+          "minimapClockwiseRadians": 0.1799999999999997,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "target": "look-zone",
+          "yaw": 1.5707963267948966,
+          "cameraScreenDelta": 0.12881228759543858,
+          "minimapClockwiseRadians": 0.17999999999999994,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "target": "fire",
+          "yaw": 1.5707963267948966,
+          "cameraScreenDelta": 0.12881228759543858,
+          "minimapClockwiseRadians": 0.17999999999999994,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "target": "look-zone",
+          "yaw": 3.141592653589793,
+          "cameraScreenDelta": 0.12881228759543872,
+          "minimapClockwiseRadians": 0.17999999999999997,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "target": "fire",
+          "yaw": 3.141592653589793,
+          "cameraScreenDelta": 0.12881228759543872,
+          "minimapClockwiseRadians": 0.17999999999999997,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "target": "look-zone",
+          "yaw": -1.5707963267948966,
+          "cameraScreenDelta": 0.12881228759543845,
+          "minimapClockwiseRadians": 0.17999999999999972,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "target": "fire",
+          "yaw": -1.5707963267948966,
+          "cameraScreenDelta": 0.12881228759543845,
+          "minimapClockwiseRadians": 0.17999999999999972,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "target": "look-zone",
+          "yaw": 0.63,
+          "cameraScreenDelta": 0.12881228759543872,
+          "minimapClockwiseRadians": 0.1800000000000002,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "target": "fire",
+          "yaw": 0.63,
+          "cameraScreenDelta": 0.12881228759543872,
+          "minimapClockwiseRadians": 0.1800000000000002,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "target": "look-zone",
+          "yaw": -2.17,
+          "cameraScreenDelta": 0.12881228759543836,
+          "minimapClockwiseRadians": 0.17999999999999972,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "target": "fire",
+          "yaw": -2.17,
+          "cameraScreenDelta": 0.12881228759543836,
+          "minimapClockwiseRadians": 0.17999999999999972,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "target": "look-zone",
+          "yaw": 0,
+          "cameraScreenDelta": 0.6032717271307318,
+          "minimapClockwiseRadians": 0.1799999999999997,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "target": "fire",
+          "yaw": 0,
+          "cameraScreenDelta": 0.6032717271307318,
+          "minimapClockwiseRadians": 0.1799999999999997,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "target": "look-zone",
+          "yaw": 1.5707963267948966,
+          "cameraScreenDelta": 0.603271727130732,
+          "minimapClockwiseRadians": 0.17999999999999994,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "target": "fire",
+          "yaw": 1.5707963267948966,
+          "cameraScreenDelta": 0.603271727130732,
+          "minimapClockwiseRadians": 0.17999999999999994,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "target": "look-zone",
+          "yaw": 3.141592653589793,
+          "cameraScreenDelta": 0.6032717271307327,
+          "minimapClockwiseRadians": 0.17999999999999997,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "target": "fire",
+          "yaw": 3.141592653589793,
+          "cameraScreenDelta": 0.6032717271307327,
+          "minimapClockwiseRadians": 0.17999999999999997,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "target": "look-zone",
+          "yaw": -1.5707963267948966,
+          "cameraScreenDelta": 0.6032717271307314,
+          "minimapClockwiseRadians": 0.17999999999999972,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "target": "fire",
+          "yaw": -1.5707963267948966,
+          "cameraScreenDelta": 0.6032717271307314,
+          "minimapClockwiseRadians": 0.17999999999999972,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "target": "look-zone",
+          "yaw": 0.63,
+          "cameraScreenDelta": 0.6032717271307327,
+          "minimapClockwiseRadians": 0.1800000000000002,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "target": "fire",
+          "yaw": 0.63,
+          "cameraScreenDelta": 0.6032717271307327,
+          "minimapClockwiseRadians": 0.1800000000000002,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "target": "look-zone",
+          "yaw": -2.17,
+          "cameraScreenDelta": 0.6032717271307311,
+          "minimapClockwiseRadians": 0.17999999999999972,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "target": "fire",
+          "yaw": -2.17,
+          "cameraScreenDelta": 0.6032717271307311,
+          "minimapClockwiseRadians": 0.17999999999999972,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "target": "look-zone",
+          "yaw": 0,
+          "cameraScreenDelta": 0.12881228759543856,
+          "minimapClockwiseRadians": 0.1799999999999997,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "target": "fire",
+          "yaw": 0,
+          "cameraScreenDelta": 0.12881228759543856,
+          "minimapClockwiseRadians": 0.1799999999999997,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "target": "look-zone",
+          "yaw": 1.5707963267948966,
+          "cameraScreenDelta": 0.12881228759543858,
+          "minimapClockwiseRadians": 0.17999999999999994,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "target": "fire",
+          "yaw": 1.5707963267948966,
+          "cameraScreenDelta": 0.12881228759543858,
+          "minimapClockwiseRadians": 0.17999999999999994,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "target": "look-zone",
+          "yaw": 3.141592653589793,
+          "cameraScreenDelta": 0.12881228759543872,
+          "minimapClockwiseRadians": 0.17999999999999997,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "target": "fire",
+          "yaw": 3.141592653589793,
+          "cameraScreenDelta": 0.12881228759543872,
+          "minimapClockwiseRadians": 0.17999999999999997,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "target": "look-zone",
+          "yaw": -1.5707963267948966,
+          "cameraScreenDelta": 0.12881228759543845,
+          "minimapClockwiseRadians": 0.17999999999999972,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "target": "fire",
+          "yaw": -1.5707963267948966,
+          "cameraScreenDelta": 0.12881228759543845,
+          "minimapClockwiseRadians": 0.17999999999999972,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "target": "look-zone",
+          "yaw": 0.63,
+          "cameraScreenDelta": 0.12881228759543872,
+          "minimapClockwiseRadians": 0.1800000000000002,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "target": "fire",
+          "yaw": 0.63,
+          "cameraScreenDelta": 0.12881228759543872,
+          "minimapClockwiseRadians": 0.1800000000000002,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "target": "look-zone",
+          "yaw": -2.17,
+          "cameraScreenDelta": 0.12881228759543836,
+          "minimapClockwiseRadians": 0.17999999999999972,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "target": "fire",
+          "yaw": -2.17,
+          "cameraScreenDelta": 0.12881228759543836,
+          "minimapClockwiseRadians": 0.17999999999999972,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "target": "look-zone",
+          "yaw": 0,
+          "cameraScreenDelta": 0.6032717271307318,
+          "minimapClockwiseRadians": 0.1799999999999997,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "target": "fire",
+          "yaw": 0,
+          "cameraScreenDelta": 0.6032717271307318,
+          "minimapClockwiseRadians": 0.1799999999999997,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "target": "look-zone",
+          "yaw": 1.5707963267948966,
+          "cameraScreenDelta": 0.603271727130732,
+          "minimapClockwiseRadians": 0.17999999999999994,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "target": "fire",
+          "yaw": 1.5707963267948966,
+          "cameraScreenDelta": 0.603271727130732,
+          "minimapClockwiseRadians": 0.17999999999999994,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "target": "look-zone",
+          "yaw": 3.141592653589793,
+          "cameraScreenDelta": 0.6032717271307327,
+          "minimapClockwiseRadians": 0.17999999999999997,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "target": "fire",
+          "yaw": 3.141592653589793,
+          "cameraScreenDelta": 0.6032717271307327,
+          "minimapClockwiseRadians": 0.17999999999999997,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "target": "look-zone",
+          "yaw": -1.5707963267948966,
+          "cameraScreenDelta": 0.6032717271307314,
+          "minimapClockwiseRadians": 0.17999999999999972,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "target": "fire",
+          "yaw": -1.5707963267948966,
+          "cameraScreenDelta": 0.6032717271307314,
+          "minimapClockwiseRadians": 0.17999999999999972,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "target": "look-zone",
+          "yaw": 0.63,
+          "cameraScreenDelta": 0.6032717271307327,
+          "minimapClockwiseRadians": 0.1800000000000002,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "target": "fire",
+          "yaw": 0.63,
+          "cameraScreenDelta": 0.6032717271307327,
+          "minimapClockwiseRadians": 0.1800000000000002,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "target": "look-zone",
+          "yaw": -2.17,
+          "cameraScreenDelta": 0.6032717271307311,
+          "minimapClockwiseRadians": 0.17999999999999972,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "target": "fire",
+          "yaw": -2.17,
+          "cameraScreenDelta": 0.6032717271307311,
+          "minimapClockwiseRadians": 0.17999999999999972,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "name": "Right strafe is screen-right at every yaw and east at north heading",
+      "pass": true,
+      "results": [
+        {
+          "layout": "landscape",
+          "yaw": 0,
+          "screenDelta": 0.025059237291657585,
+          "coreX": 0.20232558139534884,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": 1.5707963267948966,
+          "screenDelta": 0.025059000253275135,
+          "coreX": 1.2388868782072061e-17,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": 3.141592653589793,
+          "screenDelta": 0.025059237291657585,
+          "coreX": -0.20232558139534884,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": -1.5707963267948966,
+          "screenDelta": 0.025059000253275135,
+          "coreX": 1.2388868782072061e-17,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": 0.63,
+          "screenDelta": 0.02505915436520166,
+          "coreX": 0.1634846354026912,
+          "pass": true
+        },
+        {
+          "layout": "landscape",
+          "yaw": -2.17,
+          "screenDelta": 0.025059097020043247,
+          "coreX": -0.11410860467102019,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": 0,
+          "screenDelta": 0.11736092607094145,
+          "coreX": 0.20232558139534884,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": 1.5707963267948966,
+          "screenDelta": 0.11735981593962519,
+          "coreX": 1.2388868782072061e-17,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": 3.141592653589793,
+          "screenDelta": 0.11736092607094151,
+          "coreX": -0.20232558139534884,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": -1.5707963267948966,
+          "screenDelta": 0.11735981593962519,
+          "coreX": 1.2388868782072061e-17,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": 0.63,
+          "screenDelta": 0.11736053769816096,
+          "coreX": 0.1634846354026912,
+          "pass": true
+        },
+        {
+          "layout": "portrait",
+          "yaw": -2.17,
+          "screenDelta": 0.1173602691312921,
+          "coreX": -0.11410860467102019,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": 0,
+          "screenDelta": 0.025059237291657585,
+          "coreX": 0.20232558139534884,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": 1.5707963267948966,
+          "screenDelta": 0.025059000253275135,
+          "coreX": 1.2388868782072061e-17,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": 3.141592653589793,
+          "screenDelta": 0.025059237291657585,
+          "coreX": -0.20232558139534884,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": -1.5707963267948966,
+          "screenDelta": 0.025059000253275135,
+          "coreX": 1.2388868782072061e-17,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": 0.63,
+          "screenDelta": 0.02505915436520166,
+          "coreX": 0.1634846354026912,
+          "pass": true
+        },
+        {
+          "layout": "cw",
+          "yaw": -2.17,
+          "screenDelta": 0.025059097020043247,
+          "coreX": -0.11410860467102019,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": 0,
+          "screenDelta": 0.11736092607094145,
+          "coreX": 0.20232558139534884,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": 1.5707963267948966,
+          "screenDelta": 0.11735981593962519,
+          "coreX": 1.2388868782072061e-17,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": 3.141592653589793,
+          "screenDelta": 0.11736092607094151,
+          "coreX": -0.20232558139534884,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": -1.5707963267948966,
+          "screenDelta": 0.11735981593962519,
+          "coreX": 1.2388868782072061e-17,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": 0.63,
+          "screenDelta": 0.11736053769816096,
+          "coreX": 0.1634846354026912,
+          "pass": true
+        },
+        {
+          "layout": "ccw",
+          "yaw": -2.17,
+          "screenDelta": 0.1173602691312921,
+          "coreX": -0.11410860467102019,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "name": "Keyboard right-turn agrees with camera and north-up minimap",
+      "pass": true,
+      "cameraScreenDelta": 0.3842136666030949,
+      "minimapDx": 2.4005829301994766
+    },
+    {
+      "name": "Aim converts center ray to core, fire hits target, and core wall occludes",
+      "pass": true,
+      "results": [
+        {
+          "yaw": 0,
+          "blocked": false,
+          "enemyDamage": 18,
+          "centerX": 0,
+          "centerY": 0,
+          "rayError": 0,
+          "effectError": 8.012210196023062e-7,
+          "pass": true
+        },
+        {
+          "yaw": 0,
+          "blocked": true,
+          "enemyDamage": 0,
+          "centerX": 0,
+          "centerY": 0,
+          "rayError": 0,
+          "effectError": 5.331201524525386e-8,
+          "pass": true
+        },
+        {
+          "yaw": 0.5,
+          "blocked": false,
+          "enemyDamage": 18,
+          "centerX": 1.1602623672332628e-16,
+          "centerY": 1.569329227475759e-17,
+          "rayError": 0,
+          "effectError": 0.0000018981547718449448,
+          "pass": true
+        },
+        {
+          "yaw": 0.5,
+          "blocked": true,
+          "enemyDamage": 0,
+          "centerX": 0,
+          "centerY": 2.5854234001558522e-17,
+          "rayError": 0,
+          "effectError": 1.3487097970218297e-7,
+          "pass": true
+        },
+        {
+          "yaw": -0.7,
+          "blocked": false,
+          "enemyDamage": 18,
+          "centerX": 0,
+          "centerY": 1.5693292274757523e-17,
+          "rayError": 0,
+          "effectError": 0.0000017804081471601535,
+          "pass": true
+        },
+        {
+          "yaw": -0.7,
+          "blocked": true,
+          "enemyDamage": 0,
+          "centerX": 0,
+          "centerY": 2.878928596696103e-17,
+          "rayError": 0,
+          "effectError": 4.491002963189497e-7,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "name": "Death effect follows reflected world and expires without orphan scene node",
+      "pass": true,
+      "positionError": 0,
+      "orphanRemaining": false
+    },
+    {
+      "name": "Bunker camera and hidden player retain correct coordinate frame",
+      "pass": true,
+      "results": [
+        {
+          "yaw": -0.7,
+          "error": 0,
+          "hidden": true,
+          "pass": true
+        },
+        {
+          "yaw": 0,
+          "error": 0,
+          "hidden": true,
+          "pass": true
+        },
+        {
+          "yaw": 0.7,
+          "error": 0,
+          "hidden": true,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "name": "Environment, entity batches, effects and lights share reflected root; only world is scene child",
+      "pass": true,
+      "singleWorldChild": true,
+      "measured": [
+        {
+          "type": "HemisphereLight",
+          "determinant": -1,
+          "pass": true
+        },
+        {
+          "type": "DirectionalLight",
+          "determinant": -1,
+          "pass": true
+        },
+        {
+          "type": "Mesh",
+          "determinant": -1,
+          "pass": true
+        },
+        {
+          "type": "Mesh",
+          "determinant": -1,
+          "pass": true
+        },
+        {
+          "type": "Mesh",
+          "determinant": -1,
+          "pass": true
+        },
+        {
+          "type": "Mesh",
+          "determinant": -1,
+          "pass": true
+        },
+        {
+          "type": "Mesh",
+          "determinant": -1,
+          "pass": true
+        },
+        {
+          "type": "Mesh",
+          "determinant": -1,
+          "pass": true
+        },
+        {
+          "type": "Mesh",
+          "determinant": -1,
+          "pass": true
+        },
+        {
+          "type": "Mesh",
+          "determinant": -1,
+          "pass": true
+        },
+        {
+          "type": "Line",
+          "determinant": -1,
+          "pass": true
+        }
+      ],
+      "note": "Bundled Three renderBufferDirect tests matrixWorld.determinant()<0 to select reversed front-face for meshes; instance matrices themselves remain positive."
+    }
+  ]
+}

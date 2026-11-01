@@ -1,0 +1,60 @@
+{
+  "at": "2026-09-16T10:55:56.693929+00:00",
+  "sources": {
+    "index.html": "e313e95451f2367f79314c2b8ab2ed44c15e0d683caf22a270902fd31cb26252",
+    "style.css": "037149b8fe1c0fc671f9ab966b8ea53b4269a65849ddfd39268ea9b6d22763cb",
+    "app.js": "04351979fcc414aade135f9db056696a2c3625e614c113fc0d00043c69c6f20a",
+    "scene.js": "2b0c56c23a67ab77a0e83dbec4b8d6a898e8be4993a7cc21abf6423265e1b91f"
+  },
+  "method": "Read-only HTML parser and CSS static checks. Actual app pointer events validated separately by input-review.cjs; actual Three geometry and camera with fake renderer by scene-review.cjs. No browser or phone rendering tested by this agent.",
+  "checks": [
+    {
+      "name": "All game UI and canvas are inside one transformed shell",
+      "pass": true,
+      "idsOutsideShell": []
+    },
+    {
+      "name": "Start and pause offer both directions",
+      "pass": true,
+      "buttons": [
+        {
+          "mode": "landscape",
+          "parentPanel": "start-panel"
+        },
+        {
+          "mode": "portrait",
+          "parentPanel": "start-panel"
+        },
+        {
+          "mode": "landscape",
+          "parentPanel": "pause-panel"
+        },
+        {
+          "mode": "portrait",
+          "parentPanel": "pause-panel"
+        }
+      ]
+    },
+    {
+      "name": "Shell transform origin is top left",
+      "pass": true
+    },
+    {
+      "name": "Responsive breakpoints use logical orientation classes",
+      "pass": true
+    },
+    {
+      "name": "Normal portrait platform top offset wins equal-specificity cascade",
+      "pass": true
+    },
+    {
+      "name": "Portrait tactical map respects mapped right safe edge",
+      "pass": true
+    },
+    {
+      "name": "Clockwise and counterclockwise map platform top to left and right",
+      "pass": true
+    }
+  ],
+  "safeAreaFindings": "Both identified issues are fixed: normal portrait HUD top padding cascade and portrait tactical map right safe inset."
+}

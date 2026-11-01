@@ -1,0 +1,86 @@
+{
+  "at": "2026-09-16T10:49:53.124Z",
+  "method": "Design-level affine geometry proof of the proposed clockwise shell transform only. Does not prove the current app implementation; actual app event replay will follow implementation.",
+  "requirements": [
+    "shell left/top=0",
+    "transform-origin=0 0",
+    "translateX(physical width) before rotate(90deg) in CSS transform string",
+    "joystick inverse rotation applied exactly once",
+    "logical dimensions used by camera and layout breakpoints",
+    "clear owned touches when layout changes",
+    "remap physical safe-area and container navigation edges"
+  ],
+  "checks": [
+    {
+      "name": "CSS translateX(W) rotate(90deg) and pointer inverse round-trip",
+      "pass": true,
+      "n": 1000,
+      "maxError": 2.842170943040401e-14
+    },
+    {
+      "name": "All shell corners map inside the physical viewport",
+      "pass": true,
+      "failures": []
+    },
+    {
+      "name": "Clockwise forced landscape physical right means joystick forward",
+      "pass": true,
+      "stick": {
+        "x": 0,
+        "z": 1
+      }
+    },
+    {
+      "name": "Clockwise forced landscape physical down means joystick right",
+      "pass": true,
+      "stick": {
+        "x": 1,
+        "z": 0
+      }
+    },
+    {
+      "name": "Clockwise look down on device turns camera right in logical landscape",
+      "pass": true,
+      "yaw": 0.24,
+      "pitch": 0
+    },
+    {
+      "name": "Clockwise look left on device turns camera down in logical landscape",
+      "pass": true,
+      "yaw": 0,
+      "pitch": 0.2
+    },
+    {
+      "name": "Normal portrait retains original gesture directions",
+      "pass": true
+    },
+    {
+      "name": "Physical rotation after landscape choice requires no CSS rotation",
+      "pass": true,
+      "before": {
+        "W": 390,
+        "H": 844,
+        "rotated": true,
+        "width": 844,
+        "height": 390
+      },
+      "after": {
+        "W": 844,
+        "H": 390,
+        "rotated": false,
+        "width": 844,
+        "height": 390
+      }
+    },
+    {
+      "name": "Physical safe-area edge maps to corresponding logical edge",
+      "pass": true,
+      "logicalInsets": {
+        "top": 0,
+        "right": 34,
+        "bottom": 0,
+        "left": 44
+      }
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "platform": "Mac",
+    "archive": "Releases/FrontierDefense-0.7-Mac.zip",
+    "bytes": 45539975,
+    "files": 378,
+    "integrity": "passed",
+    "sha256": "736f46ee6269c76355a6da495a5d107addb692f1456c221189bce003337a3695"
+  },
+  {
+    "platform": "Web",
+    "archive": "Releases/FrontierDefense-0.7-Web.zip",
+    "bytes": 14187469,
+    "files": 8,
+    "integrity": "passed",
+    "sha256": "14d93293f4523f5679e0e719dada00b5df1f5e441057bbb96ac37c1de003055c"
+  },
+  {
+    "platform": "OfflineWeb",
+    "archive": "Releases/FrontierDefense-0.7-OfflineWeb.zip",
+    "bytes": 20647404,
+    "integrity": "passed",
+    "staticChecksPassed": 12,
+    "sha256": "2660e3316be624e54829bd30864c17cfb51781e58187ea5fd3d42804a41527f3"
+  }
+]

@@ -1,0 +1,228 @@
+{
+  "method": "Preserved console observations from original natural AFK campaign before tower retaliation range was raised from 24 to 30. Process was interrupted during managed second run as requested; original in-memory final AFK return object was not persisted. Do not infer an exact victory time from these snapshots. Managed started after AFK terminated, and last AFK sample showed wave 5, all portals dead and undamaged command.",
+  "sourceHashCaveat": "Reconstructed core hash reverses only parent-reported tower range fix from current core; original run did not print hashes before interruption, so this is not a verified original-source snapshot.",
+  "reconstructedCoreSha256": "7532a76bedbfcecfe18712843b90845f3355e1d87ce055dd19946f818e6cbdc7",
+  "observations": [
+    {
+      "wave": 1,
+      "phase": "assault",
+      "time": 0.1,
+      "command": 2300,
+      "credits": 160,
+      "spawned": 0,
+      "suppressed": 0,
+      "tankProduced": 0
+    },
+    {
+      "time": 60,
+      "wave": 1,
+      "phase": "assault",
+      "mobiles": 32,
+      "assaults": 7,
+      "rallied": 1,
+      "attacking": 6,
+      "assaultWaves": 1,
+      "portalHp": [
+        1800,
+        1800,
+        1800,
+        1800,
+        1800,
+        1800
+      ],
+      "command": 2300
+    },
+    {
+      "wave": 2,
+      "phase": "assault",
+      "time": 119.9,
+      "command": 2300,
+      "credits": 1682,
+      "spawned": 56,
+      "suppressed": 0,
+      "tankProduced": 0
+    },
+    {
+      "time": 120.1,
+      "wave": 2,
+      "phase": "assault",
+      "mobiles": 18,
+      "assaults": 14,
+      "rallied": 2,
+      "attacking": 12,
+      "assaultWaves": 2,
+      "portalHp": [
+        0,
+        1800,
+        1800,
+        1800,
+        1800,
+        1800
+      ],
+      "command": 2300
+    },
+    {
+      "time": 180.1,
+      "wave": 2,
+      "phase": "assault",
+      "mobiles": 12,
+      "assaults": 22,
+      "rallied": 4,
+      "attacking": 18,
+      "assaultWaves": 3,
+      "portalHp": [
+        0,
+        0,
+        1800,
+        1800,
+        1800,
+        96
+      ],
+      "command": 2300
+    },
+    {
+      "time": 240.1,
+      "wave": 2,
+      "phase": "intermission",
+      "mobiles": 2,
+      "assaults": 24,
+      "rallied": 0,
+      "attacking": 0,
+      "assaultWaves": 4,
+      "portalHp": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "command": 2300
+    },
+    {
+      "wave": 3,
+      "phase": "assault",
+      "time": 269.2,
+      "command": 2300,
+      "credits": 6222,
+      "spawned": 120,
+      "suppressed": 16,
+      "tankProduced": 0
+    },
+    {
+      "time": 300.1,
+      "wave": 3,
+      "phase": "assault",
+      "mobiles": 2,
+      "assaults": 24,
+      "rallied": 0,
+      "attacking": 0,
+      "assaultWaves": 4,
+      "portalHp": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "command": 2300
+    },
+    {
+      "time": 360,
+      "wave": 3,
+      "phase": "intermission",
+      "mobiles": 2,
+      "assaults": 24,
+      "rallied": 0,
+      "attacking": 0,
+      "assaultWaves": 4,
+      "portalHp": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "command": 2300
+    },
+    {
+      "wave": 4,
+      "phase": "assault",
+      "time": 391.3,
+      "command": 2300,
+      "credits": 6507,
+      "spawned": 120,
+      "suppressed": 132,
+      "tankProduced": 0
+    },
+    {
+      "time": 420,
+      "wave": 4,
+      "phase": "assault",
+      "mobiles": 2,
+      "assaults": 24,
+      "rallied": 0,
+      "attacking": 0,
+      "assaultWaves": 4,
+      "portalHp": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "command": 2300
+    },
+    {
+      "time": 480,
+      "wave": 4,
+      "phase": "intermission",
+      "mobiles": 2,
+      "assaults": 24,
+      "rallied": 0,
+      "attacking": 0,
+      "assaultWaves": 4,
+      "portalHp": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "command": 2300
+    },
+    {
+      "wave": 5,
+      "phase": "assault",
+      "time": 513.4,
+      "command": 2300,
+      "credits": 6837,
+      "spawned": 120,
+      "suppressed": 288,
+      "tankProduced": 0
+    },
+    {
+      "time": 540,
+      "wave": 5,
+      "phase": "assault",
+      "mobiles": 2,
+      "assaults": 24,
+      "rallied": 0,
+      "attacking": 0,
+      "assaultWaves": 4,
+      "portalHp": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "command": 2300
+    }
+  ]
+}

@@ -4,34 +4,38 @@ import json, plistlib, subprocess, zipfile
 from build_offline_web import build as build_offline_web
 
 root = Path(__file__).resolve().parents[1]
-version = "0.6"
-readme = """边境防线 v0.6 · 战车工厂与中央防线
-
-五波共460名敌人（40 / 58 / 92 / 120 / 150），六处敌巢成组进攻，第三波起双线重叠。守住指挥中心，消灭全部进攻部队即可胜利。
+version = "0.7"
+readme = """边境防线 v0.7 · 传送门基地与自动反攻
 
 WASD移动；Shift冲刺；鼠标转向；左键射击；右键瞄准；R换弹；Esc暂停。
-E：瞄准4米内守卫免费招募；靠近指挥中心打开/关闭终端；靠近地堡后门进入或退出。
-B命令小队实际走到目标地堡后门入驻；F跟随/撤出；G驻守。
-来到正面中央矮墙附近按G，四名队员会分列矮墙后，中央给坦克留出通道。矮墙能挡身体，玩家、小队和坦克可从上方射击。
+E：瞄准4米内守卫免费招募；靠近指挥中心打开终端；靠近地堡后门进出。
+B命令小队入驻指定地堡；F跟随；G驻守。中央矮墙附近按G展开防线。
 
-战车工厂650补给，施工28秒。建好后自动用24秒生产一辆坦克，并从出口行驶到中央阵位。
-坦克最多一辆，1000耐久，优先攻击重甲，炮弹有范围伤害且受真实墙体遮挡。坦克不占小队或基地守卫人数。
-坦克阵亡后工厂自动补产；工厂损坏时停产，重建后继续，现存坦克继续战斗。工厂耐久1400，维修180补给恢复700。
+地图扩展至东西120米、纵深160米，增加废墟、两翼道路及六座传送门基地。
+每个据点包含可摧毁的传送门、兵巢、两座炮塔和驻防部队，纵深据点更坚固。
+摧毁传送门会取消该据点尚未出动的增援；摧毁兵巢停止当地守军补员。
+五波计划56/80/116/156/200，共608名敌人；实际出兵随传送门摧毁而减少。
+新增潜袭兽与远程攻城兽，同时活动敌兵上限100，含据点驻军。
 
-第一至第四波结束后获得奖励并进入45秒自由整备，不会弹出升级菜单；第五波清场即胜利。可移动、射击、招募和部署小队，倒计时结束自动开战。
-所有个人强化、防线升级、建造、科技、雇佣合同和维修都要前往指挥中心按E。终端中暂停战斗、整备倒计时、施工、研究和复活；关闭后继续。
+两个地堡开局建成，前移到两处入口外侧，与中央矮墙共同承受正面压力。
+兵营独立生产突击兵，每12秒一人，增援兵营投产后每9秒一人。
+6人实际到达绿色集结区后自动进攻传送门基地，突击兵上限24。
+突击兵不占基地守卫8/12人、先锋小队4人或坦克名额。
 
-小队最多4人：2名精英雇佣兵、2名免费招募守卫。雇佣兵每份合同120补给，阵亡12秒后免费复活；普通守卫保留当前生命且不占基地驻军上限，阵亡后需重新招募。
-每堡5席，守卫就近驻本侧地堡，玩家和小队到达后按所需人数让位。西侧地堡320补给/18秒，增援兵营400补给/22秒。增援兵营增加驻军上限8→12，并解锁复合装甲、穿甲弹药和精英雇佣兵训练。
+2名维修工在基地中巡回修理存活的建筑和机械单位，每人每秒6耐久。
+工人需要走到目标旁边，阵亡20秒后免费补员；不能修复已毁建筑或基地外单位。
+原建筑维修购买项改为结构加固，同时增加最大耐久和等量当前耐久，每处最多3级，重建保留。
+每级指挥中心+650、兵营+450、地堡+600、工厂+700；价格随等级递增。
+全体地堡装甲强化仍独立生效。所有购买需靠近指挥中心按E。
 
-击杀迅行兽/酸脊兽/铁甲兽分别获得10/18/48补给；第1至第5波奖励175/210/245/280/315。
-每处敌巢后方有防御塔，共6座：650耐久、22米射程，会攻击靠近的玩家方单位。每摧毁一座额外获得220补给，本局不重生。防御塔属于可选进攻目标，不影响波次清场与胜利。
+战车工厂650补给/28秒，建成24秒自动生产一辆坦克，阵亡后补产。
+两份雇佣兵合同各120补给，阵亡12秒后免费复活；两名随行守卫可在战场免费招募。
+第一到第四波结束进入45秒自由整备；第五波清场后胜利，指挥中心失守则失败。
+暂停和终端会停止集结、战斗、施工、研究、维修与复活计时。
 
-开局160补给；玩家阵亡6秒后重生，指挥中心被毁则失败。
-当前维护Mac原生版、网页分享版与Sites在线版，使用电脑键盘和鼠标。Windows和手机版本暂缓开发。
-在线试玩：https://frontier-defense-outpost-07.fumeshroom.chatgpt.site
-字体许可见Licenses目录。
+本版为Unity Mac与桌面网页版，使用电脑键鼠操作。字体许可见Licenses。
 """
+
 for platform in ("Mac", "Web"):
     folder = root / "Builds" / platform
     (folder / "试玩说明.txt").write_text(readme)
@@ -48,7 +52,7 @@ for platform in ("Mac", "Web"):
     if platform == "Mac":
         app = folder / "Frontier Defense.app"
         info=plistlib.loads((app/"Contents/Info.plist").read_bytes())
-        assert info["CFBundleShortVersionString"] == "0.6.0", info
+        assert info["CFBundleShortVersionString"] == "0.7.0", info
         subprocess.run(["/usr/bin/ditto","-c","-k","--keepParent",str(app),str(archive)],check=True)
         with zipfile.ZipFile(archive,"a",compression=zipfile.ZIP_DEFLATED) as z:
             for p in folder.rglob("*"):
@@ -71,5 +75,5 @@ offline = build_offline_web(root / "Builds/Web", root / "Builds/OfflineWeb",
 reports.append({"platform": "OfflineWeb", "archive": str(Path(offline["archive"]).relative_to(root)),
                 "bytes": offline["archiveBytes"], "integrity": "passed",
                 "staticChecksPassed": offline["staticChecksPassed"]})
-(root/"Verification/v0.6/releases.json").write_text(json.dumps(reports,ensure_ascii=False,indent=2))
+(root/"Verification/v0.7/releases.json").write_text(json.dumps(reports,ensure_ascii=False,indent=2))
 print(json.dumps(reports,ensure_ascii=False,indent=2))

@@ -1,0 +1,72 @@
+{
+  "results": [
+    {
+      "mode": "tank",
+      "passed": true,
+      "checks": 37,
+      "failures": [],
+      "outcome": "Intermission",
+      "seconds": 3.44,
+      "exit": 0
+    },
+    {
+      "mode": "assault",
+      "passed": false,
+      "checks": 49,
+      "failures": [
+        "The expanded grouped assault has 460 scheduled invaders and a 65-enemy concurrency limit",
+        "Wave 1 matches its approved total and runner, ranged and armored composition",
+        "An empty battlefield cannot finish a wave while its warned spawn queue is still pending",
+        "Sixty-five real live enemies hold the first batch without consuming or discarding any queued order",
+        "Freeing one real concurrency slot admits exactly one pending enemy and refills the cap",
+        "Releasing the remaining blockers resumes the same batch with no skipped or duplicated orders",
+        "Wave 1 waits for its last real surviving enemy after all orders have spawned",
+        "Wave 1 actors appear at their announced rift with the correct lane and real group binding",
+        "Wave 2 matches its approved total and runner, ranged and armored composition",
+        "Wave 2 waits for its last real surviving enemy after all orders have spawned",
+        "Wave 2 actors appear at their announced rift with the correct lane and real group binding",
+        "Wave 3 matches its approved total and runner, ranged and armored composition",
+        "Unblocked armored and escort actors reach their actual assembly positions before advancing together",
+        "Every real armored and escort actor advances over eight metres while remaining within four metres of its moving slot",
+        "Actual ranged escorts follow at least three metres behind the armored front instead of overtaking it",
+        "Wave 3 waits for its last real surviving enemy after all orders have spawned",
+        "Wave 3 spawns every scheduled order exactly once and keeps its remaining count consistent",
+        "Wave 3 actors appear at their announced rift with the correct lane and real group binding",
+        "Wave 3 warns about each approaching batch before its first actor appears",
+        "Wave 3 actually spawns the exact batch roles and the scheduled count at each rift",
+        "Wave 4 matches its approved total and runner, ranged and armored composition",
+        "Wave 4 actually creates a mixed armored assault group",
+        "Wave 4 waits for its last real surviving enemy after all orders have spawned",
+        "Wave 4 spawns every scheduled order exactly once and keeps its remaining count consistent",
+        "Wave 4 actors appear at their announced rift with the correct lane and real group binding",
+        "Wave 4 actually spawns the exact batch roles and the scheduled count at each rift",
+        "Wave 5 matches its approved total and runner, ranged and armored composition",
+        "Wave 5 actually creates a mixed armored assault group",
+        "Wave 5 waits for its last real surviving enemy after all orders have spawned",
+        "Wave 5 spawns every scheduled order exactly once and keeps its remaining count consistent",
+        "Wave 5 actors appear at their announced rift with the correct lane and real group binding",
+        "Wave 5 warns about each approaching batch before its first actor appears",
+        "Wave 5 actually spawns the exact batch roles and the scheduled count at each rift",
+        "Wave 5 has real living attackers on both lanes simultaneously",
+        "All 460 grouped campaign enemies and the separately counted cap-test enemies really spawn and die",
+        "Six surviving rift defenses neither prevent five-wave victory nor enter the assault cleanup count",
+        "Actual concurrent enemies never exceed 65 during queue backpressure and the campaign"
+      ],
+      "outcome": "Victory",
+      "seconds": 4.33,
+      "exit": 2
+    },
+    {
+      "mode": "enemy_defense",
+      "passed": false,
+      "checks": 0,
+      "failures": [
+        "A fresh campaign restores six undamaged rift defenses and clears destruction and firing records"
+      ],
+      "outcome": "Briefing",
+      "seconds": 2.43,
+      "exit": 2
+    }
+  ],
+  "passed": false
+}

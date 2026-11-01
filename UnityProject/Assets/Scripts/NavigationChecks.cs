@@ -60,14 +60,21 @@ namespace Frontier
 
         static void CheckConstructionReplan(GameWorld w,Action<bool,string> check)
         {
-            var site=w.Construction.Sites[0];Health guard=w.Entities.Find(h=>h!=null&&h.Alive&&h.Role==Role.Marine&&h.Slot==0);
-            Vector3 start=site.Position+Vector3.back*8,goal=site.Position+Vector3.forward*14;
+            // Both forward bunkers now exist at mission start. The empty factory
+            // provides a genuine construction crossing wholly inside the base;
+            // a bunker crossing at z = 20 would also cross the outer cliff.
+            var site=w.Construction.Sites[TankDirector.FactorySiteId];
+            Health guard=w.Entities.Find(h=>h!=null&&h.Alive&&h.Role==Role.Marine&&h.Slot==0);
+            float halfLength=ConstructionDirector.Size(site.Role).z*.5f;
+            Vector3 start=site.Position+Vector3.back*(halfLength+1.5f),goal=site.Position+Vector3.forward*(halfLength+4);
+            check(site.State==SiteState.Empty&&site.Structure==null,"The replanning fixture uses the mission's genuinely empty factory site");
             for(int i=0;i<400;i++){Physics.SyncTransforms();guard.Brain.NavigateTo(start,.05f);}
             check(Vector3.Distance(guard.transform.position,start)<=.8f,"The replanning guard physically walks to the start of the future construction crossing");
             var previousNavigation=w.Squad.Navigation;
             check(previousNavigation.Clear(start,goal,.42f),"The guard's original route crosses a currently empty construction footprint");
             guard.Brain.NavigateTo(goal,.05f);float travelled=guard.Brain.Travelled;
-            CheckCommand.Enter(w);check(w.Construction.Build(0)&&w.Squad.Navigation!=previousNavigation,"Starting construction replaces the shared navigation grid after the guard has already planned its route");
+            CheckCommand.Enter(w);check(w.Construction.Build(site.Id)&&w.Squad.Navigation!=previousNavigation,"Starting construction replaces the shared navigation grid after the guard has already planned its route");
+            check(!w.Squad.Navigation.Clear(start,goal,.42f),"The new factory foundation physically blocks the previously clear direct route");
             CheckCommand.Leave(w);bool clear=true;
             for(int i=0;i<700;i++)
             {

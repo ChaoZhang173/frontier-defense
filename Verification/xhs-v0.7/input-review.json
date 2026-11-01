@@ -1,0 +1,211 @@
+{
+  "at": "2026-09-22T10:05:58.580Z",
+  "coreSha256": "44443dd38723c2934e581e3d5976fe9c0ad879e98337e647ff85417996b9cb69",
+  "appSha256": "f4375b20c7875c6b058049a9fea541ee8f154e2e6c961e2273a2e768bb9089b9",
+  "menuScrollSha256": "325e59f47f1e9485900a865b774c4279f59eda967c01882d66e1a94fbc1ba532",
+  "method": "Node VM mocked DOM event dispatch; no browser/device timing or rendering claims",
+  "checks": [
+    {
+      "name": "Three fingers independently move, look and fire",
+      "pass": true,
+      "actual": {
+        "x": 0.6976744186046512,
+        "z": 0.5813953488372093,
+        "yaw": 0.18,
+        "pitch": 0.2,
+        "fire": true,
+        "sprint": false,
+        "aim": false,
+        "aimPoint": {
+          "x": 8.951478671291209,
+          "y": 1.45,
+          "z": 52.19218463940607
+        }
+      }
+    },
+    {
+      "name": "Unrelated pointer up leaves move and firing active",
+      "pass": true
+    },
+    {
+      "name": "pointerup clears owned stick/look/fire",
+      "pass": true
+    },
+    {
+      "name": "pointercancel clears owned stick/look/fire",
+      "pass": true
+    },
+    {
+      "name": "lostpointercapture clears owned stick/look/fire",
+      "pass": true
+    },
+    {
+      "name": "pause freezes game and resets inputs after resume",
+      "pass": true,
+      "pausedFrozen": true
+    },
+    {
+      "name": "blur freezes game and resets inputs after resume",
+      "pass": true,
+      "pausedFrozen": true
+    },
+    {
+      "name": "visibilitychange freezes game and resets inputs after resume",
+      "pass": true,
+      "pausedFrozen": true
+    },
+    {
+      "name": "Opening terminal clears held input and freezes gameplay",
+      "pass": true
+    },
+    {
+      "name": "Resize clears touches; canceled gesture cannot turn camera",
+      "pass": true
+    },
+    {
+      "name": "Second fire touch cannot steal held primary fire ownership",
+      "pass": true,
+      "actual": true
+    },
+    {
+      "name": "Restart cannot resume an old desktop drag",
+      "pass": true,
+      "previousYaw": 0,
+      "actualYaw": 0
+    },
+    {
+      "name": "Hidden page cancels RAF and suspends audio; foreground waits for resume",
+      "pass": true,
+      "hidden": true,
+      "foreground": true
+    },
+    {
+      "name": "Fatal error cannot restart RAF on foreground return",
+      "pass": true
+    },
+    {
+      "name": "Terminal tab changes clear old cards using textContent",
+      "pass": true,
+      "counts": [
+        6,
+        8,
+        6
+      ]
+    },
+    {
+      "name": "Frame observer receives uncapped elapsed while simulation stays capped",
+      "pass": true,
+      "elapsed": 0.12,
+      "simulationDelta": 0.05
+    },
+    {
+      "name": "Orientation: clockwise landscape on portrait device preserves three independent logical gestures",
+      "pass": true,
+      "viewport": {
+        "width": 844,
+        "height": 390,
+        "rotation": 90
+      },
+      "input": {
+        "x": 0.46511627906976744,
+        "z": 0.6976744186046512,
+        "yaw": 0.24,
+        "pitch": 0.2,
+        "fire": true
+      },
+      "selected": true
+    },
+    {
+      "name": "Orientation: normal portrait preserves three independent logical gestures",
+      "pass": true,
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "rotation": 0
+      },
+      "input": {
+        "x": 0.46511627906976744,
+        "z": 0.6976744186046512,
+        "yaw": 0.24,
+        "pitch": 0.2,
+        "fire": true
+      },
+      "selected": true
+    },
+    {
+      "name": "Orientation: counterclockwise portrait on landscape device preserves three independent logical gestures",
+      "pass": true,
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "rotation": -90
+      },
+      "input": {
+        "x": 0.46511627906976744,
+        "z": 0.6976744186046512,
+        "yaw": 0.24,
+        "pitch": 0.2,
+        "fire": true
+      },
+      "selected": true
+    },
+    {
+      "name": "Orientation: normal landscape preserves three independent logical gestures",
+      "pass": true,
+      "viewport": {
+        "width": 844,
+        "height": 390,
+        "rotation": 0
+      },
+      "input": {
+        "x": 0.46511627906976744,
+        "z": 0.6976744186046512,
+        "yaw": 0.24,
+        "pitch": 0.2,
+        "fire": true
+      },
+      "selected": true
+    },
+    {
+      "name": "Orientation: clockwise landscape on portrait device switch cancels all old touch ownership",
+      "pass": true
+    },
+    {
+      "name": "Orientation: normal portrait switch cancels all old touch ownership",
+      "pass": true
+    },
+    {
+      "name": "Orientation: counterclockwise portrait on landscape device switch cancels all old touch ownership",
+      "pass": true
+    },
+    {
+      "name": "Orientation: normal landscape switch cancels all old touch ownership",
+      "pass": true
+    },
+    {
+      "name": "Physical resize preserves chosen landscape and clears stale look origin",
+      "pass": true,
+      "viewport": {
+        "width": 844,
+        "height": 390,
+        "rotation": 0
+      }
+    },
+    {
+      "name": "Portrait choice survives restart and synchronizes both control groups",
+      "pass": true
+    },
+    {
+      "name": "Desktop drag uses the same inverse rotation in fixed portrait",
+      "pass": true,
+      "yaw": 0.16,
+      "pitch": 0.18
+    },
+    {
+      "name": "Same-size resize notification preserves active game controls",
+      "pass": true,
+      "x": 0.9302325581395349,
+      "fire": true
+    }
+  ]
+}

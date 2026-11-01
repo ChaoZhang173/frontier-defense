@@ -1,0 +1,30 @@
+{
+  "at": "2026-09-16T10:43:16.940Z",
+  "threeSha256": "d409477142aebf12684b278c536a6db2591edcdff6a66c65c081f797321ae6d0",
+  "method": "Static inspection of actual bundled WebGLRenderer function and all direct .xr property accesses, plus instantiated disabled stub using bundled EventDispatcher. No real WebGL constructor or native XR invoked.",
+  "rendererLocal": "Ft",
+  "requiredMembers": [
+    "isPresenting",
+    "dispose",
+    "removeEventListener",
+    "setAnimationLoop",
+    "addEventListener",
+    "enabled",
+    "cameraAutoUpdate",
+    "updateCamera",
+    "getCamera",
+    "getEnvironmentBlendMode"
+  ],
+  "missing": [],
+  "stubDefaults": {
+    "enabled": false,
+    "isPresenting": false,
+    "cameraAutoUpdate": false,
+    "session": null,
+    "environmentBlendMode": "opaque"
+  },
+  "inheritedEventsWork": true,
+  "nativeCallsInStub": false,
+  "pass": true,
+  "scopeNote": "Disabled renderer branch is compatible. getCamera(camera) returns undefined when called without an argument, but the real renderer only enters that branch when enabled AND isPresenting are true; both stay false in this app."
+}

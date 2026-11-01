@@ -1,0 +1,361 @@
+{
+  "at": "2026-09-22T10:05:57.749Z",
+  "sources": {
+    "core.js": "44443dd38723c2934e581e3d5976fe9c0ad879e98337e647ff85417996b9cb69",
+    "support.js": "bc65416a6ab7bd3720ff88749b0d72f63707925467b966d4e519de04e4352deb"
+  },
+  "method": "Actual CommonJS core and support. Collision routes validate every segment and real movement. Scheduler-only cases explicitly disable actors/support production and clear emitted wave units to isolate accounting; these are not balance simulations. No browser/GPU/device claims.",
+  "summary": {
+    "pass": 20,
+    "fail": 0,
+    "total": 20
+  },
+  "checks": [
+    {
+      "name": "World bounds, six portal compounds, and five mobile enemy roles",
+      "pass": true,
+      "bounds": {
+        "minX": -60,
+        "maxX": 60,
+        "minZ": -24,
+        "maxZ": 136
+      },
+      "baseCount": 6,
+      "initialPatrols": 12
+    },
+    {
+      "name": "Wave plans total 608, escalate variety, and use all six source compounds",
+      "pass": true,
+      "counts": [
+        56,
+        80,
+        116,
+        156,
+        200
+      ],
+      "roles": [
+        "heavy",
+        "siege",
+        "spitter",
+        "runner",
+        "stalker"
+      ],
+      "sourceCount": 6
+    },
+    {
+      "name": "All source spawn points and collision-checked paths can reach both base gates",
+      "pass": true,
+      "routes": [
+        {
+          "site": 0,
+          "role": "runner",
+          "nodes": 30,
+          "finalDistance": 0.13975989570365308
+        },
+        {
+          "site": 0,
+          "role": "heavy",
+          "nodes": 30,
+          "finalDistance": 0.13975989570365308
+        },
+        {
+          "site": 0,
+          "role": "siege",
+          "nodes": 30,
+          "finalDistance": 0.13975989570365308
+        },
+        {
+          "site": 1,
+          "role": "runner",
+          "nodes": 30,
+          "finalDistance": 0
+        },
+        {
+          "site": 1,
+          "role": "heavy",
+          "nodes": 30,
+          "finalDistance": 0
+        },
+        {
+          "site": 1,
+          "role": "siege",
+          "nodes": 30,
+          "finalDistance": 0
+        },
+        {
+          "site": 2,
+          "role": "runner",
+          "nodes": 41,
+          "finalDistance": 0.09942029249458195
+        },
+        {
+          "site": 2,
+          "role": "heavy",
+          "nodes": 41,
+          "finalDistance": 0.0323346627592499
+        },
+        {
+          "site": 2,
+          "role": "siege",
+          "nodes": 41,
+          "finalDistance": 0
+        },
+        {
+          "site": 3,
+          "role": "runner",
+          "nodes": 41,
+          "finalDistance": 0.23123608114968275
+        },
+        {
+          "site": 3,
+          "role": "heavy",
+          "nodes": 41,
+          "finalDistance": 0.23539138926973402
+        },
+        {
+          "site": 3,
+          "role": "siege",
+          "nodes": 41,
+          "finalDistance": 0.3104884084012822
+        },
+        {
+          "site": 4,
+          "role": "runner",
+          "nodes": 49,
+          "finalDistance": 0.13194208774386448
+        },
+        {
+          "site": 4,
+          "role": "heavy",
+          "nodes": 49,
+          "finalDistance": 0.13194208774386448
+        },
+        {
+          "site": 4,
+          "role": "siege",
+          "nodes": 49,
+          "finalDistance": 0.13194208774386448
+        },
+        {
+          "site": 5,
+          "role": "runner",
+          "nodes": 49,
+          "finalDistance": 0.000050761407775002665
+        },
+        {
+          "site": 5,
+          "role": "heavy",
+          "nodes": 49,
+          "finalDistance": 0.000050761407775002665
+        },
+        {
+          "site": 5,
+          "role": "siege",
+          "nodes": 49,
+          "finalDistance": 0.000050761407775002665
+        }
+      ]
+    },
+    {
+      "name": "New terrain blocks straight shots and routes go around it",
+      "pass": true,
+      "obstacles": 8,
+      "pathNodes": 12
+    },
+    {
+      "name": "Out-of-bounds movement remains blocked on all four new edges",
+      "pass": true
+    },
+    {
+      "name": "Both forward bunkers keep rear doors usable and cover their adjacent gates",
+      "pass": true,
+      "bunkers": [
+        {
+          "id": "west",
+          "position": {
+            "x": -20.5,
+            "z": 20
+          },
+          "gateDamage": 25
+        },
+        {
+          "id": "east",
+          "position": {
+            "x": 20.5,
+            "z": 20
+          },
+          "gateDamage": 25
+        }
+      ]
+    },
+    {
+      "name": "Tank can leave factory and settle at central trench after bunker shift",
+      "pass": true,
+      "position": {
+        "x": 0.17823273911270168,
+        "z": 20.73844345535211
+      },
+      "distance": 0.31651024523664184
+    },
+    {
+      "name": "Squad formation follows player outside old 24-unit map limit",
+      "pass": true,
+      "distance": 2.544918650528749,
+      "position": {
+        "x": 42.48094978915106,
+        "z": 67.95816323014574
+      }
+    },
+    {
+      "name": "Stationary compound structures never move during actual simulation",
+      "pass": true,
+      "structures": 24
+    },
+    {
+      "name": "Local patrols are capped and do not prevent wave completion",
+      "pass": true,
+      "patrols": 24
+    },
+    {
+      "name": "Siege beast damages buildings from beyond ordinary spitter range",
+      "pass": true,
+      "siegeDamage": 56,
+      "range": 25
+    },
+    {
+      "name": "Portal defense towers counterattack assault troops at their outer firing distance",
+      "pass": true,
+      "distance": 26.5,
+      "towerDamage": 20
+    },
+    {
+      "name": "Stalker advances faster than runner on the same unobstructed lane",
+      "pass": true,
+      "runner": 0.45000000000000284,
+      "stalker": 0.5700000000000003
+    },
+    {
+      "name": "Mobile population cap includes local patrols and releases at most one queued unit per tick",
+      "pass": true,
+      "queueAtCap": 56,
+      "spawnedAfterSlotOpened": 1,
+      "mobiles": 100
+    },
+    {
+      "name": "Portal destruction cancels only its pending source and cannot double count",
+      "pass": true,
+      "suppressed": 17,
+      "alreadySpawned": 11
+    },
+    {
+      "name": "Killed portals stop local replacement while living portals keep spawning guards",
+      "pass": true
+    },
+    {
+      "name": "Five untouched portal waves emit every scheduled unit and reach victory",
+      "pass": true,
+      "phase": "victory",
+      "spawned": 608,
+      "suppressed": 0,
+      "records": [
+        {
+          "wave": 1,
+          "emitted": 56,
+          "suppressed": 0
+        },
+        {
+          "wave": 2,
+          "emitted": 80,
+          "suppressed": 0
+        },
+        {
+          "wave": 3,
+          "emitted": 116,
+          "suppressed": 0
+        },
+        {
+          "wave": 4,
+          "emitted": 156,
+          "suppressed": 0
+        },
+        {
+          "wave": 5,
+          "emitted": 200,
+          "suppressed": 0
+        }
+      ]
+    },
+    {
+      "name": "Destroyed portals preserve five-wave accounting and reachable victory",
+      "pass": true,
+      "phase": "victory",
+      "spawned": 314,
+      "suppressed": 294,
+      "records": [
+        {
+          "wave": 1,
+          "emitted": 14,
+          "suppressed": 42
+        },
+        {
+          "wave": 2,
+          "emitted": 64,
+          "suppressed": 16
+        },
+        {
+          "wave": 3,
+          "emitted": 58,
+          "suppressed": 58
+        },
+        {
+          "wave": 4,
+          "emitted": 78,
+          "suppressed": 78
+        },
+        {
+          "wave": 5,
+          "emitted": 100,
+          "suppressed": 100
+        }
+      ]
+    },
+    {
+      "name": "Destroying every portal still reaches victory without unsatisfiable wave counters",
+      "pass": true,
+      "phase": "victory",
+      "spawned": 0,
+      "suppressed": 608,
+      "records": [
+        {
+          "wave": 1,
+          "emitted": 0,
+          "suppressed": 56
+        },
+        {
+          "wave": 2,
+          "emitted": 0,
+          "suppressed": 80
+        },
+        {
+          "wave": 3,
+          "emitted": 0,
+          "suppressed": 116
+        },
+        {
+          "wave": 4,
+          "emitted": 0,
+          "suppressed": 156
+        },
+        {
+          "wave": 5,
+          "emitted": 0,
+          "suppressed": 200
+        }
+      ]
+    },
+    {
+      "name": "Pause and terminal freeze support, guard and wave timers together",
+      "pass": true
+    }
+  ]
+}

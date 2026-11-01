@@ -1,0 +1,29 @@
+{
+  "url": "file:///Users/czhang/Documents/Games/FrontierDefense/Builds/OfflineWeb/边境防线.html",
+  "offline": true,
+  "renderer": "Chrome headless with SwiftShader",
+  "errors": [],
+  "warnings": [
+    "[.WebGL-0x10c000cde00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "Manual synchronization of Unity Application.persistentDataPath via JS_FileSystem_Sync() is deprecated and will be later removed in a future Unity version. The persistent data directory will be automatically synchronized instead on file modification. Pass config.autoSyncPersistentDataPath = true; to configuration in createUnityInstance() to opt in to the new behavior.",
+    "[.WebGL-0x10c000dd400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x10c000dd400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+  ],
+  "network": [],
+  "loaded": true,
+  "canvas": {
+    "width": 1440,
+    "height": 900
+  },
+  "passed": true,
+  "version": "0.7.0",
+  "htmlSha256": "f308c7024ac3b95a622936d0becb97eb5f754c17a7939fe1ee01a477bd76a017",
+  "visualReview": [
+    "Entered the actual Unity battlefield with the v0.7 interface",
+    "Escape displayed the actual Unity pause panel"
+  ],
+  "limitations": [
+    "Headless Chrome used SwiftShader, so this is not a hardware performance benchmark.",
+    "Keyboard input was sent, but movement distance and a full WebGL campaign were not measured."
+  ]
+}

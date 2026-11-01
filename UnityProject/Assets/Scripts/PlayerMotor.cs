@@ -75,7 +75,7 @@ namespace Frontier
             if(controller.isGrounded&&gravity<0)gravity=-2;
             gravity-=24*dt;MoveOnFoot((horizontalVelocity+Vector3.up*gravity)*dt);
             transform.rotation=Quaternion.Euler(0,Yaw,0);
-            if(transform.position.y < -12 || transform.position.sqrMagnitude>15000)Respawn();
+            if(transform.position.y < -12 || transform.position.x<GroundSurface.MinX-8||transform.position.x>GroundSurface.MaxX+8||transform.position.z<GroundSurface.MinZ-8||transform.position.z>GroundSurface.MaxZ+8)Respawn();
             UpdateCamera(dt);UpdateAim();Self.Rig.AimAt(AimPoint);Self.Rig.Animate(horizontalVelocity.magnitude,dt);
             if(Input.GetKeyDown(KeyCode.R))StartReload();
             if(Input.GetMouseButton(0)&&!Sprinting)Fire();
@@ -96,6 +96,9 @@ namespace Frontier
                 Vector3 slide=Vector3.ProjectOnPlane(horizontal-first,hit.normal);slide.y=0;
                 horizontal=first+slide;motion.x=horizontal.x;motion.z=horizontal.z;
             }
+            Vector3 next=transform.position+motion;
+            motion.x=Mathf.Clamp(next.x,GroundSurface.MinX+.45f,GroundSurface.MaxX-.45f)-transform.position.x;
+            motion.z=Mathf.Clamp(next.z,GroundSurface.MinZ+.45f,GroundSurface.MaxZ-.45f)-transform.position.z;
             controller.Move(motion);
         }
 

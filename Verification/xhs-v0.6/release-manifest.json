@@ -1,0 +1,41 @@
+{
+  "version": "0.6.4",
+  "zip": "/Users/czhang/Documents/Games/FrontierDefense/Releases/FrontierDefense-0.6.4-XHS.zip",
+  "zip_bytes": 196074,
+  "sha256": "f704185da29ee21626d192937c3b75a16494e92f4f5ea024453b1e3e31ca4391",
+  "files": {
+    "app.js": {
+      "bytes": 17480,
+      "sha256": "d7f8609c4610633456aeeea949b3ec275d4fbb5fee863d1b7f2d0c6b46668231"
+    },
+    "core.js": {
+      "bytes": 30271,
+      "sha256": "1221cd684ee69f14ef8c829fe15010329db353a6c8d135ce62f579616f4482ca"
+    },
+    "index.html": {
+      "bytes": 5239,
+      "sha256": "1eea015f9a3b190f43c0a7aa66871f991b16743f76eca1081ca14ec4f80fc59c"
+    },
+    "licenses.json": {
+      "bytes": 1404,
+      "sha256": "8a245501ab97a5cc3f0ab37b57ddd160d5544394e3e73584101be8515c4cb097"
+    },
+    "menu-scroll.js": {
+      "bytes": 3677,
+      "sha256": "325e59f47f1e9485900a865b774c4279f59eda967c01882d66e1a94fbc1ba532"
+    },
+    "scene.js": {
+      "bytes": 14073,
+      "sha256": "fc71d7870ae052ca409709e9d96b6f9d54249869a2000c25eee7d1aecc2139c3"
+    },
+    "style.css": {
+      "bytes": 16299,
+      "sha256": "817890cff05e6a7aad6b505a9aba8c7084dc3f6f1326f67bf5cd92c24caf8b72"
+    },
+    "three.min.js": {
+      "bytes": 663229,
+      "sha256": "d409477142aebf12684b278c536a6db2591edcdff6a66c65c081f797321ae6d0"
+    }
+  },
+  "validation_limit": "Automated geometry/event simulations and official static ZIP audit only. v0.6.4 has not been uploaded or tested on an iPhone or Chrome 61 runtime."
+}

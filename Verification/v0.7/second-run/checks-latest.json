@@ -1,0 +1,187 @@
+{
+  "results": [
+    {
+      "mode": "mechanics",
+      "passed": true,
+      "checks": 22,
+      "failures": [],
+      "outcome": "Defeat",
+      "seconds": 2.99,
+      "exit": 0
+    },
+    {
+      "mode": "enemy_bases",
+      "passed": false,
+      "checks": 22,
+      "failures": [
+        "A siege beast acquires and damages field infantry 29 metres away without needing a nearby building target"
+      ],
+      "outcome": "Intermission",
+      "seconds": 2.99,
+      "exit": 2
+    },
+    {
+      "mode": "expedition",
+      "passed": true,
+      "checks": 21,
+      "failures": [],
+      "outcome": "Intermission",
+      "seconds": 3.64,
+      "exit": 0
+    },
+    {
+      "mode": "repair",
+      "passed": true,
+      "checks": 38,
+      "failures": [],
+      "outcome": "Intermission",
+      "seconds": 2.48,
+      "exit": 0
+    },
+    {
+      "mode": "central",
+      "passed": false,
+      "checks": 36,
+      "failures": [
+        "West occupied bunker firing ports have clear real rifle traces toward the central canyon"
+      ],
+      "outcome": "Assault",
+      "seconds": 2.58,
+      "exit": 2
+    },
+    {
+      "mode": "navigation",
+      "passed": true,
+      "checks": 62,
+      "failures": [],
+      "outcome": "Assault",
+      "seconds": 2.52,
+      "exit": 0
+    },
+    {
+      "mode": "interaction",
+      "passed": true,
+      "checks": 19,
+      "failures": [],
+      "outcome": "Assault",
+      "seconds": 2.45,
+      "exit": 0
+    },
+    {
+      "mode": "squad",
+      "passed": true,
+      "checks": 61,
+      "failures": [],
+      "outcome": "Assault",
+      "seconds": 2.69,
+      "exit": 0
+    },
+    {
+      "mode": "guards",
+      "passed": false,
+      "checks": 28,
+      "failures": [
+        "Every admitted guard accumulates actual walking and remains bound to the nearby east bunker"
+      ],
+      "outcome": "Assault",
+      "seconds": 2.53,
+      "exit": 2
+    },
+    {
+      "mode": "tank",
+      "passed": true,
+      "checks": 37,
+      "failures": [],
+      "outcome": "Intermission",
+      "seconds": 2.86,
+      "exit": 0
+    },
+    {
+      "mode": "assault",
+      "passed": true,
+      "checks": 98,
+      "failures": [],
+      "outcome": "Victory",
+      "seconds": 3.72,
+      "exit": 0
+    },
+    {
+      "mode": "enemy_defense",
+      "passed": false,
+      "checks": 34,
+      "failures": [
+        "A player just inside the range boundary is hit by an actual defense projectile"
+      ],
+      "outcome": "Assault",
+      "seconds": 2.4,
+      "exit": 2
+    },
+    {
+      "mode": "construction",
+      "passed": false,
+      "checks": 101,
+      "failures": [
+        "A fresh mission restores the three empty sites and the two original completed buildings",
+        "Restart removes expanded buildings and restores the eight-defender capacity",
+        "Insufficient building supplies cannot start construction or spend credits",
+        "Before first construction, the selected squad route can cross the empty footprint",
+        "A command-terminal purchase spends 320 and creates an attackable construction foundation",
+        "An unfinished structure neither attacks nor adds production capacity",
+        "First construction replaces the empty-site navigation and blocks the previously traversable footprint",
+        "Squad members abandon a pre-construction crossing route and remain outside the new foundation",
+        "A targeted bunker repair spends 120 and repairs only the selected building",
+        "A later global armor upgrade increases both existing bunkers' durability and heals each one by 400",
+        "A rebuilt west bunker uses a new health identity, inherits upgrades and never inherits obsolete occupants",
+        "A fresh mission restores the three empty sites and the two original completed buildings",
+        "Restart removes expanded buildings and restores the eight-defender capacity"
+      ],
+      "outcome": "Assault",
+      "seconds": 3.41,
+      "exit": 2
+    },
+    {
+      "mode": "fortification",
+      "passed": false,
+      "checks": 56,
+      "failures": [
+        "Wave-break repairs clamp at each building's upgraded maximum",
+        "Repairing a full-health building is rejected without charging",
+        "Insufficient repair supplies preserve both credits and building damage",
+        "Destroyed buildings cannot be upgraded or repaired even with upgrade capacity and sufficient supplies"
+      ],
+      "outcome": "Assault",
+      "seconds": 2.43,
+      "exit": 2
+    },
+    {
+      "mode": "afk",
+      "passed": true,
+      "checks": 3,
+      "failures": [],
+      "outcome": "Defeat",
+      "seconds": 9.42,
+      "exit": 0
+    },
+    {
+      "mode": "balance_prepared",
+      "passed": true,
+      "checks": 3,
+      "failures": [],
+      "outcome": "Victory",
+      "seconds": 9.18,
+      "exit": 0
+    },
+    {
+      "mode": "victory",
+      "passed": false,
+      "checks": 10,
+      "failures": [
+        "Two contracted mercenaries and two free recruited guards participate in the full five-wave campaign"
+      ],
+      "outcome": "Victory",
+      "seconds": 9.32,
+      "exit": 2
+    }
+  ],
+  "passed": false
+}

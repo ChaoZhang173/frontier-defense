@@ -1,0 +1,23 @@
+{
+  "results": [
+    {
+      "mode": "construction",
+      "passed": true,
+      "checks": 119,
+      "failures": [],
+      "outcome": "Assault",
+      "seconds": 4.01,
+      "exit": 0
+    },
+    {
+      "mode": "enemy_defense",
+      "passed": true,
+      "checks": 35,
+      "failures": [],
+      "outcome": "Assault",
+      "seconds": 2.99,
+      "exit": 0
+    }
+  ],
+  "passed": true
+}

@@ -1,0 +1,64 @@
+{
+  "date": "2026-11-01",
+  "repository": "https://github.com/ChaoZhang173/frontier-defense",
+  "release_tag": "snapshot-2026-11-01",
+  "scope": "Source and existing platform packages; no gameplay changes or new Unity build. Existing validation evidence reused; ZIP CRC, SHA-256 and platform/version metadata checked for publication.",
+  "assets": [
+    {
+      "file": "FrontierDefense-0.7-Mac.zip",
+      "platform": "macOS (Apple silicon + Intel)",
+      "version": "0.7",
+      "status": "existing validated build; archive metadata cleaned",
+      "bytes": 45531891,
+      "sha256": "83cd1f35fd50488521e8adb23e560d9e35cb0e049d2f64c42acd99e582febd67",
+      "source": "Releases/FrontierDefense-0.7-Mac.zip",
+      "packaging_change": "Removed Finder .DS_Store metadata only; all retained bytes and permissions match the original archive."
+    },
+    {
+      "file": "FrontierDefense-0.7-Web.zip",
+      "platform": "Web",
+      "version": "0.7",
+      "status": "existing build",
+      "bytes": 14187469,
+      "sha256": "14d93293f4523f5679e0e719dada00b5df1f5e441057bbb96ac37c1de003055c",
+      "source": "Releases/FrontierDefense-0.7-Web.zip"
+    },
+    {
+      "file": "FrontierDefense-0.7-OfflineWeb.zip",
+      "platform": "OfflineWeb",
+      "version": "0.7",
+      "status": "existing build",
+      "bytes": 20647404,
+      "sha256": "2660e3316be624e54829bd30864c17cfb51781e58187ea5fd3d42804a41527f3",
+      "source": "Releases/FrontierDefense-0.7-OfflineWeb.zip"
+    },
+    {
+      "file": "FrontierDefense-0.6-Windows.zip",
+      "platform": "Windows x64",
+      "version": "0.6",
+      "status": "legacy build; not run on Windows",
+      "bytes": 66959184,
+      "sha256": "fc24cea2d8ff44f4ad25995ac792b21d3afec19f646c2a583a4b024ba48b9c8e",
+      "source": "Builds/Windows"
+    },
+    {
+      "file": "FrontierDefense-0.6.4-XHS.zip",
+      "platform": "Xiaohongshu-compatible HTML/JS",
+      "version": "0.6.4",
+      "status": "existing primary compatibility edition; device validation not confirmed",
+      "bytes": 196074,
+      "sha256": "f704185da29ee21626d192937c3b75a16494e92f4f5ea024453b1e3e31ca4391",
+      "source": "XhsMiniTool/dist"
+    },
+    {
+      "file": "FrontierDefense-0.7.0-XHS-prototype.zip",
+      "platform": "Xiaohongshu-compatible HTML/JS prototype",
+      "version": "0.7.0",
+      "status": "archived experimental package; differs from current prototype source",
+      "bytes": 204348,
+      "sha256": "782308bd82b69eea5ba4df9dd078504a068b992702e8944c684b225e1bf1a625",
+      "source": "Verification/xhs-v0.7/prototype/FrontierDefense-0.7.0-XHS.zip",
+      "source_difference": "core.js in this original ZIP differs from Verification/xhs-v0.7/prototype/dist/core.js; neither was overwritten or represented as matching."
+    }
+  ]
+}

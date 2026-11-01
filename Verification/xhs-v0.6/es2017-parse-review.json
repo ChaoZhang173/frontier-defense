@@ -1,0 +1,26 @@
+{
+  "version": "0.6.4",
+  "checkedAt": "2026-09-16T13:08:13.830Z",
+  "result": [
+    {
+      "name": "app.js",
+      "status": "PASS"
+    },
+    {
+      "name": "core.js",
+      "status": "PASS"
+    },
+    {
+      "name": "menu-scroll.js",
+      "status": "PASS"
+    },
+    {
+      "name": "scene.js",
+      "status": "PASS"
+    },
+    {
+      "name": "three.min.js",
+      "status": "PASS"
+    }
+  ]
+}

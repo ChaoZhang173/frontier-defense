@@ -15,12 +15,12 @@ namespace Frontier
 
         public static void CheckRestart(GameWorld w,Action<bool,string> check)
         {
-            check(w.Construction.Sites[0].State==SiteState.Empty&&w.Construction.Sites[1].State==SiteState.Empty&&
+            check(w.Construction.Sites[0].State==SiteState.Ready&&w.Construction.Sites[1].State==SiteState.Empty&&
                 w.Construction.Sites[2].State==SiteState.Ready&&w.Construction.Sites[3].State==SiteState.Ready&&
                 w.Construction.Sites[4].State==SiteState.Empty,
-                "A fresh mission restores the three empty sites and the two original completed buildings");
-            check(w.Bunkers.Count==1&&w.BarracksBuildings.Count==1&&w.MarineCapacity==8&&w.PeakMarineCapacity==8,
-                "Restart removes expanded buildings and restores the eight-defender capacity");
+                "A fresh mission restores the two empty expansion sites and the three original completed buildings");
+            check(w.Bunkers.Count==2&&w.BarracksBuildings.Count==1&&w.MarineCapacity==8&&w.PeakMarineCapacity==8,
+                "Restart restores both forward bunkers, removes expanded buildings and restores the eight-defender capacity");
             check(!w.Tech.IsComplete(Research.InfantryArmor)&&!w.Tech.IsComplete(Research.ArmorPiercing)&&w.Tech.ActiveResearch==-1,
                 "Restart clears completed technologies and the active research queue");
             check(w.Fort.Occupants==0&&w.Fort.PlayerBunker==null&&w.Fort.SquadBunker==null,
@@ -35,60 +35,92 @@ namespace Frontier
                 construction.Sites[0].Duration==18&&construction.Sites[1].Duration==22,
                 "Construction sites advertise the fixed 320/400 supply costs and 18/22 second durations");
             int credits=w.Credits;
-            check(!construction.CanBuild(0)&&!construction.Build(0)&&w.Credits==credits,"An assault without the command terminal cannot issue construction orders");
+            check(!construction.CanBuild(1)&&!construction.Build(1)&&w.Credits==credits,"An assault without the command terminal cannot issue construction orders");
             PrepareIntermission(w);w.Credits=10000;
             check(!construction.CanBuild(-1)&&!construction.Build(-1)&&!construction.CanBuild(5)&&!construction.Build(5),"Invalid construction site identifiers are rejected");
-            check(!construction.Build(0)&&w.Credits==10000,"A wave break does not permit construction away from the command terminal");
+            check(!construction.Build(1)&&w.Credits==10000,"A wave break does not permit construction away from the command terminal");
             CheckCommand.Enter(w);
-            check(!construction.Build(2)&&!construction.Build(3)&&w.Credits==10000,"Occupied original building sites cannot be purchased again");
+            check(!construction.Build(0)&&!construction.Build(2)&&!construction.Build(3)&&w.Credits==10000,"Occupied original building sites cannot be purchased again");
             credits=w.Credits;
             check(!w.Tech.CanResearch(Research.InfantryArmor)&&!w.Tech.Research(Research.InfantryArmor)&&w.Credits==credits,
                 "Research requires a completed living reinforcement barracks");
-            var site=construction.Sites[0];Vector3 originalPlayer=w.Player.transform.position;
+            var site=construction.Sites[1];Vector3 originalPlayer=w.Player.transform.position;
             CheckCommand.Leave(w);
             FortificationChecks.PlacePlayer(w,site.Position);
-            check(!construction.SpaceClear(0)&&!construction.CanBuild(0)&&!construction.Build(0)&&w.Credits==credits,"A player standing in the construction footprint blocks the site and cannot remotely purchase it");
+            check(!construction.SpaceClear(1)&&!construction.CanBuild(1)&&!construction.Build(1)&&w.Credits==credits,"A player standing in the construction footprint blocks the site and cannot remotely purchase it");
             FortificationChecks.PlacePlayer(w,originalPlayer);CheckCommand.Enter(w);
             Health defender=w.Entities.Find(h=>h!=null&&h.Alive&&h.Role==Role.Marine);Vector3 originalDefender=defender.transform.position;
             defender.transform.position=site.Position;Physics.SyncTransforms();
-            check(construction.CanManage&&!construction.SpaceClear(0)&&!construction.CanBuild(0)&&!construction.Build(0)&&w.Credits==credits,"A defender standing in the construction footprint blocks a purchase at the command terminal");
+            check(construction.CanManage&&!construction.SpaceClear(1)&&!construction.CanBuild(1)&&!construction.Build(1)&&w.Credits==credits,"A defender standing in the construction footprint blocks a purchase at the command terminal");
             defender.transform.position=originalDefender;Physics.SyncTransforms();
             CheckCommand.Leave(w);w.SetPaused(true);
-            check(!construction.Build(0)&&w.Credits==credits,"A general pause cannot issue construction orders");w.SetPaused(false);
-            CheckCommand.Enter(w);w.Credits=319;
-            check(!construction.CanBuild(0)&&!construction.Build(0)&&w.Credits==319&&site.State==SiteState.Empty,
+            check(!construction.Build(1)&&w.Credits==credits,"A general pause cannot issue construction orders");w.SetPaused(false);
+            CheckCommand.Enter(w);w.Credits=399;
+            check(!construction.CanBuild(1)&&!construction.Build(1)&&w.Credits==399&&site.State==SiteState.Empty,
                 "Insufficient building supplies cannot start construction or spend credits");
             w.Credits=10000;check(SquadChecks.FillSquad(w),"Construction scenarios use two contracted soldiers and two genuinely recruited guards");
             CheckCommand.Leave(w);w.Phase=Phase.Assault;
             // Prime a real route through a never-built site before adding its collision volume.
-            FortificationChecks.PlacePlayer(w,site.Position+Vector3.forward*14);
-            foreach(var member in w.Squad.Members)member.transform.position=site.Position+new Vector3(member.Slot-1,0,-9);
+            FortificationChecks.PlacePlayer(w,site.Position+new Vector3(8,0,2));
+            foreach(var member in w.Squad.Members)member.transform.position=site.Position+new Vector3(-6.5f,0,member.Slot-2);
             Physics.SyncTransforms();w.Squad.GiveOrder(SquadOrder.Hold);StepSquad(w,.1f);
             var initialNavigation=w.Squad.Navigation;
-            check(initialNavigation.Clear(site.Position+Vector3.back*9,site.Position+Vector3.forward*14),
+            check(initialNavigation.Clear(site.Position+Vector3.left*6,site.Position+Vector3.right*6),
                 "Before first construction, the selected squad route can cross the empty footprint");
             FortificationChecks.PlacePlayer(w,new Vector3(0,0,3));
             check(w.TryOpenCommandTerminal()&&w.Paused,"Construction can be ordered at the real paused command terminal");
-            credits=w.Credits;bool started=construction.Build(0);Health foundation=site.Structure;
-            check(started&&w.Credits==credits-320&&site.State==SiteState.Constructing&&foundation!=null&&foundation.Alive&&foundation.Role==Role.Construction&&foundation.IsBuilding,
-                "A command-terminal purchase spends 320 and creates an attackable construction foundation");
+            credits=w.Credits;bool started=construction.Build(1);Health foundation=site.Structure;
+            check(started&&w.Credits==credits-400&&site.State==SiteState.Constructing&&foundation!=null&&foundation.Alive&&foundation.Role==Role.Construction&&foundation.IsBuilding,
+                "A command-terminal purchase spends 400 and creates an attackable foundation on the empty reserve-barracks site");
             check(foundation.Brain==null&&!w.Bunkers.Contains(foundation)&&!w.BarracksBuildings.Contains(foundation)&&w.MarineCapacity==8,
                 "An unfinished structure neither attacks nor adds production capacity");
             check(w.Squad.Navigation!=initialNavigation&&!w.Squad.Navigation.Walkable(site.Position),
                 "First construction replaces the empty-site navigation and blocks the previously traversable footprint");
             credits=w.Credits;float remaining=site.SecondsLeft,now=w.SimTime;w.Tick(30);
             check(site.SecondsLeft==remaining&&w.SimTime==now,"Construction time freezes while the command terminal pauses the battlefield");
-            check(!construction.Build(0)&&w.Credits==credits,"A repeated order cannot charge twice for the same active construction site");
+            check(!construction.Build(1)&&w.Credits==credits,"A repeated order cannot charge twice for the same active construction site");
             w.SetPaused(false);PrepareIntermission(w);
-            bool clear=true;
+            // Use the real moving body's 0.42m radius. Walkable describes 0.43m grid-node
+            // clearance and can reject legal continuous motion within that extra 0.01m margin.
+            const float squadBodyRadius=.42f;
+            bool clear=true,loggedFailure=false,loggedGridMargin=false;
+            Vector3[] previous=new Vector3[SquadDirector.Capacity];
+            foreach(var member in w.Squad.Members)previous[member.Slot]=member.transform.position;
+            check(!w.Squad.Navigation.Clear(site.Position+Vector3.left*6,site.Position+Vector3.right*6,squadBodyRadius),
+                "The new foundation blocks the same direct crossing and requires a genuine route around the building");
             for(int step=0;step<240;step++)
             {
                 StepSquad(w,.05f);
                 foreach(var member in w.Squad.Members)
-                    clear&=w.Squad.Navigation.Walkable(member.transform.position)&&
-                        !Physics.CheckCapsule(member.transform.position+Vector3.up*.65f,member.transform.position+Vector3.up*1.5f,.35f,Combat.WorldMask,QueryTriggerInteraction.Ignore);
+                {
+                    Vector3 position=member.transform.position;
+                    bool fits=w.Squad.Navigation.Fits(position,squadBodyRadius);
+                    bool continuous=w.Squad.Navigation.Clear(previous[member.Slot],position,squadBodyRadius);
+                    bool collision=Physics.CheckCapsule(position+Vector3.up*.65f,position+Vector3.up*1.5f,squadBodyRadius,Combat.WorldMask,QueryTriggerInteraction.Ignore);
+                    bool valid=fits&&continuous&&!collision;
+                    if(!w.Squad.Navigation.Walkable(position)&&valid&&!loggedGridMargin)
+                    {
+                        loggedGridMargin=true;
+                        Debug.Log("FOUNDATION_GRID_MARGIN slot="+member.Slot+" position="+position.ToString("F4")+
+                            " fits42="+fits+" clearSegment42="+continuous+" collision42="+collision+" fits43="+w.Squad.Navigation.Fits(position,.43f));
+                    }
+                    if(!valid&&!loggedFailure)
+                    {
+                        loggedFailure=true;
+                        Debug.Log("FOUNDATION_COLLISION step="+step+" slot="+member.Slot+" previous="+previous[member.Slot].ToString("F4")+
+                            " position="+position.ToString("F4")+" goal="+w.Squad.Destination(member.Slot).ToString("F4")+
+                            " fits42="+fits+" clearSegment42="+continuous+" collision42="+collision);
+                        foreach(var obstacle in Physics.OverlapCapsule(position+Vector3.up*.65f,position+Vector3.up*1.5f,squadBodyRadius,Combat.WorldMask,QueryTriggerInteraction.Ignore))
+                            Debug.Log("FOUNDATION_COLLIDER name="+obstacle.name+" position="+obstacle.transform.position.ToString("F4"));
+                    }
+                    clear&=valid;previous[member.Slot]=position;
+                }
             }
             check(clear,"Squad members abandon a pre-construction crossing route and remain outside the new foundation");
+            bool crossed=true;
+            foreach(var member in w.Squad.Members)crossed&=member.transform.position.x>site.Position.x+ConstructionDirector.Size(site.Role).x*.5f+squadBodyRadius&&
+                Vector3.Distance(member.transform.position,w.Squad.Destination(member.Slot))<.8f;
+            check(crossed,"All four squad members complete the detour and reach their held positions beyond the new foundation");
             float hp=foundation.Current;foundation.Damage(40,w.Player.Self);
             check(foundation.Current==hp,"Friendly fire cannot damage a construction foundation");
             Health attacker=w.SpawnEnemy(Role.Runner,0,site.Position+Vector3.left*4.2f);Physics.SyncTransforms();
@@ -101,11 +133,15 @@ namespace Frontier
             check(site.State==SiteState.Destroyed&&!foundation.Alive&&w.Credits==credits,"Destroyed construction loses the investment and leaves a rebuildable site");
             attacker.Damage(10000,null);
 
+            // Both bunkers begin complete: exercise genuine destruction before the west-site reconstruction.
+            site=construction.Sites[0];Health oldWest=site.Structure;oldWest.Damage(10000,null);
+            check(site.State==SiteState.Destroyed&&!oldWest.Alive&&w.Bunker.Alive,
+                "The initial west bunker becomes rebuildable after destruction while the east bunker survives");
             CheckCommand.Enter(w);w.Upgrades.Buy(BaseUpgrade.BunkerArmor);w.Upgrades.Buy(BaseUpgrade.BunkerFirepower);
             var navigation=w.Squad.Navigation;PrepareIntermission(w);credits=w.Credits;
             CheckCommand.Enter(w);
-            LogBlockedSite(w,0);check(construction.Build(0)&&w.Credits==credits-320&&site.Structure!=foundation,
-                "Rebuilding a lost foundation charges a new investment and creates a distinct health object");
+            LogBlockedSite(w,0);check(construction.Build(0)&&w.Credits==credits-320&&site.Structure!=oldWest&&site.Structure.Role==Role.Construction,
+                "Rebuilding the destroyed west bunker charges 320 and creates a distinct construction health object");
             check(w.Squad.Navigation!=navigation&&!w.Squad.Navigation.Walkable(site.Position),
                 "Starting construction rebuilds navigation and marks the footprint as blocked");
             foundation=site.Structure;navigation=w.Squad.Navigation;StepWorld(w,17.7f);
@@ -116,12 +152,14 @@ namespace Frontier
             check(w.Squad.Navigation!=navigation&&!w.Squad.Navigation.Walkable(site.Position),"Completion refreshes navigation while retaining the solid building footprint");
             check(west.Maximum==1600&&w.Bunker.Maximum==1600&&w.BunkerDamage==20,
                 "A newly completed bunker inherits the same global armor and firepower upgrades as the original bunker");
-            west.Damage(500,null);hp=w.Bunker.Current;credits=w.Credits;CheckCommand.Enter(w);
-            check(w.Upgrades.Buy(BaseUpgrade.RepairBunker,west)&&w.Credits==credits-120&&west.Current==west.Maximum&&w.Bunker.Current==hp,
-                "A targeted bunker repair spends 120 and repairs only the selected building");
+            west.Damage(500,null);hp=w.Bunker.Current;float westBefore=west.Current,westMaximum=west.Maximum,eastMaximum=w.Bunker.Maximum;
+            credits=w.Credits;CheckCommand.Enter(w);
+            check(w.Upgrades.Buy(BaseUpgrade.RepairBunker,west)&&w.Credits==credits-120&&west.Maximum==westMaximum+600&&west.Current==westBefore+600&&
+                west.Maximum-west.Current==500&&w.Bunker.Current==hp&&w.Bunker.Maximum==eastMaximum&&construction.FortifyLevel(west)==1&&construction.FortifyLevel(w.Bunker)==0,
+                "Targeted west-bunker fortification spends 120, adds 600 maximum and current health, preserves the deficit and leaves the east site unchanged");
             west.Damage(80,null);w.Bunker.Damage(120,null);float westHp=west.Current,eastHp=w.Bunker.Current;
-            check(w.Upgrades.Buy(BaseUpgrade.BunkerArmor)&&west.Maximum==2000&&w.Bunker.Maximum==2000&&west.Current==westHp+400&&w.Bunker.Current==eastHp+400,
-                "A later global armor upgrade increases both existing bunkers' durability and heals each one by 400");
+            check(w.Upgrades.Buy(BaseUpgrade.BunkerArmor)&&west.Maximum==2600&&w.Bunker.Maximum==2000&&west.Current==westHp+400&&w.Bunker.Current==eastHp+400,
+                "A later global armor upgrade adds 400 maximum and current health to both bunkers while preserving the west site's separate fortification");
             west.Heal(1000);w.Bunker.Heal(1000);
             credits=w.Credits;
             check(!construction.Build(0)&&w.Credits==credits,"A completed expansion site cannot be built over or charged again");
@@ -179,7 +217,7 @@ namespace Frontier
             w.Fort.ReleaseGuard(marine);marine.Damage(10000,null);defenders=w.MarinesAlive;StepWorld(w,13);
             check(w.MarinesAlive==defenders&&w.MarinesAlive>8,"With more than eight survivors, the original barracks cannot replace losses while the extra barracks is destroyed");
             CheckCommand.Enter(w);credits=w.Credits;
-            check(!w.Upgrades.Buy(BaseUpgrade.RepairBarracks,oldBarracks)&&w.Credits==credits,"A targeted repair cannot revive a destroyed reinforcement barracks");
+            check(!w.Upgrades.Buy(BaseUpgrade.RepairBarracks,oldBarracks)&&w.Credits==credits,"A targeted fortification cannot revive a destroyed reinforcement barracks");
             check(construction.Build(1)&&w.Credits==credits-400,"The destroyed reinforcement barracks can be rebuilt for a new 400-supply investment");
             StepWorld(w,21.7f);
             check(tech.SecondsLeft==remaining&&!tech.IsComplete(Research.InfantryArmor),"Research remains suspended throughout prerequisite reconstruction");
@@ -251,8 +289,8 @@ namespace Frontier
             CheckCommand.Leave(w);FortificationChecks.PlacePlayer(w,fort.EntranceFor(east));fort.TryTogglePlayer();
             StepWorld(w,18.2f);ReleaseGuards(w);
             Health newWest=w.Construction.Sites[0].Structure;
-            check(newWest!=west&&newWest.Alive&&fort.OccupantsFor(west)==0&&fort.OccupantsFor(newWest)==0&&newWest.Maximum==2000,
-                "A rebuilt west bunker uses a new health identity, inherits upgrades and never inherits obsolete occupants");
+            check(newWest!=west&&newWest.Alive&&fort.OccupantsFor(west)==0&&fort.OccupantsFor(newWest)==0&&newWest.Maximum==2600&&newWest.Current==2600&&w.Construction.FortifyLevel(newWest)==1,
+                "A rebuilt west bunker uses a new health identity, inherits global armor and its site fortification at full health, and never inherits obsolete occupants");
             w.Phase=Phase.Assault;fort.ExitPlayer();FortificationChecks.PlacePlayer(w,fort.EntranceFor(newWest));fort.OrderSquadInside();
             FortificationChecks.PlacePlayer(w,fort.EntranceFor(east));fort.TryTogglePlayer();StepSquad(w,20);
             check(fort.SquadBunker==newWest&&fort.SquadInsideFor(newWest)==4,"The squad can bind and occupy the newly rebuilt west bunker");

@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Frontier
 {
     public enum Faction { Defense, Invaders }
-    public enum Role { Player, Marine, Runner, Spitter, Colossus, Command, Barracks, Bunker, Squad, Construction, Factory, Tank, EnemyTower }
+    public enum Role { Player, Marine, Runner, Spitter, Colossus, Command, Barracks, Bunker, Squad, Construction, Factory, Tank, EnemyTower, AssaultMarine, Worker, Stalker, Siege, EnemyPortal, EnemyNest }
     public enum Phase { Briefing, Assault, Intermission, Victory, Defeat }
 
     public sealed class Health : MonoBehaviour
@@ -15,6 +15,10 @@ namespace Frontier
         public float Maximum, Current, AimHeight = 1f, Radius = .6f;
         public bool Alive = true;
         public bool IsSheltered;
+        public bool BaseGuard;
+        public int BaseId=-1;
+        public bool Mechanical;
+        public bool IsMechanical => Mechanical||Role==Role.Tank;
         public float LastDamageTime = -100;
         public int Lane, Slot = -1;
         public ActorBrain Brain;
@@ -22,7 +26,7 @@ namespace Frontier
         public Vector3 WeakPoint;
         public float WeakRadius;
         public Vector3 Aim => transform.position + Vector3.up * AimHeight;
-        public bool IsBuilding => Role == Role.Command || Role == Role.Barracks || Role == Role.Bunker || Role == Role.Construction || Role == Role.Factory || Role == Role.EnemyTower;
+        public bool IsBuilding => Role == Role.Command || Role == Role.Barracks || Role == Role.Bunker || Role == Role.Construction || Role == Role.Factory || Role == Role.EnemyTower || Role == Role.EnemyPortal || Role == Role.EnemyNest;
 
         public void Setup(Role role, Faction faction, float hp, float height, float radius)
         {
@@ -34,9 +38,9 @@ namespace Frontier
         {
             if (!Alive || IsSheltered || GameWorld.I.Ended || (source != null && source.Faction == Faction)) return;
             var tech=GameWorld.I.Tech;
-            if (Faction==Faction.Defense && (Role==Role.Player||Role==Role.Marine||Role==Role.Squad) &&
+            if (Faction==Faction.Defense && (Role==Role.Player||Role==Role.Marine||Role==Role.Squad||Role==Role.AssaultMarine) &&
                 tech!=null && tech.IsComplete(Research.InfantryArmor)) amount*=.85f;
-            if (Role == Role.Colossus) amount *= tech!=null && tech.IsComplete(Research.ArmorPiercing) &&
+            if (Role == Role.Colossus || Role == Role.Siege) amount *= tech!=null && tech.IsComplete(Research.ArmorPiercing) &&
                 source!=null && source.Faction==Faction.Defense ? .90f : .72f;
             if (critical) amount *= 1.65f;
             float applied=Mathf.Min(Current,amount);
@@ -90,14 +94,14 @@ namespace Frontier
             if(target==null||target.IsSheltered)return false;
             Vector3 delta = target.Aim - from.Aim;
             if (delta.sqrMagnitude < .01f) return true;
-            if (!Trace(from.Aim, delta.normalized, delta.magnitude + .1f, from, out var hit,from.Role==Role.Squad||from.Role==Role.Player)) return true;
+            if (!Trace(from.Aim, delta.normalized, delta.magnitude + .1f, from, out var hit,from.Role==Role.Squad||from.Role==Role.AssaultMarine||from.Role==Role.Player)) return true;
             return hit.collider.GetComponentInParent<Health>() == target;
         }
 
         public static void Rifle(Health from, Vector3 muzzle, Vector3 direction, float damage, bool player)
         {
             Vector3 end = muzzle + direction * 110;
-            if (Trace(muzzle, direction, 110, from, out var hit,player||from.Role==Role.Squad))
+            if (Trace(muzzle, direction, 110, from, out var hit,player||from.Role==Role.Squad||from.Role==Role.AssaultMarine))
             {
                 end = hit.point;
                 Health target = hit.collider.GetComponentInParent<Health>();
@@ -121,12 +125,13 @@ namespace Frontier
         int waypoint;
         Vector3 lastPosition;
         GuardNavigation guardNavigation;
+        GuardNavigation enemyNavigation;
         public Vector3 Station;
         public float Travelled;
         public AssaultGroup Group { get; private set; }
         public AssaultGroupState GroupState => Group==null ? AssaultGroupState.Engaged : Group.State;
         public Health Target => target;
-        public static float MovementSpeed(Role role) => role==Role.Marine ? 3.7f : role==Role.Runner ? 4.5f : role==Role.Spitter ? 2.8f : 1.75f;
+        public static float MovementSpeed(Role role) => role==Role.Marine ? 3.7f : role==Role.Stalker?5.7f:role==Role.Runner ? 4.5f : role==Role.Spitter ? 2.8f : role==Role.Siege?1.65f:1.75f;
 
         public void AssignAssault(AssaultGroup group) { Group=group; }
 
@@ -147,11 +152,12 @@ namespace Frontier
             if(Self.Role==Role.Marine&&world.Fort!=null&&world.Fort.TickGuard(this,dt))return;
             attackCooldown -= dt; think -= dt;
             bool friendly = Self.Faction == Faction.Defense;
-            float range = Self.Role == Role.Bunker ? 28 : Self.Role == Role.Marine ? 25 : Self.Role == Role.Spitter ? 16 : Self.Role == Role.Colossus ? 3.4f : 1.85f;
+            float range = Self.Role == Role.Bunker ? 28 : Self.Role == Role.Marine ? 25 : Self.Role == Role.Siege?32:Self.Role == Role.Spitter ? 18 : Self.Role == Role.Colossus ? 3.4f : 1.85f;
             if (think <= 0 || target == null || !target.Alive || target.IsSheltered)
             {
                 think = .22f + UnityEngine.Random.value * .16f;
-                target = Self.Role==Role.Colossus ? FindSiegeTarget() : world.FindTarget(Self, friendly ? range + 3 : 15);
+                target = (Self.Role==Role.Colossus||Self.Role==Role.Siege) ? FindSiegeTarget() : world.FindTarget(Self, friendly ? range : Mathf.Max(15,range));
+                if(Self.BaseGuard&&target!=null&&FlatDistance(target.transform.position,Station)>32)target=null;
             }
 
             bool canAttack = target != null && target.Alive && !target.IsSheltered && Vector3.Distance(Self.Aim, target.Aim) < range + target.Radius;
@@ -171,6 +177,7 @@ namespace Frontier
             if (!canAttack)
             {
                 if (friendly) destination = Station;
+                else if(Self.BaseGuard)destination=target!=null&&FlatDistance(target.transform.position,Station)<32?target.transform.position:Station;
                 else if(Self.Role==Role.Colossus&&target!=null&&target.IsBuilding&&Combat.Visible(Self,target))
                     destination=target.transform.position;
                 else if (target != null && !target.IsBuilding && Vector3.Distance(transform.position, target.transform.position) < 12 && Combat.Visible(Self, target))
@@ -212,6 +219,10 @@ namespace Frontier
                         case Role.Spitter:
                             attackCooldown = 1.55f;
                             world.Effects.Bolt(Self.Aim + (target.Aim-Self.Aim).normalized * .9f, target.Aim, Self, 17, 19); break;
+                        case Role.Stalker:
+                            attackCooldown=.62f;target.Damage(11,Self);world.Effects.Spark(target.Aim,Art.Pink,.15f);break;
+                        case Role.Siege:
+                            attackCooldown=3;world.Effects.Bolt(Self.Aim+(target.Aim-Self.Aim).normalized*1.2f,target.Aim,Self,target.IsBuilding?56:16,17);break;
                         case Role.Runner:
                             attackCooldown = .82f;
                             target.Damage(13, Self); world.Effects.Spark(target.Aim, Art.Pink, .15f); break;
@@ -228,7 +239,7 @@ namespace Frontier
 
         Health FindSiegeTarget()
         {
-            Health closest=null;float best=24;
+            Health closest=null;float best=Self.Role==Role.Siege?35:24;
             foreach(var h in GameWorld.I.Entities)
             {
                 if(h==null||!h.Alive||!h.IsBuilding||h.Faction==Self.Faction||h.IsSheltered)continue;
@@ -238,7 +249,7 @@ namespace Frontier
                 if(distance>=best||!Combat.Visible(Self,h))continue;
                 best=distance;closest=h;
             }
-            return closest!=null?closest:GameWorld.I.FindTarget(Self,12);
+            return closest!=null?closest:GameWorld.I.FindTarget(Self,Self.Role==Role.Siege?32:12);
         }
 
         public void NavigateTo(Vector3 goal,float dt)
@@ -268,6 +279,7 @@ namespace Frontier
 
         void Move(Vector3 goal, float speed, float dt)
         {
+            if(Self.Faction==Faction.Invaders){if(speed<=0)return;if(enemyNavigation==null)enemyNavigation=new GuardNavigation();Vector3 previous=transform.position;transform.position=enemyNavigation.Step(Self,goal,dt,speed,Mathf.Max(.42f,Self.Radius*.65f));Vector3 motion=transform.position-previous;if(motion.sqrMagnitude>.0001f)Face(transform.position+motion,dt);return;}
             Vector3 desired = goal - transform.position; desired.y = 0;
             if (desired.magnitude < .6f || speed == 0) return;
             desired.Normalize();
@@ -314,20 +326,21 @@ namespace Frontier
 
     public static class WavePlan
     {
-        public static readonly int[] Counts = { 40, 58, 92, 120, 150 };
+        public static readonly int[] Counts = { 56, 80, 116, 156, 200 };
         public static readonly float[] Intervals = { 1.2f, 1.35f, 1.2f, 1.2f, 1.15f };
         public static readonly string[] Titles = { "接触", "酸雨", "双线告急", "铁甲冲锋", "守住黎明" };
         public static int TotalCount { get { int total=0;foreach(int n in Counts)total+=n;return total; } }
         public static string Preview(int wave)
         {
             if(wave<1||wave>Counts.Length)return "五波攻势全部清除";
-            int runners=0,spitters=0,armor=0;
+            int runners=0,spitters=0,armor=0,stalkers=0,siege=0;
             foreach(var order in Create(wave))
-                if(order.Role==Role.Runner)runners++;else if(order.Role==Role.Spitter)spitters++;else armor++;
+                if(order.Role==Role.Runner)runners++;else if(order.Role==Role.Spitter)spitters++;else if(order.Role==Role.Stalker)stalkers++;else if(order.Role==Role.Siege)siege++;else armor++;
             string side=wave==1?"西侧入口":wave==2?"东侧入口":"东西双线";
             string units="迅行兽 "+runners;
             if(spitters>0)units+=" · 酸脊兽 "+spitters;
             if(armor>0)units+=" · 铁甲兽 "+armor;
+            if(stalkers>0)units+=" · 潜袭兽 "+stalkers;if(siege>0)units+=" · 攻城兽 "+siege;
             return side+" / 共 "+Counts[wave-1]+" 敌人 / "+units;
         }
         public static List<SpawnOrder> Create(int wave)
@@ -342,6 +355,7 @@ namespace Frontier
                 if (wave == 4 && (i % 12 == 0 || i % 12 == 9)) role = Role.Colossus;
                 if (wave == 5 && i % 5 == 0) role = Role.Colossus;
                 if (wave == 5 && i % 5 == 3) role = Role.Spitter;
+                if(i%7==3)role=Role.Stalker;if(wave>=2&&i%13==6)role=Role.Siege;
                 int lane = wave == 1 ? 0 : wave == 2 ? 1 : (i / 3 + wave) % 2;
                 orders.Add(new SpawnOrder(role, lane));
             }

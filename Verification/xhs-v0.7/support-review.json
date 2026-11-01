@@ -1,0 +1,156 @@
+{
+  "at": "2026-09-22T10:09:55.157Z",
+  "sources": {
+    "core.js": "44443dd38723c2934e581e3d5976fe9c0ad879e98337e647ff85417996b9cb69",
+    "support.js": "e72e0e671ae2231a5831223b2e1e1b5968ef31121374fc1c8a419b7e065b2734"
+  },
+  "method": "Actual CommonJS game/support with collision-aware movement, visibility, damage and construction. Focused support simulations retain living enemy bases but hold enemy attacks and reinforcements still; this is not a campaign balance or GPU/device test.",
+  "summary": {
+    "pass": 12,
+    "fail": 0,
+    "total": 12
+  },
+  "checks": [
+    {
+      "name": "Six real arrivals are required; unarrived recruits cannot trigger departure",
+      "pass": true,
+      "unarrivedWereHeld": true,
+      "arrivals": [
+        {
+          "id": 48,
+          "distance": 0,
+          "x": -2.3,
+          "z": 11.1
+        },
+        {
+          "id": 49,
+          "distance": 0.19888286996620883,
+          "x": -0.13642883823025886,
+          "z": 10.95528798230576
+        },
+        {
+          "id": 50,
+          "distance": 0.12022675620366939,
+          "x": 2.2111258061975048,
+          "z": 11.019031792762757
+        },
+        {
+          "id": 51,
+          "distance": 0.13975429827102528,
+          "x": -2.380351107232284,
+          "z": 12.785654193554059
+        },
+        {
+          "id": 52,
+          "distance": 0,
+          "x": 0,
+          "z": 12.9
+        },
+        {
+          "id": 53,
+          "distance": 0.5104828276153945,
+          "x": 1.9428885121526691,
+          "z": 12.535220474070057
+        }
+      ]
+    },
+    {
+      "name": "Full guard quota and existing tank do not block automatic assault production",
+      "pass": true,
+      "guardCount": 8,
+      "assaultCount": 8,
+      "departed": 6
+    },
+    {
+      "name": "Recruitment uses eight-second cadence, six with reserve, and a separate 24-unit cap",
+      "pass": true,
+      "cappedCount": 24,
+      "noBarracksCount": 23,
+      "reserveCadence": 6
+    },
+    {
+      "name": "An assembled assault physically reaches and damages a living enemy portal compound",
+      "pass": true,
+      "base": 0,
+      "damageAtSeconds": 80.4999999999997,
+      "portalDamage": 12,
+      "maxZ": 55.47282212447085
+    },
+    {
+      "name": "A destroyed objective is retargeted to the nearest surviving portal",
+      "pass": true,
+      "old": 0,
+      "next": 2,
+      "continuesForward": true
+    },
+    {
+      "name": "All portals destroyed stops recruitment and returns survivors to a central reserve",
+      "pass": true,
+      "reserves": 8,
+      "newRecruits": 0
+    },
+    {
+      "name": "Workers repair only after physically reaching a visible service point, at six HP per second",
+      "pass": true,
+      "travelled": 1.0799999999999998,
+      "serviceDistance": 0.6026698215815499,
+      "repairedInOneSecond": 5.9999999999990905,
+      "throttledBeams": 3
+    },
+    {
+      "name": "Workers repair a factory and tank inside the base without healing infantry, dead or outside units",
+      "pass": true,
+      "factoryRestored": 120,
+      "tankRestored": 90,
+      "noOverheal": true,
+      "workersStayedInside": true
+    },
+    {
+      "name": "Line of sight blocks repair even when a worker is already at the service point",
+      "pass": true
+    },
+    {
+      "name": "Pause and open terminal freeze repair, replacement and production; workers replace for free after 20 seconds",
+      "pass": true,
+      "replacementDelay": 20,
+      "replacementCost": 0
+    },
+    {
+      "name": "Fortification increases maximum and current health by exactly the same amount, including at full health",
+      "pass": true,
+      "upgrades": [
+        {
+          "id": "command",
+          "delta": 650,
+          "level": 3,
+          "totalBonus": 1950
+        },
+        {
+          "id": "barracks",
+          "delta": 450,
+          "level": 3,
+          "totalBonus": 1350
+        },
+        {
+          "id": "west",
+          "delta": 600,
+          "level": 3,
+          "totalBonus": 1800
+        },
+        {
+          "id": "factory",
+          "delta": 700,
+          "level": 3,
+          "totalBonus": 2100
+        }
+      ]
+    },
+    {
+      "name": "A destroyed and rebuilt bunker retains site fortification plus armor after real construction completes",
+      "pass": true,
+      "retainedLevel": 2,
+      "rebuiltMaximum": 2800,
+      "armorLevel": 1
+    }
+  ]
+}

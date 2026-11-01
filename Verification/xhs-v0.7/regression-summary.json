@@ -1,0 +1,143 @@
+{
+  "at": "2026-09-22T10:06:13.942Z",
+  "command": "/Users/czhang/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node /Users/czhang/Documents/Games/FrontierDefense/Verification/xhs-v0.7/run-regressions.cjs",
+  "method": "Native simulation plus Node VM DOM/canvas/camera regressions. Browser/device and unmodified campaign balance reports are separate. Per-suite logs and JSON kept beside this summary.",
+  "sources": {
+    "core.js": "44443dd38723c2934e581e3d5976fe9c0ad879e98337e647ff85417996b9cb69",
+    "support.js": "bc65416a6ab7bd3720ff88749b0d72f63707925467b966d4e519de04e4352deb",
+    "scene.js": "c111c448821d253a2d85992697d6c6452110237ab1ec7eec8598bd2c73af044a",
+    "app.js": "f4375b20c7875c6b058049a9fea541ee8f154e2e6c961e2273a2e768bb9089b9",
+    "menu-scroll.js": "325e59f47f1e9485900a865b774c4279f59eda967c01882d66e1a94fbc1ba532",
+    "index.html": "878bb3f3ae9f0fb411f30145f7ac56deb5bd2ff885ea564d993dbc4643314e9f",
+    "style.css": "294ca4bd90aa35502755b320e8a3d8a216e83d85776608c7e87bcaccee6ef051"
+  },
+  "summary": {
+    "suitesPassed": 12,
+    "suitesTotal": 12,
+    "checksPassed": 401,
+    "checksTotal": 401
+  },
+  "pass": true,
+  "results": [
+    {
+      "name": "world-review",
+      "pass": true,
+      "passed": 20,
+      "total": 20,
+      "failed": [],
+      "exitCode": 0,
+      "seconds": 0.849,
+      "error": null
+    },
+    {
+      "name": "support-review",
+      "pass": true,
+      "passed": 12,
+      "total": 12,
+      "failed": [],
+      "exitCode": 0,
+      "seconds": 0.519,
+      "error": null
+    },
+    {
+      "name": "input-review",
+      "pass": true,
+      "passed": 28,
+      "total": 28,
+      "failed": [],
+      "exitCode": 0,
+      "seconds": 0.311,
+      "error": null
+    },
+    {
+      "name": "fire-aim-review",
+      "pass": true,
+      "passed": 65,
+      "total": 65,
+      "failed": [],
+      "exitCode": 0,
+      "seconds": 0.832,
+      "error": null
+    },
+    {
+      "name": "scroll-integration-review",
+      "pass": true,
+      "passed": 40,
+      "total": 40,
+      "failed": [],
+      "exitCode": 0,
+      "seconds": 0.366,
+      "error": null
+    },
+    {
+      "name": "minimap-input-review",
+      "pass": true,
+      "passed": 50,
+      "total": 50,
+      "failed": [],
+      "exitCode": 0,
+      "seconds": 0.645,
+      "error": null
+    },
+    {
+      "name": "projection-review",
+      "pass": true,
+      "passed": 108,
+      "total": 108,
+      "failed": [],
+      "exitCode": 0,
+      "seconds": 3.038,
+      "error": null
+    },
+    {
+      "name": "map-direction-review",
+      "pass": true,
+      "passed": 11,
+      "total": 11,
+      "failed": [],
+      "exitCode": 0,
+      "seconds": 5.175,
+      "error": null
+    },
+    {
+      "name": "shoulder-review",
+      "pass": true,
+      "passed": 8,
+      "total": 8,
+      "failed": [],
+      "exitCode": 0,
+      "seconds": 4.539,
+      "error": null
+    },
+    {
+      "name": "scene-review",
+      "pass": true,
+      "passed": 16,
+      "total": 16,
+      "failed": [],
+      "exitCode": 0,
+      "seconds": 0.701,
+      "error": null
+    },
+    {
+      "name": "menu-scroll-review",
+      "pass": true,
+      "passed": 24,
+      "total": 24,
+      "failed": [],
+      "exitCode": 0,
+      "seconds": 0.033,
+      "error": null
+    },
+    {
+      "name": "menu-scroll-capture-review",
+      "pass": true,
+      "passed": 19,
+      "total": 19,
+      "failed": [],
+      "exitCode": 0,
+      "seconds": 0.029,
+      "error": null
+    }
+  ]
+}

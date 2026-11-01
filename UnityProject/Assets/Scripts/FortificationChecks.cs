@@ -20,8 +20,14 @@ namespace Frontier
         {
             check(w.Upgrades.BarracksLevel==0&&w.Upgrades.ArmorLevel==0&&w.Upgrades.FirepowerLevel==0,
                 "A fresh mission resets all three building upgrade levels");
-            check(w.Bunker.Alive&&w.Bunker.Maximum==1200&&w.Bunker.Current==1200&&w.Barracks.Alive&&w.Barracks.Current==1100,
-                "A fresh mission restores destroyed buildings and their original health limits");
+            bool originalBunkers=w.Bunkers.Count==2;
+            foreach(var bunker in w.Bunkers)originalBunkers&=bunker!=null&&bunker.Alive&&bunker.Maximum==1200&&bunker.Current==1200&&
+                Mathf.Abs(bunker.transform.position.x)==20.5f&&bunker.transform.position.z==20;
+            check(originalBunkers&&w.Bunker.Alive&&w.Barracks.Alive&&w.Barracks.Maximum==1100&&w.Barracks.Current==1100,
+                "A fresh mission restores both forward bunkers and the barracks with their original health limits");
+            bool noFortification=w.CommandFortifyLevel==0;
+            foreach(var site in w.Construction.Sites)noFortification&=site.FortificationLevel==0;
+            check(noFortification,"A fresh mission clears headquarters and all per-site fortification levels");
             check(w.Fort.Occupants==0&&w.Fort.SquadInside==0&&!w.Fort.PlayerInside&&!w.Player.Self.IsSheltered&&
                 w.Player.GetComponent<CharacterController>().enabled&&w.ProductionInterval==12&&w.BunkerDamage==15,
                 "A fresh mission clears bunker occupancy, shelter, camera control and building bonuses");
@@ -89,22 +95,44 @@ namespace Frontier
             check(w.MarinesAlive==count+1&&w.ProductionLeft>7.7f&&w.ProductionLeft<=8,
                 "After eight seconds the real production loop spawns one defender and resets to the upgraded interval");
 
+            // Fortification adds equal maximum/current health, so existing damage remains repairable by workers.
             w.Barracks.Current=w.Barracks.Maximum-800;w.Bunker.Current=w.Bunker.Maximum-900;
-            hp=w.Barracks.Current;before=w.Credits;purchased=upgrades.Buy(BaseUpgrade.RepairBarracks);
-            check(purchased&&before-w.Credits==100&&w.Barracks.Current==hp+450,"Barracks repair spends 100 and restores 450 durability");
-            hp=w.Bunker.Current;before=w.Credits;purchased=upgrades.Buy(BaseUpgrade.RepairBunker);
-            check(purchased&&before-w.Credits==120&&w.Bunker.Current==hp+600,"Bunker repair spends 120 and restores 600 durability");
-            upgrades.Buy(BaseUpgrade.RepairBarracks);upgrades.Buy(BaseUpgrade.RepairBunker);
-            check(w.Barracks.Current==w.Barracks.Maximum&&w.Bunker.Current==w.Bunker.Maximum,"Wave-break repairs clamp at each building's upgraded maximum");
-            before=w.Credits;
-            check(!upgrades.CanBuy(BaseUpgrade.RepairBarracks)&&!upgrades.Buy(BaseUpgrade.RepairBarracks)&&
-                !upgrades.CanBuy(BaseUpgrade.RepairBunker)&&!upgrades.Buy(BaseUpgrade.RepairBunker)&&w.Credits==before,
-                "Repairing a full-health building is rejected without charging");
-            w.Barracks.Damage(1,null);w.Bunker.Damage(1,null);w.Credits=99;
-            check(!upgrades.Buy(BaseUpgrade.RepairBarracks)&&!upgrades.Buy(BaseUpgrade.RepairBunker)&&w.Credits==99&&
-                w.Barracks.Current==w.Barracks.Maximum-1&&w.Bunker.Current==w.Bunker.Maximum-1,
-                "Insufficient repair supplies preserve both credits and building damage");
-            w.Credits=10000;w.Barracks.Heal(1);w.Bunker.Heal(1);
+            hp=w.Barracks.Current;maximum=w.Barracks.Maximum;before=w.Credits;purchased=upgrades.Buy(BaseUpgrade.RepairBarracks);
+            check(purchased&&before-w.Credits==100&&w.Barracks.Maximum==maximum+450&&w.Barracks.Current==hp+450&&
+                w.Barracks.Maximum-w.Barracks.Current==800&&upgrades.Level(BaseUpgrade.RepairBarracks)==1,
+                "First barracks fortification spends 100 and adds 450 maximum/current health while preserving its 800-point deficit");
+            hp=w.Bunker.Current;maximum=w.Bunker.Maximum;before=w.Credits;purchased=upgrades.Buy(BaseUpgrade.RepairBunker);
+            check(purchased&&before-w.Credits==120&&w.Bunker.Maximum==maximum+600&&w.Bunker.Current==hp+600&&
+                w.Bunker.Maximum-w.Bunker.Current==900&&upgrades.Level(BaseUpgrade.RepairBunker)==1,
+                "First bunker fortification spends 120 and adds 600 maximum/current health while preserving its 900-point deficit");
+            BaseUpgrade[] fortifications={BaseUpgrade.RepairBarracks,BaseUpgrade.RepairBunker};
+            Health[] buildings={w.Barracks,w.Bunker};int[] secondFortifyPrices={200,240},thirdFortifyPrices={300,360},bonuses={450,600};
+            for(int i=0;i<fortifications.Length;i++)
+            {
+                var kind=fortifications[i];var building=buildings[i];hp=building.Current;maximum=building.Maximum;before=w.Credits;
+                purchased=upgrades.Cost(kind)==secondFortifyPrices[i]&&upgrades.Buy(kind);
+                check(purchased&&before-w.Credits==secondFortifyPrices[i]&&upgrades.Level(kind)==2&&
+                    building.Maximum==maximum+bonuses[i]&&building.Current==hp+bonuses[i]&&building.Maximum-building.Current==maximum-hp,
+                    kind+" charges its second fortification price and preserves damage while raising maximum and current health equally");
+                building.Heal(building.Maximum);building.Damage(1,null);hp=building.Current;maximum=building.Maximum;
+                w.Credits=thirdFortifyPrices[i]-1;before=w.Credits;
+                check(upgrades.Cost(kind)==thirdFortifyPrices[i]&&!upgrades.CanBuy(kind)&&!upgrades.Buy(kind)&&w.Credits==before&&
+                    upgrades.Level(kind)==2&&building.Maximum==maximum&&building.Current==hp,
+                    kind+" rejects an unaffordable third fortification without changing credits, health or its still-available level");
+                w.Credits=10000;building.Heal(building.Maximum);hp=building.Current;maximum=building.Maximum;before=w.Credits;
+                purchased=upgrades.CanBuy(kind)&&upgrades.Buy(kind);
+                check(purchased&&before-w.Credits==thirdFortifyPrices[i]&&upgrades.Level(kind)==3&&
+                    building.Maximum==maximum+bonuses[i]&&building.Current==hp+bonuses[i]&&building.Current==building.Maximum,
+                    kind+" permits a full-health third fortification at its advertised cost and raises maximum/current health equally");
+                before=w.Credits;hp=building.Current;maximum=building.Maximum;
+                check(!upgrades.CanBuy(kind)&&!upgrades.Buy(kind)&&w.Credits==before&&building.Maximum==maximum&&building.Current==hp&&upgrades.Level(kind)==3,
+                    kind+" rejects a fourth fortification without charging or modifying the building");
+            }
+            Health west=w.Construction.Sites[0].Structure;
+            check(w.Construction.FortifyLevel(west)==0&&west.Maximum==2000&&upgrades.Cost(BaseUpgrade.RepairBunker,west)==120&&
+                upgrades.CanBuy(BaseUpgrade.RepairBunker,west),
+                "The untouched west bunker retains its own first-level fortification price and availability after the east site reaches its cap");
+            w.Credits=10000;
         }
 
         static void CheckGarrison(GameWorld w,Action<bool,string> check)
@@ -182,8 +210,12 @@ namespace Frontier
             check(!fort.TryTogglePlayer()&&!fort.OrderSquadInside(),"A destroyed bunker rejects player entry and squad garrison orders");
             w.Barracks.Damage(10000,null);w.Phase=Phase.Intermission;CheckCommand.Enter(w);int credits=w.Credits;
             var uncappedUpgrades=new BaseUpgrades(w);
+            check(uncappedUpgrades.CanBuy(BaseUpgrade.BunkerArmor)&&uncappedUpgrades.CanBuy(BaseUpgrade.BunkerFirepower)&&
+                !uncappedUpgrades.CanBuy(BaseUpgrade.RepairBunker,w.Bunker)&&!uncappedUpgrades.Buy(BaseUpgrade.RepairBunker,w.Bunker)&&w.Credits==credits,
+                "A surviving west bunker keeps global bunker upgrades available while the destroyed east building rejects targeted fortification");
+            foreach(var bunker in w.Bunkers)if(bunker!=null&&bunker.Alive)bunker.Damage(10000,null);
             bool rejected=true;foreach(BaseUpgrade kind in Enum.GetValues(typeof(BaseUpgrade)))rejected&=!uncappedUpgrades.CanBuy(kind)&&!uncappedUpgrades.Buy(kind);
-            check(rejected&&w.Credits==credits,"Destroyed buildings cannot be upgraded or repaired even with upgrade capacity and sufficient supplies");
+            check(rejected&&w.Credits==credits,"With every bunker and barracks destroyed, building upgrades and fortification are rejected despite available levels and sufficient supplies");
         }
 
         static GameObject CreateObstruction(Vector3 muzzle)

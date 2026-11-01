@@ -1,0 +1,472 @@
+{
+  "at": "2026-09-22T10:05:59.778Z",
+  "sources": {
+    "app.js": "f4375b20c7875c6b058049a9fea541ee8f154e2e6c961e2273a2e768bb9089b9",
+    "menu-scroll.js": "325e59f47f1e9485900a865b774c4279f59eda967c01882d66e1a94fbc1ba532",
+    "core.js": "44443dd38723c2934e581e3d5976fe9c0ad879e98337e647ff85417996b9cb69",
+    "style.css": "294ca4bd90aa35502755b320e8a3d8a216e83d85776608c7e87bcaccee6ef051"
+  },
+  "method": "Actual app/core/menu scripts. Event mock includes capture/target/bubble propagation, touch implicit capture on child, pending capture transfer with bubbling lostpointercapture, and independent RAF callbacks. Actual renderTerminal creates all eight technology cards. Scroll dimensions are supplied fixtures, not measured browser layout. No browser or iPhone exercised.",
+  "results": [
+    {
+      "name": "cw-landscape heading-text continuous 100px and reverse",
+      "pass": true,
+      "cardCount": 8,
+      "reached": 100,
+      "returned": 0,
+      "stopCalls": 0,
+      "transferLostCaptureEvents": [
+        "h3",
+        "terminal-panel"
+      ],
+      "monotone": true
+    },
+    {
+      "name": "cw-landscape heading-text continuous 240px and reverse",
+      "pass": true,
+      "cardCount": 8,
+      "reached": 240,
+      "returned": 0,
+      "stopCalls": 0,
+      "transferLostCaptureEvents": [
+        "h3",
+        "terminal-panel"
+      ],
+      "monotone": true
+    },
+    {
+      "name": "cw-landscape heading-text continuous 300px and reverse",
+      "pass": true,
+      "cardCount": 8,
+      "reached": 300,
+      "returned": 0,
+      "stopCalls": 0,
+      "transferLostCaptureEvents": [
+        "h3",
+        "terminal-panel"
+      ],
+      "monotone": true
+    },
+    {
+      "name": "cw-landscape description-text continuous 100px and reverse",
+      "pass": true,
+      "cardCount": 8,
+      "reached": 100,
+      "returned": 0,
+      "stopCalls": 0,
+      "transferLostCaptureEvents": [
+        "p",
+        "terminal-panel"
+      ],
+      "monotone": true
+    },
+    {
+      "name": "cw-landscape description-text continuous 240px and reverse",
+      "pass": true,
+      "cardCount": 8,
+      "reached": 240,
+      "returned": 0,
+      "stopCalls": 0,
+      "transferLostCaptureEvents": [
+        "p",
+        "terminal-panel"
+      ],
+      "monotone": true
+    },
+    {
+      "name": "cw-landscape description-text continuous 300px and reverse",
+      "pass": true,
+      "cardCount": 8,
+      "reached": 300,
+      "returned": 0,
+      "stopCalls": 0,
+      "transferLostCaptureEvents": [
+        "p",
+        "terminal-panel"
+      ],
+      "monotone": true
+    },
+    {
+      "name": "cw-landscape button continuous 100px and reverse",
+      "pass": true,
+      "cardCount": 8,
+      "reached": 100,
+      "returned": 0,
+      "stopCalls": 0,
+      "transferLostCaptureEvents": [
+        "button",
+        "terminal-panel"
+      ],
+      "monotone": true
+    },
+    {
+      "name": "cw-landscape button continuous 240px and reverse",
+      "pass": true,
+      "cardCount": 8,
+      "reached": 240,
+      "returned": 0,
+      "stopCalls": 0,
+      "transferLostCaptureEvents": [
+        "button",
+        "terminal-panel"
+      ],
+      "monotone": true
+    },
+    {
+      "name": "cw-landscape button continuous 300px and reverse",
+      "pass": true,
+      "cardCount": 8,
+      "reached": 300,
+      "returned": 0,
+      "stopCalls": 0,
+      "transferLostCaptureEvents": [
+        "button",
+        "terminal-panel"
+      ],
+      "monotone": true
+    },
+    {
+      "name": "cw-landscape article continuous 100px and reverse",
+      "pass": true,
+      "cardCount": 8,
+      "reached": 100,
+      "returned": 0,
+      "stopCalls": 0,
+      "transferLostCaptureEvents": [
+        "article",
+        "terminal-panel"
+      ],
+      "monotone": true
+    },
+    {
+      "name": "cw-landscape article continuous 240px and reverse",
+      "pass": true,
+      "cardCount": 8,
+      "reached": 240,
+      "returned": 0,
+      "stopCalls": 0,
+      "transferLostCaptureEvents": [
+        "article",
+        "terminal-panel"
+      ],
+      "monotone": true
+    },
+    {
+      "name": "cw-landscape article continuous 300px and reverse",
+      "pass": true,
+      "cardCount": 8,
+      "reached": 300,
+      "returned": 0,
+      "stopCalls": 0,
+      "transferLostCaptureEvents": [
+        "article",
+        "terminal-panel"
+      ],
+      "monotone": true
+    },
+    {
+      "name": "cw-landscape blank continuous 100px and reverse",
+      "pass": true,
+      "cardCount": 8,
+      "reached": 100,
+      "returned": 0,
+      "stopCalls": 0,
+      "transferLostCaptureEvents": [
+        "terminal-panel"
+      ],
+      "monotone": true
+    },
+    {
+      "name": "cw-landscape blank continuous 240px and reverse",
+      "pass": true,
+      "cardCount": 8,
+      "reached": 240,
+      "returned": 0,
+      "stopCalls": 0,
+      "transferLostCaptureEvents": [
+        "terminal-panel"
+      ],
+      "monotone": true
+    },
+    {
+      "name": "cw-landscape blank continuous 300px and reverse",
+      "pass": true,
+      "cardCount": 8,
+      "reached": 300,
+      "returned": 0,
+      "stopCalls": 0,
+      "transferLostCaptureEvents": [
+        "terminal-panel"
+      ],
+      "monotone": true
+    },
+    {
+      "name": "ccw-portrait heading-text continuous 100px and reverse",
+      "pass": true,
+      "cardCount": 8,
+      "reached": 100,
+      "returned": 0,
+      "stopCalls": 0,
+      "transferLostCaptureEvents": [
+        "h3",
+        "terminal-panel"
+      ],
+      "monotone": true
+    },
+    {
+      "name": "ccw-portrait heading-text continuous 240px and reverse",
+      "pass": true,
+      "cardCount": 8,
+      "reached": 240,
+      "returned": 0,
+      "stopCalls": 0,
+      "transferLostCaptureEvents": [
+        "h3",
+        "terminal-panel"
+      ],
+      "monotone": true
+    },
+    {
+      "name": "ccw-portrait heading-text continuous 300px and reverse",
+      "pass": true,
+      "cardCount": 8,
+      "reached": 300,
+      "returned": 0,
+      "stopCalls": 0,
+      "transferLostCaptureEvents": [
+        "h3",
+        "terminal-panel"
+      ],
+      "monotone": true
+    },
+    {
+      "name": "ccw-portrait description-text continuous 100px and reverse",
+      "pass": true,
+      "cardCount": 8,
+      "reached": 100,
+      "returned": 0,
+      "stopCalls": 0,
+      "transferLostCaptureEvents": [
+        "p",
+        "terminal-panel"
+      ],
+      "monotone": true
+    },
+    {
+      "name": "ccw-portrait description-text continuous 240px and reverse",
+      "pass": true,
+      "cardCount": 8,
+      "reached": 240,
+      "returned": 0,
+      "stopCalls": 0,
+      "transferLostCaptureEvents": [
+        "p",
+        "terminal-panel"
+      ],
+      "monotone": true
+    },
+    {
+      "name": "ccw-portrait description-text continuous 300px and reverse",
+      "pass": true,
+      "cardCount": 8,
+      "reached": 300,
+      "returned": 0,
+      "stopCalls": 0,
+      "transferLostCaptureEvents": [
+        "p",
+        "terminal-panel"
+      ],
+      "monotone": true
+    },
+    {
+      "name": "ccw-portrait button continuous 100px and reverse",
+      "pass": true,
+      "cardCount": 8,
+      "reached": 100,
+      "returned": 0,
+      "stopCalls": 0,
+      "transferLostCaptureEvents": [
+        "button",
+        "terminal-panel"
+      ],
+      "monotone": true
+    },
+    {
+      "name": "ccw-portrait button continuous 240px and reverse",
+      "pass": true,
+      "cardCount": 8,
+      "reached": 240,
+      "returned": 0,
+      "stopCalls": 0,
+      "transferLostCaptureEvents": [
+        "button",
+        "terminal-panel"
+      ],
+      "monotone": true
+    },
+    {
+      "name": "ccw-portrait button continuous 300px and reverse",
+      "pass": true,
+      "cardCount": 8,
+      "reached": 300,
+      "returned": 0,
+      "stopCalls": 0,
+      "transferLostCaptureEvents": [
+        "button",
+        "terminal-panel"
+      ],
+      "monotone": true
+    },
+    {
+      "name": "ccw-portrait article continuous 100px and reverse",
+      "pass": true,
+      "cardCount": 8,
+      "reached": 100,
+      "returned": 0,
+      "stopCalls": 0,
+      "transferLostCaptureEvents": [
+        "article",
+        "terminal-panel"
+      ],
+      "monotone": true
+    },
+    {
+      "name": "ccw-portrait article continuous 240px and reverse",
+      "pass": true,
+      "cardCount": 8,
+      "reached": 240,
+      "returned": 0,
+      "stopCalls": 0,
+      "transferLostCaptureEvents": [
+        "article",
+        "terminal-panel"
+      ],
+      "monotone": true
+    },
+    {
+      "name": "ccw-portrait article continuous 300px and reverse",
+      "pass": true,
+      "cardCount": 8,
+      "reached": 300,
+      "returned": 0,
+      "stopCalls": 0,
+      "transferLostCaptureEvents": [
+        "article",
+        "terminal-panel"
+      ],
+      "monotone": true
+    },
+    {
+      "name": "ccw-portrait blank continuous 100px and reverse",
+      "pass": true,
+      "cardCount": 8,
+      "reached": 100,
+      "returned": 0,
+      "stopCalls": 0,
+      "transferLostCaptureEvents": [
+        "terminal-panel"
+      ],
+      "monotone": true
+    },
+    {
+      "name": "ccw-portrait blank continuous 240px and reverse",
+      "pass": true,
+      "cardCount": 8,
+      "reached": 240,
+      "returned": 0,
+      "stopCalls": 0,
+      "transferLostCaptureEvents": [
+        "terminal-panel"
+      ],
+      "monotone": true
+    },
+    {
+      "name": "ccw-portrait blank continuous 300px and reverse",
+      "pass": true,
+      "cardCount": 8,
+      "reached": 300,
+      "returned": 0,
+      "stopCalls": 0,
+      "transferLostCaptureEvents": [
+        "terminal-panel"
+      ],
+      "monotone": true
+    },
+    {
+      "name": "cw-landscape entire eight-card list reaches exact bottom, overscrolls, immediately reverses and reaches top",
+      "pass": true,
+      "bottom": 760,
+      "max": 760,
+      "barFractionAtBottom": 1,
+      "immediateReverse": 750,
+      "returned": 0,
+      "barFractionAtTop": 0,
+      "note": "Native scrollbar appearance is not simulated; ratio verifies the single browser scrollTop state and its bounds."
+    },
+    {
+      "name": "ccw-portrait entire eight-card list reaches exact bottom, overscrolls, immediately reverses and reaches top",
+      "pass": true,
+      "bottom": 1180,
+      "max": 1180,
+      "barFractionAtBottom": 1,
+      "immediateReverse": 1170,
+      "returned": 0,
+      "barFractionAtTop": 0,
+      "note": "Native scrollbar appearance is not simulated; ratio verifies the single browser scrollTop state and its bounds."
+    },
+    {
+      "name": "cw-landscape same-size resize preserves active touch through all 300px",
+      "pass": true,
+      "value": 300,
+      "stopCalls": 0
+    },
+    {
+      "name": "ccw-portrait same-size resize preserves active touch through all 300px",
+      "pass": true,
+      "value": 300,
+      "stopCalls": 0
+    },
+    {
+      "name": "cw-landscape changed-size resize cancels old pointer",
+      "pass": true,
+      "value": 10,
+      "stopCalls": 1
+    },
+    {
+      "name": "ccw-portrait changed-size resize cancels old pointer",
+      "pass": true,
+      "value": 10,
+      "stopCalls": 1
+    },
+    {
+      "name": "Upright portrait does not prevent or manually scroll native drags",
+      "pass": true,
+      "prevented": 0,
+      "manualScroll": 0,
+      "note": "Native browser scroll itself is not modeled; this proves the JS leaves it untouched."
+    },
+    {
+      "name": "Upright landscape does not prevent or manually scroll native drags",
+      "pass": true,
+      "prevented": 0,
+      "manualScroll": 0,
+      "note": "Native browser scroll itself is not modeled; this proves the JS leaves it untouched."
+    },
+    {
+      "name": "cw-landscape fractional CSS client coordinates accumulate without per-move rounding",
+      "pass": true,
+      "reached": 300,
+      "returned": 0,
+      "stepCssPixels": 0.6,
+      "note": "PointerEvent client coordinates are CSS pixels; this covers fractional coordinates, not an unimplemented extra CSS scale transform."
+    },
+    {
+      "name": "ccw-portrait fractional CSS client coordinates accumulate without per-move rounding",
+      "pass": true,
+      "reached": 300,
+      "returned": 0,
+      "stepCssPixels": 0.6,
+      "note": "PointerEvent client coordinates are CSS pixels; this covers fractional coordinates, not an unimplemented extra CSS scale transform."
+    }
+  ]
+}

@@ -1,0 +1,148 @@
+{
+  "date": "2026-09-16T13:06:37.438Z",
+  "coreSha256": "1221cd684ee69f14ef8c829fe15010329db353a6c8d135ce62f579616f4482ca",
+  "checks": [
+    {
+      "name": "Original wave count/composition/batch schedules",
+      "pass": true,
+      "issues": []
+    },
+    {
+      "name": "Pause freezes game/production/research/respawn",
+      "pass": true
+    },
+    {
+      "name": "Command terminal freezes simulation",
+      "pass": true
+    },
+    {
+      "name": "Generic pause cannot buy",
+      "pass": true
+    },
+    {
+      "name": "Player can fire from bunker embrasure",
+      "pass": true,
+      "entered": true,
+      "targetHp": 53.75,
+      "initial": 95,
+      "lastShot": {
+        "type": "shot",
+        "a": {
+          "x": 20.5,
+          "y": 2.18,
+          "z": 9.15
+        },
+        "b": {
+          "x": 20.5,
+          "y": 0.7862834615394838,
+          "z": 17.211693702859847
+        },
+        "color": "player"
+      }
+    },
+    {
+      "name": "Squad can fire from occupied bunker",
+      "pass": true,
+      "targetHp": 77,
+      "member": {
+        "x": 19.2,
+        "y": 1.25,
+        "z": 8.8
+      },
+      "visible": true
+    },
+    {
+      "name": "Follow releases bunker occupants outside collision geometry",
+      "pass": true,
+      "before": {
+        "x": 19.7,
+        "z": 1.2999999999999998
+      },
+      "after": {
+        "x": 19.500973678733107,
+        "z": -0.20691357530648313
+      },
+      "validPosition": true,
+      "moved": 1.5199999999999996
+    },
+    {
+      "name": "Sheltered squad still regenerates after six seconds",
+      "pass": true,
+      "hp": 100.7
+    },
+    {
+      "name": "Tank can drive from factory exit to central position",
+      "pass": true,
+      "position": {
+        "x": 0,
+        "z": 21
+      },
+      "distance": 0
+    },
+    {
+      "name": "Enemy waves make progress toward command when unobstructed",
+      "pass": true,
+      "hp": 0,
+      "position": {
+        "x": -1.8603858025910238,
+        "z": 0.8351310763238489
+      }
+    },
+    {
+      "name": "Bunker turret rate equals original 0.25 seconds",
+      "pass": true,
+      "actual": 0.25,
+      "expected": 0.25
+    },
+    {
+      "name": "Ordinary guard fire interval in original 0.58–0.70 range",
+      "pass": true,
+      "actual": 0.6951894053537399
+    },
+    {
+      "name": "Enemy towers do not target buildings",
+      "pass": true,
+      "commandHp": 2300
+    },
+    {
+      "name": "Upgrade requires surviving relevant building",
+      "pass": true,
+      "bought": false,
+      "level": 0
+    },
+    {
+      "name": "Enemy cap backlog does not spawn entire deferred queue in one tick",
+      "pass": true,
+      "queuedBefore": 40,
+      "spawnedInSingleTick": 1,
+      "expected": "first released slot should not release accumulated .16-second spawn debt"
+    },
+    {
+      "name": "Tank splash respects cover and distance falloff",
+      "pass": true,
+      "splashHp": 95,
+      "expected": "wall blocks splash"
+    },
+    {
+      "name": "Active wave cannot be advanced by direct API",
+      "pass": true,
+      "actualWave": 1
+    },
+    {
+      "name": "Squad focus expires after five seconds",
+      "pass": true,
+      "actualMark": null
+    },
+    {
+      "name": "Player weak-point multiplier represented",
+      "pass": true,
+      "note": "Static presence check only; functional weak-point hit geometry needs separate aiming coverage"
+    },
+    {
+      "name": "Bunker squad respects forward 70-degree firing arc",
+      "pass": true,
+      "targetHp": 95,
+      "expected": "rear target must be outside bunker arc"
+    }
+  ]
+}

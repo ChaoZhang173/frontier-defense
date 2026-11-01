@@ -1,0 +1,664 @@
+{
+  "at": "2026-09-16T13:06:51.568Z",
+  "sourceDirectory": "/Users/czhang/Documents/Games/FrontierDefense/Verification/xhs-v0.6/baseline-0.6.3",
+  "sources": {
+    "app.js": "b4ee54337527870ced77ff2c731ee880c537c48cf94cac1fc2514392ecd214bb",
+    "core.js": "1e5f038e67837a6ca5182f95b7f36711d92bcfb9e29e3ba2e5d74d8ac4a4da75",
+    "menu-scroll.js": "325e59f47f1e9485900a865b774c4279f59eda967c01882d66e1a94fbc1ba532"
+  },
+  "method": "Actual app/core scripts and actual minimap canvas calls. Canvas 2D mock records fillRect player marker and moveTo/lineTo arrow. Oracle is north-up/east-right and clockwise-right, independent of implementation yaw sign. All four CSS screen orientations are exercised. No browser/device or rasterized image.",
+  "checks": [
+    {
+      "name": "cw-landscape look-zone turns minimap arrow counterclockwise/left",
+      "pass": false,
+      "before": {
+        "x": 0,
+        "y": -9,
+        "clockwiseFromNorth": 0
+      },
+      "after": {
+        "x": 1.6112661608324146,
+        "y": -8.854593235093091,
+        "clockwiseFromNorth": 0.1799999999999997
+      },
+      "shots": 0
+    },
+    {
+      "name": "cw-landscape look-zone turns minimap arrow clockwise/right",
+      "pass": false,
+      "before": {
+        "x": 0,
+        "y": -9,
+        "clockwiseFromNorth": 0
+      },
+      "after": {
+        "x": -1.6112661608324146,
+        "y": -8.854593235093091,
+        "clockwiseFromNorth": -0.1799999999999997
+      },
+      "shots": 0
+    },
+    {
+      "name": "cw-landscape fire turns minimap arrow counterclockwise/left",
+      "pass": false,
+      "before": {
+        "x": 0,
+        "y": -9,
+        "clockwiseFromNorth": 0
+      },
+      "after": {
+        "x": 1.6112661608324146,
+        "y": -8.854593235093091,
+        "clockwiseFromNorth": 0.1799999999999997
+      },
+      "shots": 1
+    },
+    {
+      "name": "cw-landscape fire turns minimap arrow clockwise/right",
+      "pass": false,
+      "before": {
+        "x": 0,
+        "y": -9,
+        "clockwiseFromNorth": 0
+      },
+      "after": {
+        "x": -1.6112661608324146,
+        "y": -8.854593235093091,
+        "clockwiseFromNorth": -0.1799999999999997
+      },
+      "shots": 1
+    },
+    {
+      "name": "portrait look-zone turns minimap arrow counterclockwise/left",
+      "pass": false,
+      "before": {
+        "x": 0,
+        "y": -9,
+        "clockwiseFromNorth": 0
+      },
+      "after": {
+        "x": 1.6112661608324146,
+        "y": -8.854593235093091,
+        "clockwiseFromNorth": 0.1799999999999997
+      },
+      "shots": 0
+    },
+    {
+      "name": "portrait look-zone turns minimap arrow clockwise/right",
+      "pass": false,
+      "before": {
+        "x": 0,
+        "y": -9,
+        "clockwiseFromNorth": 0
+      },
+      "after": {
+        "x": -1.6112661608324146,
+        "y": -8.854593235093091,
+        "clockwiseFromNorth": -0.1799999999999997
+      },
+      "shots": 0
+    },
+    {
+      "name": "portrait fire turns minimap arrow counterclockwise/left",
+      "pass": false,
+      "before": {
+        "x": 0,
+        "y": -9,
+        "clockwiseFromNorth": 0
+      },
+      "after": {
+        "x": 1.6112661608324146,
+        "y": -8.854593235093091,
+        "clockwiseFromNorth": 0.1799999999999997
+      },
+      "shots": 1
+    },
+    {
+      "name": "portrait fire turns minimap arrow clockwise/right",
+      "pass": false,
+      "before": {
+        "x": 0,
+        "y": -9,
+        "clockwiseFromNorth": 0
+      },
+      "after": {
+        "x": -1.6112661608324146,
+        "y": -8.854593235093091,
+        "clockwiseFromNorth": -0.1799999999999997
+      },
+      "shots": 1
+    },
+    {
+      "name": "ccw-portrait look-zone turns minimap arrow counterclockwise/left",
+      "pass": false,
+      "before": {
+        "x": 0,
+        "y": -9,
+        "clockwiseFromNorth": 0
+      },
+      "after": {
+        "x": 1.6112661608324146,
+        "y": -8.854593235093091,
+        "clockwiseFromNorth": 0.1799999999999997
+      },
+      "shots": 0
+    },
+    {
+      "name": "ccw-portrait look-zone turns minimap arrow clockwise/right",
+      "pass": false,
+      "before": {
+        "x": 0,
+        "y": -9,
+        "clockwiseFromNorth": 0
+      },
+      "after": {
+        "x": -1.6112661608324146,
+        "y": -8.854593235093091,
+        "clockwiseFromNorth": -0.1799999999999997
+      },
+      "shots": 0
+    },
+    {
+      "name": "ccw-portrait fire turns minimap arrow counterclockwise/left",
+      "pass": false,
+      "before": {
+        "x": 0,
+        "y": -9,
+        "clockwiseFromNorth": 0
+      },
+      "after": {
+        "x": 1.6112661608324146,
+        "y": -8.854593235093091,
+        "clockwiseFromNorth": 0.1799999999999997
+      },
+      "shots": 1
+    },
+    {
+      "name": "ccw-portrait fire turns minimap arrow clockwise/right",
+      "pass": false,
+      "before": {
+        "x": 0,
+        "y": -9,
+        "clockwiseFromNorth": 0
+      },
+      "after": {
+        "x": -1.6112661608324146,
+        "y": -8.854593235093091,
+        "clockwiseFromNorth": -0.1799999999999997
+      },
+      "shots": 1
+    },
+    {
+      "name": "landscape look-zone turns minimap arrow counterclockwise/left",
+      "pass": false,
+      "before": {
+        "x": 0,
+        "y": -9,
+        "clockwiseFromNorth": 0
+      },
+      "after": {
+        "x": 1.6112661608324146,
+        "y": -8.854593235093091,
+        "clockwiseFromNorth": 0.1799999999999997
+      },
+      "shots": 0
+    },
+    {
+      "name": "landscape look-zone turns minimap arrow clockwise/right",
+      "pass": false,
+      "before": {
+        "x": 0,
+        "y": -9,
+        "clockwiseFromNorth": 0
+      },
+      "after": {
+        "x": -1.6112661608324146,
+        "y": -8.854593235093091,
+        "clockwiseFromNorth": -0.1799999999999997
+      },
+      "shots": 0
+    },
+    {
+      "name": "landscape fire turns minimap arrow counterclockwise/left",
+      "pass": false,
+      "before": {
+        "x": 0,
+        "y": -9,
+        "clockwiseFromNorth": 0
+      },
+      "after": {
+        "x": 1.6112661608324146,
+        "y": -8.854593235093091,
+        "clockwiseFromNorth": 0.1799999999999997
+      },
+      "shots": 1
+    },
+    {
+      "name": "landscape fire turns minimap arrow clockwise/right",
+      "pass": false,
+      "before": {
+        "x": 0,
+        "y": -9,
+        "clockwiseFromNorth": 0
+      },
+      "after": {
+        "x": -1.6112661608324146,
+        "y": -8.854593235093091,
+        "clockwiseFromNorth": -0.1799999999999997
+      },
+      "shots": 1
+    },
+    {
+      "name": "cw-landscape ArrowLeft agrees with minimap turn direction",
+      "pass": false,
+      "arrow": {
+        "x": 2.4005829301994766,
+        "y": -8.673938067293008,
+        "clockwiseFromNorth": 0.2699999999999998
+      }
+    },
+    {
+      "name": "cw-landscape ArrowRight agrees with minimap turn direction",
+      "pass": false,
+      "arrow": {
+        "x": -2.4005829301994766,
+        "y": -8.673938067293008,
+        "clockwiseFromNorth": -0.2699999999999998
+      }
+    },
+    {
+      "name": "portrait ArrowLeft agrees with minimap turn direction",
+      "pass": false,
+      "arrow": {
+        "x": 2.4005829301994766,
+        "y": -8.673938067293008,
+        "clockwiseFromNorth": 0.2699999999999998
+      }
+    },
+    {
+      "name": "portrait ArrowRight agrees with minimap turn direction",
+      "pass": false,
+      "arrow": {
+        "x": -2.4005829301994766,
+        "y": -8.673938067293008,
+        "clockwiseFromNorth": -0.2699999999999998
+      }
+    },
+    {
+      "name": "ccw-portrait ArrowLeft agrees with minimap turn direction",
+      "pass": false,
+      "arrow": {
+        "x": 2.4005829301994766,
+        "y": -8.673938067293008,
+        "clockwiseFromNorth": 0.2699999999999998
+      }
+    },
+    {
+      "name": "ccw-portrait ArrowRight agrees with minimap turn direction",
+      "pass": false,
+      "arrow": {
+        "x": -2.4005829301994766,
+        "y": -8.673938067293008,
+        "clockwiseFromNorth": -0.2699999999999998
+      }
+    },
+    {
+      "name": "landscape ArrowLeft agrees with minimap turn direction",
+      "pass": false,
+      "arrow": {
+        "x": 2.4005829301994766,
+        "y": -8.673938067293008,
+        "clockwiseFromNorth": 0.2699999999999998
+      }
+    },
+    {
+      "name": "landscape ArrowRight agrees with minimap turn direction",
+      "pass": false,
+      "arrow": {
+        "x": -2.4005829301994766,
+        "y": -8.673938067293008,
+        "clockwiseFromNorth": -0.2699999999999998
+      }
+    },
+    {
+      "name": "cw-landscape north-facing strafe right moves actual player marker east/right",
+      "pass": false,
+      "before": {
+        "x": 72,
+        "y": 108.34285714285714
+      },
+      "after": {
+        "x": 70.72534883720931,
+        "y": 108.34285714285714
+      },
+      "worldX": -0.708139534883721,
+      "worldZ": 3
+    },
+    {
+      "name": "cw-landscape east-facing forward moves actual player marker east/right",
+      "pass": true,
+      "before": {
+        "x": 72,
+        "y": 108.34285714285714
+      },
+      "after": {
+        "x": 73.27465116279069,
+        "y": 108.34285714285714
+      },
+      "worldX": 0.708139534883721,
+      "worldZ": 3
+    },
+    {
+      "name": "cw-landscape south-facing strafe left moves actual player marker east/right",
+      "pass": false,
+      "before": {
+        "x": 72,
+        "y": 108.34285714285714
+      },
+      "after": {
+        "x": 70.72534883720931,
+        "y": 108.34285714285714
+      },
+      "worldX": -0.708139534883721,
+      "worldZ": 3
+    },
+    {
+      "name": "cw-landscape west-facing backward moves actual player marker east/right",
+      "pass": true,
+      "before": {
+        "x": 72,
+        "y": 108.34285714285714
+      },
+      "after": {
+        "x": 73.27465116279069,
+        "y": 108.34285714285714
+      },
+      "worldX": 0.708139534883721,
+      "worldZ": 3
+    },
+    {
+      "name": "portrait north-facing strafe right moves actual player marker east/right",
+      "pass": false,
+      "before": {
+        "x": 72,
+        "y": 108.34285714285714
+      },
+      "after": {
+        "x": 70.72534883720931,
+        "y": 108.34285714285714
+      },
+      "worldX": -0.708139534883721,
+      "worldZ": 3
+    },
+    {
+      "name": "portrait east-facing forward moves actual player marker east/right",
+      "pass": true,
+      "before": {
+        "x": 72,
+        "y": 108.34285714285714
+      },
+      "after": {
+        "x": 73.27465116279069,
+        "y": 108.34285714285714
+      },
+      "worldX": 0.708139534883721,
+      "worldZ": 3
+    },
+    {
+      "name": "portrait south-facing strafe left moves actual player marker east/right",
+      "pass": false,
+      "before": {
+        "x": 72,
+        "y": 108.34285714285714
+      },
+      "after": {
+        "x": 70.72534883720931,
+        "y": 108.34285714285714
+      },
+      "worldX": -0.708139534883721,
+      "worldZ": 3
+    },
+    {
+      "name": "portrait west-facing backward moves actual player marker east/right",
+      "pass": true,
+      "before": {
+        "x": 72,
+        "y": 108.34285714285714
+      },
+      "after": {
+        "x": 73.27465116279069,
+        "y": 108.34285714285714
+      },
+      "worldX": 0.708139534883721,
+      "worldZ": 3
+    },
+    {
+      "name": "ccw-portrait north-facing strafe right moves actual player marker east/right",
+      "pass": false,
+      "before": {
+        "x": 72,
+        "y": 108.34285714285714
+      },
+      "after": {
+        "x": 70.72534883720931,
+        "y": 108.34285714285714
+      },
+      "worldX": -0.708139534883721,
+      "worldZ": 3
+    },
+    {
+      "name": "ccw-portrait east-facing forward moves actual player marker east/right",
+      "pass": true,
+      "before": {
+        "x": 72,
+        "y": 108.34285714285714
+      },
+      "after": {
+        "x": 73.27465116279069,
+        "y": 108.34285714285714
+      },
+      "worldX": 0.708139534883721,
+      "worldZ": 3
+    },
+    {
+      "name": "ccw-portrait south-facing strafe left moves actual player marker east/right",
+      "pass": false,
+      "before": {
+        "x": 72,
+        "y": 108.34285714285714
+      },
+      "after": {
+        "x": 70.72534883720931,
+        "y": 108.34285714285714
+      },
+      "worldX": -0.708139534883721,
+      "worldZ": 3
+    },
+    {
+      "name": "ccw-portrait west-facing backward moves actual player marker east/right",
+      "pass": true,
+      "before": {
+        "x": 72,
+        "y": 108.34285714285714
+      },
+      "after": {
+        "x": 73.27465116279069,
+        "y": 108.34285714285714
+      },
+      "worldX": 0.708139534883721,
+      "worldZ": 3
+    },
+    {
+      "name": "landscape north-facing strafe right moves actual player marker east/right",
+      "pass": false,
+      "before": {
+        "x": 72,
+        "y": 108.34285714285714
+      },
+      "after": {
+        "x": 70.72534883720931,
+        "y": 108.34285714285714
+      },
+      "worldX": -0.708139534883721,
+      "worldZ": 3
+    },
+    {
+      "name": "landscape east-facing forward moves actual player marker east/right",
+      "pass": true,
+      "before": {
+        "x": 72,
+        "y": 108.34285714285714
+      },
+      "after": {
+        "x": 73.27465116279069,
+        "y": 108.34285714285714
+      },
+      "worldX": 0.708139534883721,
+      "worldZ": 3
+    },
+    {
+      "name": "landscape south-facing strafe left moves actual player marker east/right",
+      "pass": false,
+      "before": {
+        "x": 72,
+        "y": 108.34285714285714
+      },
+      "after": {
+        "x": 70.72534883720931,
+        "y": 108.34285714285714
+      },
+      "worldX": -0.708139534883721,
+      "worldZ": 3
+    },
+    {
+      "name": "landscape west-facing backward moves actual player marker east/right",
+      "pass": true,
+      "before": {
+        "x": 72,
+        "y": 108.34285714285714
+      },
+      "after": {
+        "x": 73.27465116279069,
+        "y": 108.34285714285714
+      },
+      "worldX": 0.708139534883721,
+      "worldZ": 3
+    },
+    {
+      "name": "cw-landscape KeyD at north heading moves marker right",
+      "pass": false,
+      "before": {
+        "x": 72,
+        "y": 108.34285714285714
+      },
+      "after": {
+        "x": 70.434,
+        "y": 108.34285714285714
+      }
+    },
+    {
+      "name": "portrait KeyD at north heading moves marker right",
+      "pass": false,
+      "before": {
+        "x": 72,
+        "y": 108.34285714285714
+      },
+      "after": {
+        "x": 70.434,
+        "y": 108.34285714285714
+      }
+    },
+    {
+      "name": "ccw-portrait KeyD at north heading moves marker right",
+      "pass": false,
+      "before": {
+        "x": 72,
+        "y": 108.34285714285714
+      },
+      "after": {
+        "x": 70.434,
+        "y": 108.34285714285714
+      }
+    },
+    {
+      "name": "landscape KeyD at north heading moves marker right",
+      "pass": false,
+      "before": {
+        "x": 72,
+        "y": 108.34285714285714
+      },
+      "after": {
+        "x": 70.434,
+        "y": 108.34285714285714
+      }
+    },
+    {
+      "name": "cw-landscape KeyW moves marker north/up and keeps arrow north",
+      "pass": true,
+      "before": {
+        "x": 72,
+        "y": 108.34285714285714
+      },
+      "after": {
+        "x": 72,
+        "y": 107.14971428571428
+      },
+      "arrow": {
+        "x": 0,
+        "y": -9,
+        "clockwiseFromNorth": 0
+      }
+    },
+    {
+      "name": "portrait KeyW moves marker north/up and keeps arrow north",
+      "pass": true,
+      "before": {
+        "x": 72,
+        "y": 108.34285714285714
+      },
+      "after": {
+        "x": 72,
+        "y": 107.14971428571428
+      },
+      "arrow": {
+        "x": 0,
+        "y": -9,
+        "clockwiseFromNorth": 0
+      }
+    },
+    {
+      "name": "ccw-portrait KeyW moves marker north/up and keeps arrow north",
+      "pass": true,
+      "before": {
+        "x": 72,
+        "y": 108.34285714285714
+      },
+      "after": {
+        "x": 72,
+        "y": 107.14971428571428
+      },
+      "arrow": {
+        "x": 0,
+        "y": -9,
+        "clockwiseFromNorth": 0
+      }
+    },
+    {
+      "name": "landscape KeyW moves marker north/up and keeps arrow north",
+      "pass": true,
+      "before": {
+        "x": 72,
+        "y": 108.34285714285714
+      },
+      "after": {
+        "x": 72,
+        "y": 107.14971428571428
+      },
+      "arrow": {
+        "x": 0,
+        "y": -9,
+        "clockwiseFromNorth": 0
+      }
+    }
+  ]
+}

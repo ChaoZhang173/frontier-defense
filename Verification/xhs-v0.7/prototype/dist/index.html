@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0a1720"><meta name="description" content="边境防线：带领四人小队，建设地堡与战车工厂，守住五波攻势。"><title>边境防线</title><link rel="stylesheet" href="./style.css"></head>
+<body>
+<main id="game-shell">
+<canvas id="battle" aria-label="边境防线三维战场"></canvas>
+<div id="hud" hidden>
+ <header><div class="base-block"><span>指挥中心</span><b id="base-hp">2300</b><div class="meter"><i id="base-meter"></i></div></div><div class="wave-block"><b id="wave">第 1 / 5 波</b><span id="wave-detail">守住两侧入口</span></div><button id="pause" class="square" aria-label="暂停游戏">Ⅱ</button></header>
+ <div id="resources"><span>补给 <b id="credits">160</b></span><span>小队 <b id="squad-count">0/4</b></span><span>击杀 <b id="kills">0</b></span></div>
+ <div id="operations-status" aria-label="基地部队状态"></div><aside id="tactical"><canvas id="map" width="144" height="144" aria-label="战术地图"></canvas><p id="tank-status">战车工厂未建造</p><p class="map-key">北 ↑ · 紫：传送门<br>绿：出征 · 黄：工人</p></aside>
+ <div id="reticle"><i></i><span></span></div><div id="hitmarker" hidden>×</div>
+ <div id="notice" role="status" aria-live="polite"></div><div id="context"></div>
+ <div id="player-status"><span>先锋 <b id="player-hp">180</b></span><div class="meter"><i id="player-meter"></i></div><span id="ammo">30 <small>/ 30</small></span></div>
+ <div id="desktop-help">WASD 移动 · 拖动视角 · 左键射击 · E 交互 · R 换弹 · F 跟随 · G 驻守 · B 入堡</div>
+ <div id="touch-controls"><div id="stick-zone" aria-label="移动摇杆"><div id="stick"><i></i></div><span>移动</span></div><div id="look-zone" aria-label="滑动转向"></div><div id="action-buttons"><button id="aim">瞄准</button><button id="reload">换弹</button><button id="fire" aria-label="按住射击并拖动瞄准">射击</button><button id="interact">交互</button><button id="squad-menu">小队</button></div></div>
+ <div id="squad-orders" hidden><button data-order="follow">跟随 F</button><button data-order="hold">驻守 G</button><button data-order="bunker">入驻 B</button></div>
+</div>
+<div id="damage-flash"></div>
+<section id="overlay" class="overlay"><div id="start-panel" class="panel intro"><div class="eyebrow">FRONTIER DEFENSE / 07</div><h1>边境防线</h1><p class="subtitle">守住防线，反攻传送门。</p><div class="version">v0.7.0 · 小红书兼容版</div><p class="brief">探索更大的战场，守住五波混编攻势。<br>部队集结后自动反攻，工人持续维修基地。</p><div class="instruction-grid"><div><b>移动与射击</b><span>左侧摇杆移动，右侧滑动转向<br>按住射击并拖动瞄准，点击瞄准切换精瞄</span></div><div><b>建设与指挥</b><span>走近指挥中心，点「交互」升级<br>「小队」下达跟随、驻守和入堡<br>摧毁敌军传送门可切断对应增援</span></div></div><div class="screen-modes" role="group" aria-label="选择画面方向"><button data-screen="landscape" class="selected">横屏游玩</button><button data-screen="portrait">竖屏游玩</button></div><p class="orientation">横屏视野更开阔，请将手机横过来 · 暂停菜单可切换方向</p><button id="start" class="primary">部署先锋 →</button><p class="fine">单人离线游戏 · 本局进度在退出后重置</p></div>
+<div id="pause-panel" class="panel" hidden><div class="eyebrow">MISSION PAUSED</div><h2>战场已暂停</h2><div class="screen-modes" role="group" aria-label="选择画面方向"><button data-screen="landscape" class="selected">横屏游玩</button><button data-screen="portrait">竖屏游玩</button></div><p>返回后继续防守，施工与倒计时同步恢复。</p><label>转向灵敏度 <input id="sensitivity" type="range" min="0.4" max="1.8" step="0.1" value="1"></label><label><input id="sound" type="checkbox" checked> 战斗音效</label><button id="resume" class="primary">返回战场</button><button id="restart">重新部署</button></div>
+<div id="terminal-panel" class="panel terminal" hidden><div class="terminal-heading"><div><div class="eyebrow">COMMAND / 指挥中心</div><h2>前线整备</h2></div><button id="close-terminal" aria-label="返回战场">返回战场 ×</button></div><div class="terminal-meta"><span id="terminal-credits"></span><span>战场已暂停</span></div><nav id="terminal-tabs"><button data-tab="upgrade" class="selected">防线升级</button><button data-tab="build">建造科技</button><button data-tab="squad">先锋小队</button></nav><div id="terminal-content"></div><button id="next-wave" hidden>立即开始下一波</button></div>
+<div id="end-panel" class="panel" hidden><div class="eyebrow">MISSION REPORT</div><h2 id="end-title"></h2><p id="end-stats"></p><button id="again" class="primary">再守一局</button></div>
+<div id="error-panel" class="panel" hidden><h2>战场暂时无法启动</h2><p id="error-message"></p><button id="retry">重新加载</button></div></section>
+</main>
+<script src="./three.min.js"></script><script src="./support.js"></script><script src="./core.js"></script><script src="./scene.js"></script><script src="./menu-scroll.js"></script><script src="./app.js"></script>
+</body></html>

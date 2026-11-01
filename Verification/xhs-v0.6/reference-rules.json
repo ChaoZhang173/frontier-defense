@@ -1,0 +1,1012 @@
+{
+  "schema_version": 1,
+  "game": "边境防线 / Frontier Defense",
+  "reference_version": "0.6.0",
+  "extracted_on": "2026-09-16",
+  "scope": "原 Unity v0.6 源码数值参考，用于小红书兼容版移植验证；不是移植版已经实现或通过测试的声明。",
+  "units": {
+    "time": "seconds",
+    "distance": "Unity world units (approximately meters)",
+    "damage": "raw before target armor and weak-point multipliers",
+    "currency": "补给"
+  },
+  "method": "只读审查 C# 源码并摘录常量/公式。每波兵种和批次由 WavePlan.Create、AssaultDirector.StartWave 的等价算法计算，没有运行 Unity。",
+  "sources": [
+    {
+      "file": "UnityProject/Assets/Scripts/Combat.cs",
+      "sha256": "a6ebcdd626498c5589dc50efbcea113a082c5ecc8387914a8a7d29480c9b79b8"
+    },
+    {
+      "file": "UnityProject/Assets/Scripts/GameWorld.cs",
+      "sha256": "866e8801e567697651285cb83a806aa40ac2f96c5321e3a5ff9de9467fd1b826"
+    },
+    {
+      "file": "UnityProject/Assets/Scripts/PlayerMotor.cs",
+      "sha256": "f60ae04f200cac86d0f20065a6343bdfe402b204ab44ebebf45348ae2aae7c58"
+    },
+    {
+      "file": "UnityProject/Assets/Scripts/AssaultDirector.cs",
+      "sha256": "bf08bbd9abb55fef0b89b9d1c14b525a2fc10369e2e08c1d5405673ff69e081d"
+    },
+    {
+      "file": "UnityProject/Assets/Scripts/SquadDirector.cs",
+      "sha256": "5c4f5aece81b20516f8e5539439e74668abc801c4ceddaaa32a553882195800c"
+    },
+    {
+      "file": "UnityProject/Assets/Scripts/BunkerDirector.cs",
+      "sha256": "50b11f5b485da18482f7c0ba1ac5201d76173d8c930f647d6d8debe7d7eacb07"
+    },
+    {
+      "file": "UnityProject/Assets/Scripts/TankDirector.cs",
+      "sha256": "1dd24c9fd47a12bcca27bb7f0b6e351d4433e5c2e92f1041b13f4a5ef8f7cb2c"
+    },
+    {
+      "file": "UnityProject/Assets/Scripts/EnemyDefenseDirector.cs",
+      "sha256": "b6671a2b5a34c3a834cca29640f13f192a30aab9907267667f58ae6fb111b825"
+    },
+    {
+      "file": "UnityProject/Assets/Scripts/ConstructionDirector.cs",
+      "sha256": "c7a40339edc489af9511be09ad0fc3c5204e44834c8a5e6c974ca96871943803"
+    },
+    {
+      "file": "UnityProject/Assets/Scripts/TechnologyDirector.cs",
+      "sha256": "2627e5c529c2227b6a962f56291257487835501f1f90fadada1217d630c74073"
+    },
+    {
+      "file": "UnityProject/Assets/Scripts/BaseUpgrades.cs",
+      "sha256": "d0161800e86657e498310896fc6f1b356fab332376dd9038fe1630d37c878693"
+    }
+  ],
+  "combat": {
+    "source": "Combat.cs / Health.Damage, Combat.Rifle, ActorBrain.Tick",
+    "friendly_fire": false,
+    "sheltered_units_take_damage": false,
+    "weak_point_multiplier": 1.65,
+    "rifle_ray_range": 110,
+    "colossus_damage_multiplier_default": 0.72,
+    "colossus_damage_multiplier_after_armor_piercing": 0.9,
+    "infantry_armor_multiplier": 0.85,
+    "infantry_armor_applies_to": [
+      "player",
+      "marine",
+      "squad"
+    ],
+    "damage_order": [
+      "infantry armor if applicable",
+      "colossus armor if applicable",
+      "weak-point multiplier if hit"
+    ],
+    "obstacles_block_rifles_and_projectiles": true,
+    "player_and_squad_rifles_pass_friendly_units": true,
+    "note": "射线是否命中弱点决定暴击，包含 AI 步枪；不能把标称伤害当作铁甲兽实际失血。"
+  },
+  "enemies": {
+    "source": "GameWorld.cs / SpawnEnemy; Combat.cs / ActorBrain",
+    "runner": {
+      "name": "迅行兽",
+      "hp": 95,
+      "damage": 13,
+      "attack_interval_s": 0.82,
+      "range": 1.85,
+      "speed": 4.5,
+      "reward": 10
+    },
+    "spitter": {
+      "name": "酸脊兽",
+      "hp": 160,
+      "damage": 17,
+      "attack_interval_s": 1.55,
+      "range": 16,
+      "projectile_speed": 19,
+      "speed": 2.8,
+      "reward": 18
+    },
+    "colossus": {
+      "name": "铁甲兽",
+      "hp": 790,
+      "damage_to_buildings": 78,
+      "damage_to_units": 42,
+      "attack_interval_s": 1.55,
+      "range": 3.4,
+      "speed": 1.75,
+      "reward": 48,
+      "prefer_local_lane_buildings_and_command": true
+    },
+    "range_note": "ActorBrain 攻击距离比较为双方 Aim 点距离 < 标称范围 + 目标 Radius，并要求真实可见。"
+  },
+  "player": {
+    "source": "GameWorld.cs / SpawnPlayer, Tick, RifleDamage; PlayerMotor.cs",
+    "hp": 180,
+    "rifle_damage_base": 25,
+    "rifle_damage_per_weapon_level": 6,
+    "weapon_max_level": 4,
+    "fire_interval_s": 0.115,
+    "magazine": 30,
+    "reserve_ammo": "unlimited",
+    "reload_s": 1.65,
+    "auto_reload_on_empty": true,
+    "speed": {
+      "walk": 5.8,
+      "aim": 3.8,
+      "sprint": 8.2
+    },
+    "cannot_fire_while_sprinting": true,
+    "regen_after_no_damage_s": 5,
+    "regen_hp_per_s": 10,
+    "regen_delay_comparison": ">",
+    "respawn_s": 6,
+    "respawn_hp": 180,
+    "respawn_ammo": 30,
+    "respawn_position": [
+      0,
+      0.1,
+      3
+    ],
+    "alive_wave_1_to_4_clear_heal": 180,
+    "interact_guard_range": 4,
+    "command_terminal_range": 6,
+    "pitch_range_deg": [
+      -35,
+      65
+    ],
+    "aim_fov": 49,
+    "normal_fov": 66
+  },
+  "squad": {
+    "source": "SquadDirector.cs; BunkerDirector.cs",
+    "capacity": 4,
+    "mercenary_slots": 2,
+    "recruited_guard_slots": 2,
+    "mercenary": {
+      "contract_cost": 120,
+      "hp": 280,
+      "damage_base": 18,
+      "respawn_s": 12,
+      "respawn_cost": 0,
+      "contract_persists_this_campaign": true,
+      "training_hp_bonus": 80,
+      "training_damage_bonus": 6,
+      "training_heal_on_completion": 80,
+      "training_persists_on_respawn": true
+    },
+    "recruited_guard": {
+      "cost": 0,
+      "hp_max": 170,
+      "preserves_current_health_on_recruit": true,
+      "damage_base": 10,
+      "respawns": false,
+      "recruit_frees_garrison_slot": true
+    },
+    "damage_per_defense_level": 3,
+    "fire_interval_s": 0.68,
+    "range_on_foot": 27,
+    "range_in_bunker": 30,
+    "regen_after_no_damage_s": 6,
+    "regen_hp_per_s": 7,
+    "regen_delay_comparison": ">",
+    "alive_wave_1_to_4_clear_heal": 100,
+    "speed": {
+      "follow": 7.6,
+      "other_orders": 6,
+      "catch_up_distance_over": 12,
+      "catch_up": 9.1
+    },
+    "orders": [
+      "follow",
+      "hold",
+      "bunker"
+    ],
+    "shot_marked_focus_s": 5,
+    "player_death_stops_mercenary_respawn": false,
+    "pause_stops_respawn": true,
+    "ordinary_guards_auto_occupy_bunkers_and_yield_to_player_squad": true
+  },
+  "garrison": {
+    "source": "GameWorld.cs; Combat.cs / ActorBrain; BunkerDirector.cs",
+    "initial_count": 4,
+    "capacity_base": 8,
+    "capacity_with_reserve_barracks": 12,
+    "hp": 170,
+    "rifle_damage_base": 10,
+    "rifle_damage_per_defense_level": 3,
+    "fire_interval_s": [
+      0.58,
+      0.7
+    ],
+    "range": 25,
+    "speed": 3.7,
+    "automatic_regen": false,
+    "initial_main_barracks_spawn_delay_s": 10,
+    "production_interval_by_barracks_level_s": [
+      12,
+      10,
+      8
+    ],
+    "production_note": "两座兵营各自计时，共享驻军总上限；达到上限或对应兵营失守时停计时。增援兵营失守不删除已经存活的守卫。"
+  },
+  "tank": {
+    "source": "TankDirector.cs",
+    "max_alive": 1,
+    "factory_site_id": 4,
+    "production_s": 24,
+    "hp": 1000,
+    "damage_direct": 105,
+    "fire_interval_s": 2.8,
+    "range": 48,
+    "speed": 3.2,
+    "projectile_speed": 38,
+    "projectile_life_s": 2.4,
+    "splash_radius": 2.8,
+    "splash_damage_formula": "105 * 0.65 * (1 - distance / (2.8 * 1.4))",
+    "splash_blocked_by_geometry": true,
+    "splash_hurts_allies": false,
+    "auto_regen": false,
+    "deployment_point": [
+      0,
+      0,
+      21
+    ],
+    "first_shot_delay_s": 0.6,
+    "target_priority": [
+      "colossus",
+      "enemy buildings",
+      "other enemies"
+    ],
+    "target_score_formula": "distance + (colossus ? 0 : building ? 70 : 130)",
+    "replaced_after_death_if_factory_operational": true,
+    "production_pauses_if_factory_destroyed": true,
+    "blocked_exit_delays_spawn": true,
+    "note": "坦克真实从工厂出口行驶到阵位；范围检查加目标半径；伤害仍受铁甲兽护甲影响。没有原版坦克直接维修按钮或自动回血。"
+  },
+  "buildings": {
+    "source": "GameWorld.cs / Awake; ConstructionDirector.cs; BunkerDirector.cs",
+    "command": {
+      "hp": 2300,
+      "destroyed_causes_defeat": true,
+      "rebuildable": false
+    },
+    "barracks": {
+      "hp": 1100,
+      "construction_hp": 750,
+      "cost": 400,
+      "build_s": 22,
+      "repair_cost": 100,
+      "repair_hp": 450
+    },
+    "bunker": {
+      "hp_base": 1200,
+      "hp_per_armor_level": 400,
+      "construction_hp": 650,
+      "cost": 320,
+      "build_s": 18,
+      "repair_cost": 120,
+      "repair_hp": 600,
+      "capacity": 5,
+      "turret_damage_formula": "15 + 4 * defenseLevel + 5 * bunkerFirepowerLevel",
+      "turret_fire_interval_s": 0.25,
+      "turret_range": 28,
+      "player_yaw_half_arc_deg": 70,
+      "player_pitch_range_deg": [
+        -25,
+        25
+      ],
+      "entrance_interaction_radius": 3.2,
+      "occupants_invulnerable_while_sheltered": true
+    },
+    "factory": {
+      "hp": 1400,
+      "construction_hp": 900,
+      "cost": 650,
+      "build_s": 28,
+      "repair_cost": 180,
+      "repair_hp": 700
+    },
+    "sites": [
+      {
+        "id": 0,
+        "name": "西侧地堡",
+        "type": "bunker",
+        "initial": "empty",
+        "position": [
+          -20.5,
+          0,
+          6
+        ]
+      },
+      {
+        "id": 1,
+        "name": "增援兵营",
+        "type": "barracks",
+        "initial": "empty",
+        "position": [
+          9,
+          0,
+          -16
+        ]
+      },
+      {
+        "id": 2,
+        "name": "主兵营",
+        "type": "barracks",
+        "initial": "ready",
+        "position": [
+          -14,
+          0,
+          -9
+        ]
+      },
+      {
+        "id": 3,
+        "name": "东侧地堡",
+        "type": "bunker",
+        "initial": "ready",
+        "position": [
+          20.5,
+          0,
+          6
+        ]
+      },
+      {
+        "id": 4,
+        "name": "战车工厂",
+        "type": "factory",
+        "initial": "empty",
+        "position": [
+          20,
+          0,
+          -15
+        ]
+      }
+    ],
+    "new_or_rebuilt_bunkers_inherit_armor_upgrade": true,
+    "construction_note": "固定点建造，地面位置被活着的单位占据时不能开工；工地可受伤，完工前无功能；建筑被毁后按原成本和工期重建。"
+  },
+  "enemy_towers": {
+    "source": "EnemyDefenseDirector.cs",
+    "count": 6,
+    "hp": 650,
+    "range": 22,
+    "damage": 22,
+    "fire_interval_s": 1.25,
+    "projectile_speed": 24,
+    "reward_each_once": 220,
+    "respawns": false,
+    "counts_toward_wave_clear": false,
+    "counts_toward_enemy_cap": false,
+    "attacks_during_intermission": true,
+    "targets": [
+      "player",
+      "marine",
+      "squad",
+      "tank"
+    ],
+    "attacks_buildings": false,
+    "visibility_and_projectile_obstacles_apply": true
+  },
+  "economy_and_upgrades": {
+    "source": "GameWorld.cs / Buy; BaseUpgrades.cs; TechnologyDirector.cs",
+    "initial_credits": 160,
+    "weapon": {
+      "costs": [
+        90,
+        170,
+        250,
+        330
+      ],
+      "max_level": 4,
+      "damage_each": 6
+    },
+    "defense": {
+      "costs": [
+        110,
+        200,
+        290,
+        380
+      ],
+      "max_level": 4,
+      "marine_and_squad_damage_each": 3,
+      "bunker_damage_each": 4,
+      "affects_player_or_tank": false
+    },
+    "command_repair": {
+      "cost": 120,
+      "heal": 650
+    },
+    "barracks_production": {
+      "costs": [
+        200,
+        320
+      ],
+      "max_level": 2,
+      "interval_reduction_each_s": 2
+    },
+    "bunker_armor": {
+      "costs": [
+        180,
+        300
+      ],
+      "max_level": 2,
+      "hp_and_heal_each": 400,
+      "all_bunkers": true
+    },
+    "bunker_firepower": {
+      "costs": [
+        220,
+        360
+      ],
+      "max_level": 2,
+      "damage_each": 5,
+      "all_bunkers": true
+    },
+    "research": {
+      "requires_operational_reserve_barracks": true,
+      "shared_queue_capacity": 1,
+      "completed_research_persists_after_building_loss": true,
+      "building_loss_pauses_unfinished_research": true,
+      "infantry_armor": {
+        "cost": 240,
+        "duration_s": 16,
+        "damage_reduction": 0.15
+      },
+      "armor_piercing": {
+        "cost": 280,
+        "duration_s": 20,
+        "colossus_damage_multiplier_before": 0.72,
+        "colossus_damage_multiplier_after": 0.9
+      },
+      "mercenary_training": {
+        "cost": 300,
+        "duration_s": 22,
+        "hp_and_heal_bonus": 80,
+        "damage_bonus": 6
+      }
+    },
+    "management_requires": "近指挥中心、玩家存活且未驻堡、打开指挥终端；普通暂停没有购买权限。",
+    "pause_and_terminal_freeze": [
+      "simulation",
+      "wave_intermission",
+      "construction",
+      "research",
+      "tank_production",
+      "mercenary_respawn",
+      "attacks"
+    ]
+  },
+  "assault_rules": {
+    "source": "Combat.cs / WavePlan.Create; AssaultDirector.cs / StartWave, Tick; GameWorld.cs / FinishWave",
+    "total_enemies": 460,
+    "enemy_alive_cap": 65,
+    "wave_counts": [
+      40,
+      58,
+      92,
+      120,
+      150
+    ],
+    "batch_counts": [
+      4,
+      5,
+      8,
+      8,
+      8
+    ],
+    "lanes": {
+      "0": "west",
+      "1": "east"
+    },
+    "spawn_sites": 6,
+    "sites_per_lane": 3,
+    "initial_warning_s": 4,
+    "intra_batch_member_interval_s": 0.16,
+    "batch_spawn_order": [
+      "colossus",
+      "spitter",
+      "runner"
+    ],
+    "formation_timeout_s": 20,
+    "advance_timeout_s": 30,
+    "formation_ready_radius": 1.65,
+    "intermission_after_waves_1_to_4_s": 45,
+    "intermission_allows_movement_combat_and_commands": true,
+    "intermission_preserves_squad_order": true,
+    "wave_clear_condition": "all scheduled attackers spawned and living attacker count is zero; enemy towers excluded",
+    "victory_condition": "wave 5 clear with command alive",
+    "capacity_rule": "65 在场上限只暂停待出队列，不丢弃敌人；释放名额后继续，不积攒大量瞬间出兵债务。",
+    "schedule_note": "at_s 是预定开批时刻，遇并发上限或上一批未结束会推迟；WavePlan.Intervals 数组不用于现行批次调度。",
+    "waves": [
+      {
+        "wave": 1,
+        "title": "接触",
+        "count": 40,
+        "reward": 175,
+        "lane_counts": [
+          40,
+          0
+        ],
+        "roles": {
+          "runner": 40,
+          "spitter": 0,
+          "colossus": 0
+        },
+        "batches": [
+          {
+            "batch": 1,
+            "lane": 0,
+            "source_site": 0,
+            "at_s": 4,
+            "count": 10,
+            "roles": {
+              "runner": 10,
+              "spitter": 0,
+              "colossus": 0
+            }
+          },
+          {
+            "batch": 2,
+            "lane": 0,
+            "source_site": 2,
+            "at_s": 22,
+            "count": 10,
+            "roles": {
+              "runner": 10,
+              "spitter": 0,
+              "colossus": 0
+            }
+          },
+          {
+            "batch": 3,
+            "lane": 0,
+            "source_site": 4,
+            "at_s": 40,
+            "count": 10,
+            "roles": {
+              "runner": 10,
+              "spitter": 0,
+              "colossus": 0
+            }
+          },
+          {
+            "batch": 4,
+            "lane": 0,
+            "source_site": 0,
+            "at_s": 58,
+            "count": 10,
+            "roles": {
+              "runner": 10,
+              "spitter": 0,
+              "colossus": 0
+            }
+          }
+        ]
+      },
+      {
+        "wave": 2,
+        "title": "酸雨",
+        "count": 58,
+        "reward": 210,
+        "lane_counts": [
+          0,
+          58
+        ],
+        "roles": {
+          "runner": 44,
+          "spitter": 14,
+          "colossus": 0
+        },
+        "batches": [
+          {
+            "batch": 1,
+            "lane": 1,
+            "source_site": 1,
+            "at_s": 4,
+            "count": 12,
+            "roles": {
+              "runner": 9,
+              "spitter": 3,
+              "colossus": 0
+            }
+          },
+          {
+            "batch": 2,
+            "lane": 1,
+            "source_site": 3,
+            "at_s": 21,
+            "count": 12,
+            "roles": {
+              "runner": 9,
+              "spitter": 3,
+              "colossus": 0
+            }
+          },
+          {
+            "batch": 3,
+            "lane": 1,
+            "source_site": 5,
+            "at_s": 38,
+            "count": 12,
+            "roles": {
+              "runner": 9,
+              "spitter": 3,
+              "colossus": 0
+            }
+          },
+          {
+            "batch": 4,
+            "lane": 1,
+            "source_site": 1,
+            "at_s": 55,
+            "count": 11,
+            "roles": {
+              "runner": 8,
+              "spitter": 3,
+              "colossus": 0
+            }
+          },
+          {
+            "batch": 5,
+            "lane": 1,
+            "source_site": 3,
+            "at_s": 72,
+            "count": 11,
+            "roles": {
+              "runner": 9,
+              "spitter": 2,
+              "colossus": 0
+            }
+          }
+        ]
+      },
+      {
+        "wave": 3,
+        "title": "双线告急",
+        "count": 92,
+        "reward": 245,
+        "lane_counts": [
+          45,
+          47
+        ],
+        "roles": {
+          "runner": 64,
+          "spitter": 19,
+          "colossus": 9
+        },
+        "batches": [
+          {
+            "batch": 1,
+            "lane": 0,
+            "source_site": 0,
+            "at_s": 4,
+            "count": 12,
+            "roles": {
+              "runner": 10,
+              "spitter": 2,
+              "colossus": 0
+            }
+          },
+          {
+            "batch": 2,
+            "lane": 1,
+            "source_site": 1,
+            "at_s": 8,
+            "count": 12,
+            "roles": {
+              "runner": 7,
+              "spitter": 3,
+              "colossus": 2
+            }
+          },
+          {
+            "batch": 3,
+            "lane": 0,
+            "source_site": 2,
+            "at_s": 24,
+            "count": 11,
+            "roles": {
+              "runner": 8,
+              "spitter": 2,
+              "colossus": 1
+            }
+          },
+          {
+            "batch": 4,
+            "lane": 1,
+            "source_site": 3,
+            "at_s": 28,
+            "count": 12,
+            "roles": {
+              "runner": 8,
+              "spitter": 3,
+              "colossus": 1
+            }
+          },
+          {
+            "batch": 5,
+            "lane": 0,
+            "source_site": 4,
+            "at_s": 44,
+            "count": 11,
+            "roles": {
+              "runner": 10,
+              "spitter": 0,
+              "colossus": 1
+            }
+          },
+          {
+            "batch": 6,
+            "lane": 1,
+            "source_site": 5,
+            "at_s": 48,
+            "count": 12,
+            "roles": {
+              "runner": 6,
+              "spitter": 4,
+              "colossus": 2
+            }
+          },
+          {
+            "batch": 7,
+            "lane": 0,
+            "source_site": 0,
+            "at_s": 64,
+            "count": 11,
+            "roles": {
+              "runner": 8,
+              "spitter": 2,
+              "colossus": 1
+            }
+          },
+          {
+            "batch": 8,
+            "lane": 1,
+            "source_site": 1,
+            "at_s": 68,
+            "count": 11,
+            "roles": {
+              "runner": 7,
+              "spitter": 3,
+              "colossus": 1
+            }
+          }
+        ]
+      },
+      {
+        "wave": 4,
+        "title": "铁甲冲锋",
+        "count": 120,
+        "reward": 280,
+        "lane_counts": [
+          60,
+          60
+        ],
+        "roles": {
+          "runner": 70,
+          "spitter": 30,
+          "colossus": 20
+        },
+        "batches": [
+          {
+            "batch": 1,
+            "lane": 0,
+            "source_site": 0,
+            "at_s": 4,
+            "count": 15,
+            "roles": {
+              "runner": 7,
+              "spitter": 5,
+              "colossus": 3
+            }
+          },
+          {
+            "batch": 2,
+            "lane": 1,
+            "source_site": 1,
+            "at_s": 8,
+            "count": 15,
+            "roles": {
+              "runner": 11,
+              "spitter": 2,
+              "colossus": 2
+            }
+          },
+          {
+            "batch": 3,
+            "lane": 0,
+            "source_site": 2,
+            "at_s": 24,
+            "count": 15,
+            "roles": {
+              "runner": 8,
+              "spitter": 5,
+              "colossus": 2
+            }
+          },
+          {
+            "batch": 4,
+            "lane": 1,
+            "source_site": 3,
+            "at_s": 28,
+            "count": 15,
+            "roles": {
+              "runner": 9,
+              "spitter": 3,
+              "colossus": 3
+            }
+          },
+          {
+            "batch": 5,
+            "lane": 0,
+            "source_site": 4,
+            "at_s": 44,
+            "count": 15,
+            "roles": {
+              "runner": 7,
+              "spitter": 5,
+              "colossus": 3
+            }
+          },
+          {
+            "batch": 6,
+            "lane": 1,
+            "source_site": 5,
+            "at_s": 48,
+            "count": 15,
+            "roles": {
+              "runner": 11,
+              "spitter": 2,
+              "colossus": 2
+            }
+          },
+          {
+            "batch": 7,
+            "lane": 0,
+            "source_site": 0,
+            "at_s": 64,
+            "count": 15,
+            "roles": {
+              "runner": 8,
+              "spitter": 5,
+              "colossus": 2
+            }
+          },
+          {
+            "batch": 8,
+            "lane": 1,
+            "source_site": 1,
+            "at_s": 68,
+            "count": 15,
+            "roles": {
+              "runner": 9,
+              "spitter": 3,
+              "colossus": 3
+            }
+          }
+        ]
+      },
+      {
+        "wave": 5,
+        "title": "守住黎明",
+        "count": 150,
+        "reward": 315,
+        "lane_counts": [
+          75,
+          75
+        ],
+        "roles": {
+          "runner": 67,
+          "spitter": 53,
+          "colossus": 30
+        },
+        "batches": [
+          {
+            "batch": 1,
+            "lane": 0,
+            "source_site": 0,
+            "at_s": 4,
+            "count": 19,
+            "roles": {
+              "runner": 9,
+              "spitter": 6,
+              "colossus": 4
+            }
+          },
+          {
+            "batch": 2,
+            "lane": 1,
+            "source_site": 1,
+            "at_s": 8,
+            "count": 19,
+            "roles": {
+              "runner": 8,
+              "spitter": 7,
+              "colossus": 4
+            }
+          },
+          {
+            "batch": 3,
+            "lane": 0,
+            "source_site": 2,
+            "at_s": 22,
+            "count": 19,
+            "roles": {
+              "runner": 10,
+              "spitter": 4,
+              "colossus": 5
+            }
+          },
+          {
+            "batch": 4,
+            "lane": 1,
+            "source_site": 3,
+            "at_s": 26,
+            "count": 19,
+            "roles": {
+              "runner": 7,
+              "spitter": 9,
+              "colossus": 3
+            }
+          },
+          {
+            "batch": 5,
+            "lane": 0,
+            "source_site": 4,
+            "at_s": 40,
+            "count": 19,
+            "roles": {
+              "runner": 9,
+              "spitter": 7,
+              "colossus": 3
+            }
+          },
+          {
+            "batch": 6,
+            "lane": 1,
+            "source_site": 5,
+            "at_s": 44,
+            "count": 19,
+            "roles": {
+              "runner": 8,
+              "spitter": 7,
+              "colossus": 4
+            }
+          },
+          {
+            "batch": 7,
+            "lane": 0,
+            "source_site": 0,
+            "at_s": 58,
+            "count": 18,
+            "roles": {
+              "runner": 10,
+              "spitter": 5,
+              "colossus": 3
+            }
+          },
+          {
+            "batch": 8,
+            "lane": 1,
+            "source_site": 1,
+            "at_s": 62,
+            "count": 18,
+            "roles": {
+              "runner": 6,
+              "spitter": 8,
+              "colossus": 4
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "port_verification_checklist": [
+    "五波合计 460，批次数 4/5/8/8/8，兵种、方向、来源和预定时间与 waves 相同。",
+    "同时存活进攻敌人不超过 65，排队后仍完整生成全部数量，防御塔单独计数。",
+    "所有攻击和移动遵循暂停/终端状态；恢复不会跳过生产、研究、复活或整备计时。",
+    "移动、射击、换弹、瞄准、招募、地堡交互和三种小队命令都能由手机触屏完成。",
+    "玩家 6 秒复活，雇佣兵按合同 12 秒免费复活；免费招募守卫保留原血量且阵亡不复活。",
+    "坦克工厂按 650/28 秒建造，24 秒生产，最多 1 辆，真实驶向中央阵位，死亡补产。",
+    "科技、升级价格和等级上限一致，不可在普通暂停中购买，科技单队列且失去增援兵营时暂停。",
+    "六塔各 650 HP，22 伤害/1.25 秒/22 米，220 奖励只一次，不阻碍波次结算。",
+    "地堡 5 席且优先玩家/小队；驻守单位受到保护，建筑被毁只撤离该堡人员。",
+    "明确记录任何移植简化项，不用“原 Unity 完全一致”描述未实现的几何、遮挡或寻路细节。"
+  ]
+}

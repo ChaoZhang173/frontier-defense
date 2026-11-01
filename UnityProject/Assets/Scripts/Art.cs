@@ -40,7 +40,7 @@ namespace Frontier
             go.GetComponent<Renderer>().sharedMaterial = Mat(material);
             // The typed reference keeps the sphere's native collider in stripped Web builds.
             Collider collider = primitive==PrimitiveType.Sphere?go.GetComponent<SphereCollider>():go.GetComponent<Collider>();
-            if (!collision) Object.Destroy(collider); else go.layer = Combat.WorldLayer;
+            if (!collision) { collider.enabled=false;Object.Destroy(collider); } else go.layer = Combat.WorldLayer;
             return go.transform;
         }
 
@@ -150,9 +150,9 @@ namespace Frontier
         public static ArtRig Creature(Transform parent, Role role)
         {
             var rig=parent.gameObject.AddComponent<ArtRig>();
-            bool large=role==Role.Colossus, ranged=role==Role.Spitter;
-            float s=large?1.85f:ranged?1.1f:.82f;
-            rig.Body=Root("Carapace",parent,new Vector3(0,large?1.35f:ranged?.86f:.54f,0));
+            bool large=role==Role.Colossus, ranged=role==Role.Spitter,stalker=role==Role.Stalker,siege=role==Role.Siege;
+            float s=siege?2f:large?1.85f:ranged?1.1f:stalker?1.02f:.82f;
+            rig.Body=Root("Carapace",parent,new Vector3(0,siege?1.35f:large?1.35f:ranged?.86f:stalker?.46f:.54f,0));
             Part(rig.Body,"Abdomen",new Vector3(0,0,-.22f)*s,new Vector3(1.02f,.72f,1.38f)*s,9,PrimitiveType.Sphere);
             Part(rig.Body,"Front armor",new Vector3(0,.17f,.22f)*s,new Vector3(1.02f,.54f,.86f)*s,8,PrimitiveType.Sphere);
             Part(rig.Body,"Head",new Vector3(0,-.10f,.77f)*s,new Vector3(.58f,.39f,.57f)*s,8,PrimitiveType.Sphere);
@@ -180,12 +180,29 @@ namespace Frontier
                 Part(rig.Body,"Siege plate",new Vector3(0,.47f,.1f)*s,new Vector3(.94f,.28f,.82f)*s,13);
                 Part(rig.Body,"Exposed core",new Vector3(0,.65f,.18f)*s,new Vector3(.35f,.09f,.35f)*s,10,PrimitiveType.Sphere);
             }
+            if(stalker)
+            {
+                Part(rig.Body,"Low stalking carapace",new Vector3(0,.3f,-.24f),new Vector3(.78f,.2f,1.65f),12);
+                for(int side=-1;side<=1;side+=2)
+                {
+                    Spike(rig.Body,new Vector3(side*.8f,-.05f,.9f),new Vector3(.2f,1.75f,.2f),11,new Vector3(68,side*8,side*20));
+                    Part(rig.Body,"Stalker eye",new Vector3(side*.21f,.05f,1.055f),new Vector3(.17f,.12f,.08f),7);
+                }
+            }
+            if(siege)
+            {
+                Part(rig.Body,"Artillery organ",new Vector3(0,.6f,-.75f),new Vector3(2.5f,1.4f,2.35f),13,PrimitiveType.Sphere);
+                Part(rig.Body,"Pressure bladder",new Vector3(0,.85f,-.7f),new Vector3(1.7f,1.1f,1.6f),10,PrimitiveType.Sphere);
+                Part(rig.Body,"Acid mortar",new Vector3(0,.55f,1.4f),new Vector3(.85f,1.15f,.85f),9,PrimitiveType.Cylinder,new Vector3(76,0,0));
+                Part(rig.Body,"Mortar opening",new Vector3(0,.83f,2.48f),new Vector3(.66f,.075f,.66f),10,PrimitiveType.Cylinder,new Vector3(76,0,0));
+                for(int side=-1;side<=1;side+=2)Spike(rig.Body,new Vector3(side*1.1f,.55f,-.7f),new Vector3(.48f,1.5f,.55f),11,new Vector3(0,0,-side*18));
+            }
             rig.Finish();return rig;
         }
 
         public static void BuildEnvironment(Transform world)
         {
-            Part(world,"Canyon basin",new Vector3(0,-4.6f,22),new Vector3(250,1,240),5,collision:true);
+            Part(world,"Canyon basin",new Vector3(0,-4.5f,56),new Vector3(250,1,240),5,collision:true);
             Part(world,"Highland foundation",new Vector3(0,-2.2f,1),new Vector3(58,4f,50),4,collision:true);
             Part(world,"Defense deck",new Vector3(0,-.10f,1),new Vector3(57.8f,.2f,49.8f),3,collision:true);
             for(int x=-24;x<=24;x+=6) for(int z=-20;z<=22;z+=6)
@@ -200,21 +217,14 @@ namespace Frontier
                 for(int z=-1;z<25;z+=3) Part(world,"Lane guidance",new Vector3(x,.027f,z),new Vector3(.16f,.02f,1.4f),7);
                 for(int i=-1;i<=1;i+=2)
                 {
-                    Part(world,"Gate pier",new Vector3(x+i*4.6f,2.2f,24.2f),new Vector3(.75f,4.4f,1.2f),1,collision:true);
-                    Part(world,"Gate beacon",new Vector3(x+i*4.6f,4.48f,24.2f),new Vector3(.50f,.18f,.73f),6);
+                    // Low entrance markers preserve oblique fire from the bunker ports.
+                    Part(world,"Gate pier",new Vector3(x+i*4.6f,.3f,24.2f),new Vector3(.75f,.6f,1.2f),1,collision:true);
+                    Part(world,"Gate beacon",new Vector3(x+i*4.6f,.68f,24.2f),new Vector3(.50f,.12f,.73f),6);
                 }
-                Part(world,"Gate crossbeam",new Vector3(x,4.45f,24.2f),new Vector3(10,.46f,.75f),0,collision:true);
-                Part(world,"Gate light",new Vector3(x,4.18f,23.82f),new Vector3(7.6f,.06f,.08f),6);
-                Transform portal=Root("Rift "+lane,world,new Vector3(x,-4,64));
-                Part(portal,"Rift base",Vector3.zero,new Vector3(6,.15f,6),9,PrimitiveType.Cylinder);
-                Part(portal,"Rift glow",new Vector3(0,.16f,0),new Vector3(4.7f,.03f,4.7f),10,PrimitiveType.Cylinder);
-                for(int i=0;i<8;i++)
-                {
-                    float a=i*Mathf.PI/4;
-                    Spike(portal,new Vector3(Mathf.Cos(a)*3,0,Mathf.Sin(a)*3),new Vector3(.9f,3.2f+UnityEngine.Random.value*2,.9f),9,new Vector3(10,i*45,0));
-                }
+                Part(world,"Gate threshold guide",new Vector3(x,.027f,24.2f),new Vector3(8.2f,.025f,.18f),6);
+
             }
-            Wall(world,-24,26,10,3.0f);Wall(world,0,26,18,CentralDefense.WallHeight);Wall(world,24,26,10,3.0f);
+            Wall(world,-24,26,10,.6f);Wall(world,0,26,18,CentralDefense.WallHeight);Wall(world,24,26,10,.6f);
             for(int slot=0;slot<4;slot++)
             {
                 Vector3 post=CentralDefense.SquadPost(slot);
@@ -233,18 +243,18 @@ namespace Frontier
             Part(world,"Rear barrier",new Vector3(0,1.4f,-23.3f),new Vector3(57,2.8f,1.5f),2,collision:true);
             for(int i=0;i<65;i++)
             {
-                float x=UnityEngine.Random.Range(-110f,110f),z=UnityEngine.Random.Range(-55f,125f);
-                if(Mathf.Abs(x)<33 && z<82) continue;
+                float x=UnityEngine.Random.Range(-110f,110f),z=UnityEngine.Random.Range(-55f,170f);
+                if(Mathf.Abs(x)<GroundSurface.MaxX+5&&z<GroundSurface.MaxZ+5)continue;
                 float h=UnityEngine.Random.Range(5f,24f),s=UnityEngine.Random.Range(5f,12f);
                 Part(world,"Canyon monolith",new Vector3(x,-4+h*.4f,z),new Vector3(s,h,s*.75f),i%3==0?13:4,PrimitiveType.Cube,new Vector3(UnityEngine.Random.Range(-12,12),UnityEngine.Random.Range(0,180),UnityEngine.Random.Range(-9,9)));
                 Part(world,"Eroded cap",new Vector3(x,-4+h*.84f,z),new Vector3(s*1.2f,h*.18f,s*.88f),5,PrimitiveType.Cube,new Vector3(0,UnityEngine.Random.Range(0,180),8));
             }
-            for(int i=0;i<25;i++)
+            // All large outfield cover is built by EnemyFronts from shared collider bounds.
+            // Decorative cliff shards sit beyond the playable boundary.
+            for(int i=0;i<30;i++)
             {
-                float x=UnityEngine.Random.Range(-65,65),z=UnityEngine.Random.Range(33,90);
-                if(Mathf.Min(Mathf.Abs(x-13.5f),Mathf.Abs(x+13.5f))<7)continue;
-                if(System.Array.Exists(GameWorld.EnemySpawnPoints,p=>new Vector2(p.x-x,p.z-z).sqrMagnitude<49))continue;
-                Part(world,"Basalt shard",new Vector3(x,-3.4f,z),new Vector3(2,1.8f,2.6f),4,PrimitiveType.Cube,new Vector3(14,UnityEngine.Random.Range(0,180),25));
+                float x=(i%2==0?-1:1)*(GroundSurface.MaxX+4+i%5),z=35+i*3.3f;
+                Part(world,"Boundary basalt shard",new Vector3(x,-3.4f,z),new Vector3(2,1.8f,2.6f),4,PrimitiveType.Cube,new Vector3(14,i*23,25));
             }
             for(int i=0;i<6;i++)
             {

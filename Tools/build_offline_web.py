@@ -20,7 +20,7 @@ import zipfile
 
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = "0.6"
+VERSION = "0.7"
 ASSETS = (
     ("loader", "Web.loader.js", "application/javascript"),
     ("framework", "Web.framework.js.unityweb", "application/javascript"),
@@ -107,7 +107,7 @@ BOOT = r"""
       codeUrl: urls.code,
       // This project has no StreamingAssets; keep the unused base local and self-contained.
       streamingAssetsUrl: 'data:application/octet-stream;base64,',
-      companyName: 'Frontier Workshop', productName: 'Frontier Defense', productVersion: '0.6.0',
+      companyName: 'Frontier Workshop', productName: 'Frontier Defense', productVersion: '0.7.0',
       cacheControl: () => 'no-store',
       devicePixelRatio: Math.min(window.devicePixelRatio || 1, 1.5),
       showBanner: (message, type) => { if (type === 'error') fail(message); else console.warn(message); }
@@ -137,7 +137,7 @@ BOOT = r"""
 """
 
 
-README = """边境防线 v0.6 · 离线网页版
+README = """边境防线 v0.7 · 离线网页版
 
 如何开始
 1. 先解压这个压缩包。
@@ -173,8 +173,8 @@ def sha256(data: bytes) -> str:
 
 def build(source: Path, output: Path, archive: Path, report_path: Path) -> dict:
     template = (source / "index.html").read_text(encoding="utf-8")
-    if "productVersion:'0.6.0'" not in template:
-        raise ValueError("The offline package is configured for the v0.6.0 game build.")
+    if "productVersion:'0.7.0'" not in template:
+        raise ValueError("The offline package is configured for the v0.7.0 game build.")
     streaming = source / "StreamingAssets"
     if streaming.exists() and any(p.is_file() for p in streaming.rglob("*")):
         raise ValueError("StreamingAssets were added; embed them before producing a single-file package.")
@@ -206,7 +206,7 @@ def build(source: Path, output: Path, archive: Path, report_path: Path) -> dict:
     shell = shell.replace("正在连接前哨基地…", "正在读取离线游戏…")
     shell = shell.replace("首次加载需要下载游戏文件，请稍候。<br>电脑浏览器试玩 · 建议使用键盘和鼠标",
                           "游戏已完整保存在此文件中，无需联网。<br>Mac 桌面浏览器 · 使用键盘和鼠标")
-    shell = shell.replace("边境防线 v0.6 · 战车工厂与中央防线", "边境防线 v0.6 · 离线网页版")
+    shell = shell.replace("边境防线 v0.7 · 传送门基地与自动反攻", "边境防线 v0.7 · 离线网页版")
     license_files = sorted(path for path in (source / "Licenses").rglob("*") if path.is_file())
     license_text = "\n\n".join(
         f"===== {path.relative_to(source / 'Licenses')} =====\n\n{path.read_text(encoding='utf-8')}"
@@ -268,7 +268,7 @@ def build(source: Path, output: Path, archive: Path, report_path: Path) -> dict:
         if bundle.read(f"{folder}/边境防线.html") != html_path.read_bytes():
             raise ValueError("Archived HTML differs from the verified standalone file.")
     checks.append("ZIP integrity and contained HTML match the verified standalone file")
-    report = {"version": "0.6.0", "source": str(source), "html": str(html_path),
+    report = {"version": "0.7.0", "source": str(source), "html": str(html_path),
               "archive": str(archive), "htmlBytes": html_path.stat().st_size,
               "archiveBytes": archive.stat().st_size, "htmlSha256": sha256(html_path.read_bytes()),
               "archiveSha256": sha256(archive.read_bytes()), "assets": source_assets,

@@ -1,0 +1,911 @@
+{
+  "at": "2026-09-22T10:06:03.445Z",
+  "sources": {
+    "app.js": "f4375b20c7875c6b058049a9fea541ee8f154e2e6c961e2273a2e768bb9089b9",
+    "core.js": "44443dd38723c2934e581e3d5976fe9c0ad879e98337e647ff85417996b9cb69",
+    "scene.js": "c111c448821d253a2d85992697d6c6452110237ab1ec7eec8598bd2c73af044a",
+    "three.min.js": "d409477142aebf12684b278c536a6db2591edcdff6a66c65c081f797321ae6d0",
+    "menu-scroll.js": "325e59f47f1e9485900a865b774c4279f59eda967c01882d66e1a94fbc1ba532"
+  },
+  "method": "Dispatch physical pointer events through actual app.js, run actual core tick, use actual scene View camera and bundled Three.js Vector3.project/matrices. Only WebGLRenderer is mocked. Core positions explicitly map to render (x,y,-z). Screen displacement is relative to the prior camera, independent of implementation yaw sign. No browser or real-device claims.",
+  "results": [
+    {
+      "test": "movement",
+      "mode": "cw",
+      "yaw": 0,
+      "direction": -1,
+      "screenDx": -0.03065225836716233,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "cw",
+      "yaw": 0,
+      "direction": -1,
+      "screenDx": -0.13760458395815586,
+      "newYaw": -0.192,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "cw",
+      "yaw": 0,
+      "direction": 1,
+      "screenDx": 0.030652258367162358,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "cw",
+      "yaw": 0,
+      "direction": 1,
+      "screenDx": 0.13760458395815586,
+      "newYaw": 0.192,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "cw",
+      "yaw": 1.5707963267948966,
+      "direction": -1,
+      "screenDx": -0.030652258367162302,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "cw",
+      "yaw": 1.5707963267948966,
+      "direction": -1,
+      "screenDx": -0.1376045839581559,
+      "newYaw": 1.3787963267948966,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "cw",
+      "yaw": 1.5707963267948966,
+      "direction": 1,
+      "screenDx": 0.030652258367162274,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "cw",
+      "yaw": 1.5707963267948966,
+      "direction": 1,
+      "screenDx": 0.13760458395815592,
+      "newYaw": 1.7627963267948965,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "cw",
+      "yaw": 3.141592653589793,
+      "direction": -1,
+      "screenDx": -0.03065225836716237,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "cw",
+      "yaw": 3.141592653589793,
+      "direction": -1,
+      "screenDx": -0.13760458395815608,
+      "newYaw": 2.949592653589793,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "cw",
+      "yaw": 3.141592653589793,
+      "direction": 1,
+      "screenDx": 0.030652258367162358,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "cw",
+      "yaw": 3.141592653589793,
+      "direction": 1,
+      "screenDx": 0.13760458395815608,
+      "newYaw": 3.3335926535897933,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "cw",
+      "yaw": -1.5707963267948966,
+      "direction": -1,
+      "screenDx": -0.030652258367162302,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "cw",
+      "yaw": -1.5707963267948966,
+      "direction": -1,
+      "screenDx": -0.13760458395815592,
+      "newYaw": -1.7627963267948965,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "cw",
+      "yaw": -1.5707963267948966,
+      "direction": 1,
+      "screenDx": 0.03065225836716229,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "cw",
+      "yaw": -1.5707963267948966,
+      "direction": 1,
+      "screenDx": 0.1376045839581559,
+      "newYaw": -1.3787963267948966,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "cw",
+      "yaw": 0.63,
+      "direction": -1,
+      "screenDx": -0.03065225836716229,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "cw",
+      "yaw": 0.63,
+      "direction": -1,
+      "screenDx": -0.1376045839581556,
+      "newYaw": 0.438,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "cw",
+      "yaw": 0.63,
+      "direction": 1,
+      "screenDx": 0.0306522583671624,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "cw",
+      "yaw": 0.63,
+      "direction": 1,
+      "screenDx": 0.13760458395815603,
+      "newYaw": 0.8220000000000001,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "cw",
+      "yaw": -2.17,
+      "direction": -1,
+      "screenDx": -0.03065225836716229,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "cw",
+      "yaw": -2.17,
+      "direction": -1,
+      "screenDx": -0.13760458395815583,
+      "newYaw": -2.362,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "cw",
+      "yaw": -2.17,
+      "direction": 1,
+      "screenDx": 0.030652258367162247,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "cw",
+      "yaw": -2.17,
+      "direction": 1,
+      "screenDx": 0.1376045839581559,
+      "newYaw": -1.978,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "portrait",
+      "yaw": 0,
+      "direction": -1,
+      "screenDx": -0.14355494487988796,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "portrait",
+      "yaw": 0,
+      "direction": -1,
+      "screenDx": -0.644449039568816,
+      "newYaw": -0.192,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "portrait",
+      "yaw": 0,
+      "direction": 1,
+      "screenDx": 0.14355494487988796,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "portrait",
+      "yaw": 0,
+      "direction": 1,
+      "screenDx": 0.644449039568816,
+      "newYaw": 0.192,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "portrait",
+      "yaw": 1.5707963267948966,
+      "direction": -1,
+      "screenDx": -0.14355494487988762,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "portrait",
+      "yaw": 1.5707963267948966,
+      "direction": -1,
+      "screenDx": -0.6444490395688162,
+      "newYaw": 1.3787963267948966,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "portrait",
+      "yaw": 1.5707963267948966,
+      "direction": 1,
+      "screenDx": 0.14355494487988768,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "portrait",
+      "yaw": 1.5707963267948966,
+      "direction": 1,
+      "screenDx": 0.6444490395688163,
+      "newYaw": 1.7627963267948965,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "portrait",
+      "yaw": 3.141592653589793,
+      "direction": -1,
+      "screenDx": -0.14355494487988796,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "portrait",
+      "yaw": 3.141592653589793,
+      "direction": -1,
+      "screenDx": -0.644449039568817,
+      "newYaw": 2.949592653589793,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "portrait",
+      "yaw": 3.141592653589793,
+      "direction": 1,
+      "screenDx": 0.14355494487988807,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "portrait",
+      "yaw": 3.141592653589793,
+      "direction": 1,
+      "screenDx": 0.644449039568817,
+      "newYaw": 3.3335926535897933,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "portrait",
+      "yaw": -1.5707963267948966,
+      "direction": -1,
+      "screenDx": -0.14355494487988774,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "portrait",
+      "yaw": -1.5707963267948966,
+      "direction": -1,
+      "screenDx": -0.6444490395688163,
+      "newYaw": -1.7627963267948965,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "portrait",
+      "yaw": -1.5707963267948966,
+      "direction": 1,
+      "screenDx": 0.1435549448798875,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "portrait",
+      "yaw": -1.5707963267948966,
+      "direction": 1,
+      "screenDx": 0.6444490395688162,
+      "newYaw": -1.3787963267948966,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "portrait",
+      "yaw": 0.63,
+      "direction": -1,
+      "screenDx": -0.14355494487988762,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "portrait",
+      "yaw": 0.63,
+      "direction": -1,
+      "screenDx": -0.6444490395688148,
+      "newYaw": 0.438,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "portrait",
+      "yaw": 0.63,
+      "direction": 1,
+      "screenDx": 0.14355494487988824,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "portrait",
+      "yaw": 0.63,
+      "direction": 1,
+      "screenDx": 0.6444490395688167,
+      "newYaw": 0.8220000000000001,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "portrait",
+      "yaw": -2.17,
+      "direction": -1,
+      "screenDx": -0.14355494487988762,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "portrait",
+      "yaw": -2.17,
+      "direction": -1,
+      "screenDx": -0.6444490395688159,
+      "newYaw": -2.362,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "portrait",
+      "yaw": -2.17,
+      "direction": 1,
+      "screenDx": 0.14355494487988757,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "portrait",
+      "yaw": -2.17,
+      "direction": 1,
+      "screenDx": 0.6444490395688162,
+      "newYaw": -1.978,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "ccw",
+      "yaw": 0,
+      "direction": -1,
+      "screenDx": -0.14355494487988796,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "ccw",
+      "yaw": 0,
+      "direction": -1,
+      "screenDx": -0.644449039568816,
+      "newYaw": -0.192,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "ccw",
+      "yaw": 0,
+      "direction": 1,
+      "screenDx": 0.14355494487988796,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "ccw",
+      "yaw": 0,
+      "direction": 1,
+      "screenDx": 0.644449039568816,
+      "newYaw": 0.192,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "ccw",
+      "yaw": 1.5707963267948966,
+      "direction": -1,
+      "screenDx": -0.14355494487988762,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "ccw",
+      "yaw": 1.5707963267948966,
+      "direction": -1,
+      "screenDx": -0.6444490395688162,
+      "newYaw": 1.3787963267948966,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "ccw",
+      "yaw": 1.5707963267948966,
+      "direction": 1,
+      "screenDx": 0.14355494487988768,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "ccw",
+      "yaw": 1.5707963267948966,
+      "direction": 1,
+      "screenDx": 0.6444490395688163,
+      "newYaw": 1.7627963267948965,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "ccw",
+      "yaw": 3.141592653589793,
+      "direction": -1,
+      "screenDx": -0.14355494487988796,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "ccw",
+      "yaw": 3.141592653589793,
+      "direction": -1,
+      "screenDx": -0.644449039568817,
+      "newYaw": 2.949592653589793,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "ccw",
+      "yaw": 3.141592653589793,
+      "direction": 1,
+      "screenDx": 0.14355494487988807,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "ccw",
+      "yaw": 3.141592653589793,
+      "direction": 1,
+      "screenDx": 0.644449039568817,
+      "newYaw": 3.3335926535897933,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "ccw",
+      "yaw": -1.5707963267948966,
+      "direction": -1,
+      "screenDx": -0.14355494487988774,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "ccw",
+      "yaw": -1.5707963267948966,
+      "direction": -1,
+      "screenDx": -0.6444490395688163,
+      "newYaw": -1.7627963267948965,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "ccw",
+      "yaw": -1.5707963267948966,
+      "direction": 1,
+      "screenDx": 0.1435549448798875,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "ccw",
+      "yaw": -1.5707963267948966,
+      "direction": 1,
+      "screenDx": 0.6444490395688162,
+      "newYaw": -1.3787963267948966,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "ccw",
+      "yaw": 0.63,
+      "direction": -1,
+      "screenDx": -0.14355494487988762,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "ccw",
+      "yaw": 0.63,
+      "direction": -1,
+      "screenDx": -0.6444490395688148,
+      "newYaw": 0.438,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "ccw",
+      "yaw": 0.63,
+      "direction": 1,
+      "screenDx": 0.14355494487988824,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "ccw",
+      "yaw": 0.63,
+      "direction": 1,
+      "screenDx": 0.6444490395688167,
+      "newYaw": 0.8220000000000001,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "ccw",
+      "yaw": -2.17,
+      "direction": -1,
+      "screenDx": -0.14355494487988762,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "ccw",
+      "yaw": -2.17,
+      "direction": -1,
+      "screenDx": -0.6444490395688159,
+      "newYaw": -2.362,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "ccw",
+      "yaw": -2.17,
+      "direction": 1,
+      "screenDx": 0.14355494487988757,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "ccw",
+      "yaw": -2.17,
+      "direction": 1,
+      "screenDx": 0.6444490395688162,
+      "newYaw": -1.978,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "landscape",
+      "yaw": 0,
+      "direction": -1,
+      "screenDx": -0.03065225836716233,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "landscape",
+      "yaw": 0,
+      "direction": -1,
+      "screenDx": -0.13760458395815586,
+      "newYaw": -0.192,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "landscape",
+      "yaw": 0,
+      "direction": 1,
+      "screenDx": 0.030652258367162358,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "landscape",
+      "yaw": 0,
+      "direction": 1,
+      "screenDx": 0.13760458395815586,
+      "newYaw": 0.192,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "landscape",
+      "yaw": 1.5707963267948966,
+      "direction": -1,
+      "screenDx": -0.030652258367162302,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "landscape",
+      "yaw": 1.5707963267948966,
+      "direction": -1,
+      "screenDx": -0.1376045839581559,
+      "newYaw": 1.3787963267948966,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "landscape",
+      "yaw": 1.5707963267948966,
+      "direction": 1,
+      "screenDx": 0.030652258367162274,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "landscape",
+      "yaw": 1.5707963267948966,
+      "direction": 1,
+      "screenDx": 0.13760458395815592,
+      "newYaw": 1.7627963267948965,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "landscape",
+      "yaw": 3.141592653589793,
+      "direction": -1,
+      "screenDx": -0.03065225836716237,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "landscape",
+      "yaw": 3.141592653589793,
+      "direction": -1,
+      "screenDx": -0.13760458395815608,
+      "newYaw": 2.949592653589793,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "landscape",
+      "yaw": 3.141592653589793,
+      "direction": 1,
+      "screenDx": 0.030652258367162358,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "landscape",
+      "yaw": 3.141592653589793,
+      "direction": 1,
+      "screenDx": 0.13760458395815608,
+      "newYaw": 3.3335926535897933,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "landscape",
+      "yaw": -1.5707963267948966,
+      "direction": -1,
+      "screenDx": -0.030652258367162302,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "landscape",
+      "yaw": -1.5707963267948966,
+      "direction": -1,
+      "screenDx": -0.13760458395815592,
+      "newYaw": -1.7627963267948965,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "landscape",
+      "yaw": -1.5707963267948966,
+      "direction": 1,
+      "screenDx": 0.03065225836716229,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "landscape",
+      "yaw": -1.5707963267948966,
+      "direction": 1,
+      "screenDx": 0.1376045839581559,
+      "newYaw": -1.3787963267948966,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "landscape",
+      "yaw": 0.63,
+      "direction": -1,
+      "screenDx": -0.03065225836716229,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "landscape",
+      "yaw": 0.63,
+      "direction": -1,
+      "screenDx": -0.1376045839581556,
+      "newYaw": 0.438,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "landscape",
+      "yaw": 0.63,
+      "direction": 1,
+      "screenDx": 0.0306522583671624,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "landscape",
+      "yaw": 0.63,
+      "direction": 1,
+      "screenDx": 0.13760458395815603,
+      "newYaw": 0.8220000000000001,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "landscape",
+      "yaw": -2.17,
+      "direction": -1,
+      "screenDx": -0.03065225836716229,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "landscape",
+      "yaw": -2.17,
+      "direction": -1,
+      "screenDx": -0.13760458395815583,
+      "newYaw": -2.362,
+      "pass": true
+    },
+    {
+      "test": "movement",
+      "mode": "landscape",
+      "yaw": -2.17,
+      "direction": 1,
+      "screenDx": 0.030652258367162247,
+      "pass": true
+    },
+    {
+      "test": "look",
+      "mode": "landscape",
+      "yaw": -2.17,
+      "direction": 1,
+      "screenDx": 0.1376045839581559,
+      "newYaw": -1.978,
+      "pass": true
+    },
+    {
+      "test": "keyboard-look",
+      "code": "ArrowLeft",
+      "screenDx": -0.09217560861821687,
+      "pass": true
+    },
+    {
+      "test": "keyboard-look",
+      "code": "ArrowRight",
+      "screenDx": 0.09217560861821686,
+      "pass": true
+    },
+    {
+      "test": "desktop-drag",
+      "mode": "ccw",
+      "direction": -1,
+      "screenDx": -0.23058343190250535,
+      "pass": true
+    },
+    {
+      "test": "desktop-drag",
+      "mode": "ccw",
+      "direction": 1,
+      "screenDx": 0.23058343190250535,
+      "pass": true
+    },
+    {
+      "test": "vertical-look",
+      "mode": "cw",
+      "direction": -1,
+      "screenDy": 0.19349194233538045,
+      "pass": true
+    },
+    {
+      "test": "vertical-look",
+      "mode": "cw",
+      "direction": 1,
+      "screenDy": -0.19349194233538058,
+      "pass": true
+    },
+    {
+      "test": "vertical-look",
+      "mode": "portrait",
+      "direction": -1,
+      "screenDy": 0.19349194233538045,
+      "pass": true
+    },
+    {
+      "test": "vertical-look",
+      "mode": "portrait",
+      "direction": 1,
+      "screenDy": -0.19349194233538058,
+      "pass": true
+    },
+    {
+      "test": "vertical-look",
+      "mode": "ccw",
+      "direction": -1,
+      "screenDy": 0.19349194233538045,
+      "pass": true
+    },
+    {
+      "test": "vertical-look",
+      "mode": "ccw",
+      "direction": 1,
+      "screenDy": -0.19349194233538058,
+      "pass": true
+    },
+    {
+      "test": "vertical-look",
+      "mode": "landscape",
+      "direction": -1,
+      "screenDy": 0.19349194233538045,
+      "pass": true
+    },
+    {
+      "test": "vertical-look",
+      "mode": "landscape",
+      "direction": 1,
+      "screenDy": -0.19349194233538058,
+      "pass": true
+    }
+  ]
+}

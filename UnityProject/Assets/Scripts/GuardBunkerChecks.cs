@@ -10,23 +10,31 @@ namespace Frontier
         {
             check(w.Fort.GuardInside==0&&w.Fort.Occupants==0&&BunkerDirector.Capacity==5,"A fresh mission has five seats per bunker and no automatic occupants");
             w.BeginCampaign();w.Phase=Phase.Intermission;w.IntermissionLeft=1000;w.Credits=10000;
-            CheckCommand.Enter(w);bool built=w.Construction.Build(0)&&w.Construction.Build(1);CheckCommand.Leave(w);
+            CheckCommand.Enter(w);bool initialWest=w.Construction.Sites[0].State==SiteState.Ready&&w.Construction.Sites[0].Structure!=null&&w.Construction.Sites[0].Structure.Alive;
+            bool built=w.Construction.Build(1);CheckCommand.Leave(w);
             for(int i=0;i<445;i++){w.SimTime+=.05f;w.Construction.Tick(.05f);}
-            check(built&&w.Construction.ReserveOperational&&w.Construction.Sites[0].State==SiteState.Ready,"Real construction creates both a western bunker and enough ordinary guard slots for occupancy checks");
+            check(initialWest&&built&&w.Construction.ReserveOperational&&w.Construction.Sites[0].State==SiteState.Ready,"The initial western bunker remains ready while real reserve construction creates enough independent guard positions");
             FillPosts(w);w.Phase=Phase.Assault;
             var fort=w.Fort;Health east=w.Bunker,west=w.Construction.Sites[0].Structure;
             var eastGuards=SelectGuards(w,1,5);var westGuards=SelectGuards(w,0,5);
             check(eastGuards.Count==5&&westGuards.Count==5,"Both lanes have five real registered ordinary guards available");
             if(eastGuards.Count<5||westGuards.Count<5)return;
             CheckSearchBounds(w,eastGuards[0],westGuards[0],east,check);
+            var distanceToDoor=new Dictionary<Health,float>();var travelledBefore=new Dictionary<Health,float>();
+            foreach(var guard in eastGuards)
+            {
+                distanceToDoor[guard]=Vector3.Distance(guard.transform.position,fort.EntranceFor(east));
+                travelledBefore[guard]=guard.Brain.Travelled;
+            }
             bool doors=true,clear=true;int arrivals=0;
             StepGuards(w,eastGuards,30,ref doors,ref clear,ref arrivals);
             Debug.Log("GUARD_INITIAL arrivals="+arrivals+" doors="+doors+" clear="+clear+" inside="+fort.GuardInsideFor(east)+" occupants="+fort.OccupantsFor(east));
             LogGuards(w,eastGuards,"initial");
             check(arrivals==5&&doors&&clear&&fort.GuardInsideFor(east)==5&&fort.OccupantsFor(east)==5,
                 "Five same-lane guards physically navigate outside walls to the rear door before occupying its five seats");
-            bool walked=true;foreach(var guard in eastGuards)walked&=guard.Brain.Travelled>1&&fort.GuardBunker(guard)==east;
-            check(walked,"Every admitted guard accumulates actual walking and remains bound to the nearby east bunker");
+            bool walked=true;foreach(var guard in eastGuards)
+                walked&=guard.Brain.Travelled-travelledBefore[guard]>=Mathf.Max(0,distanceToDoor[guard]-.86f)&&fort.GuardBunker(guard)==east;
+            check(walked,"Every admitted guard walks the actual distance from its starting post to the door's admission radius and remains bound to the east bunker");
             CheckGuardWeapon(w,eastGuards[0],east,check);
 
             FortificationChecks.PlacePlayer(w,fort.EntranceFor(east));
@@ -128,7 +136,8 @@ namespace Frontier
         }
         static void CheckGuardWeapon(GameWorld w,Health guard,Health bunker,Action<bool,string> check)
         {
-            Health foe=w.SpawnEnemy(Role.Spitter,1,bunker.transform.position+Vector3.forward*14);foe.Current=foe.Maximum=5000;foe.WeakRadius=0;
+            Vector3 gate=new Vector3(Mathf.Sign(bunker.transform.position.x)*13.5f,0,29);gate.y=GroundSurface.Height(gate.x,gate.z);
+            Health foe=w.SpawnEnemy(Role.Spitter,1,gate);foe.Current=foe.Maximum=5000;foe.WeakRadius=0;
             float hp=guard.Current;guard.Damage(100,foe);guard.Damage(100,null);
             bool hidden=true;foreach(var r in guard.GetComponentsInChildren<Renderer>())hidden&=!r.enabled;
             foreach(var c in guard.GetComponentsInChildren<Collider>())hidden&=!c.enabled;
@@ -137,7 +146,7 @@ namespace Frontier
             Physics.SyncTransforms();hp=foe.Current;w.Fort.TickGuard(guard.Brain,.8f);
             check(Mathf.Abs(hp-foe.Current-(10+3*w.DefenseLevel))<.01f,"A stationed guard fires an actual rifle round for its ordinary-guard damage from its own aperture");
             Vector3 muzzle=w.Fort.GuardMuzzle(guard);var wall=new GameObject("Guard aperture test wall");wall.layer=Combat.WorldLayer;
-            wall.transform.position=new Vector3(bunker.transform.position.x,2,muzzle.z+4);wall.AddComponent<BoxCollider>().size=new Vector3(7,4,.8f);
+            wall.transform.position=Vector3.Lerp(muzzle,foe.Aim,.5f);wall.AddComponent<BoxCollider>().size=new Vector3(7,5,.8f);
             Physics.SyncTransforms();hp=foe.Current;w.Fort.TickGuard(guard.Brain,.8f);
             check(foe.Current==hp,"A solid wall in front of a guard aperture blocks its real guard rifle damage");
             wall.SetActive(false);UnityEngine.Object.Destroy(wall);foe.transform.position=bunker.transform.position+Vector3.back*8;Physics.SyncTransforms();
@@ -177,7 +186,11 @@ namespace Frontier
                     guard.Brain.Tick(.05f);
                     if(!wasInside&&w.Fort.IsGuardInside(guard))
                     {arrivals++;doors&=Vector3.Distance(before,w.Fort.EntranceFor(w.Fort.GuardBunker(guard)))<=.86f;}
-                    if(!w.Fort.IsGuardInside(guard))clear&=w.Squad.Navigation.Fits(guard.transform.position,.42f);
+                    if(!w.Fort.IsGuardInside(guard))
+                    {
+                        clear&=w.Squad.Navigation.Fits(guard.transform.position,.42f);
+                        if(!wasInside)clear&=Vector3.Distance(before,guard.transform.position)<=GuardNavigation.Speed*.05f+.003f;
+                    }
                     foreach(var bunker in w.Bunkers)clear&=w.Fort.OccupantsFor(bunker)<=BunkerDirector.Capacity;
                 }
                 w.Effects.Tick(.05f);

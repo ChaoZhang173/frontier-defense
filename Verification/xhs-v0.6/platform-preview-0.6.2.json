@@ -1,0 +1,16 @@
+{
+  "version": "0.6.2",
+  "checked_at": "2026-09-16T11:27:03.920068+00:00",
+  "status": "preview deployed successfully; not published",
+  "zip": "/Users/czhang/Documents/Games/FrontierDefense/Releases/FrontierDefense-0.6.2-XHS.zip",
+  "sha256": "bd4ee057678034c141538499d8130013ea5d747b8627eb318f84289987181a38",
+  "preview_url": "https://creator.xiaohongshu.com/miniapp-simulator/18d5d427-cc53-4566-976c-a6aff9e2f43f/index.html",
+  "ui_evidence": [
+    "FrontierDefense-0.6.2-XHS.zip",
+    "部署成功",
+    "version input 0.6.2",
+    "preview start panel v0.6.2",
+    "new QR visible"
+  ],
+  "scope": "Native desktop browser accessibility and screenshot verified upload, version, loaded start panel and QR. This is not an iPhone touch test. Publish button and agreement untouched."
+}

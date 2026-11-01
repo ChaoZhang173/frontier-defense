@@ -1,0 +1,126 @@
+{
+  "checkedAt": "2026-09-16T11:24:51.754Z",
+  "baseline": true,
+  "sourcePath": "/Users/czhang/Documents/Games/FrontierDefense/Verification/xhs-v0.6/menu-scroll-v0.6.1-snapshot.js",
+  "sha256": "e03e8ba9b4ec1e945fd199a2f9c9846f752c3d080d0b7d56baf7313360eb7eb3",
+  "sourceUnchanged": true,
+  "testType": "Actual source evaluated with deferred implicit/pending pointer capture and descendant event propagation; full continuous event sequences",
+  "specification": "https://www.w3.org/TR/pointerevents3/#process-pending-pointer-capture",
+  "limitations": [
+    "Not physical iPhone event telemetry",
+    "DOM geometry and native scrolling are mocked; capture state/order and bubbled target/currentTarget follow W3C"
+  ],
+  "summary": {
+    "pass": 3,
+    "fail": 16,
+    "total": 19
+  },
+  "cases": [
+    {
+      "name": "90deg text: 24 continuous moves preserve 240px travel",
+      "status": "FAIL",
+      "message": "scroll position: expected 740, got 510"
+    },
+    {
+      "name": "90deg button: 24 continuous moves preserve 240px travel",
+      "status": "FAIL",
+      "message": "scroll position: expected 740, got 510"
+    },
+    {
+      "name": "90deg card: 24 continuous moves preserve 240px travel",
+      "status": "FAIL",
+      "message": "scroll position: expected 740, got 510"
+    },
+    {
+      "name": "90deg blank: 24 continuous moves preserve 240px travel",
+      "status": "PASS",
+      "details": {
+        "finalScrollTop": 740,
+        "lostTargets": [
+          "SECTION"
+        ],
+        "moveCount": 24
+      }
+    },
+    {
+      "name": "-90deg text: 24 continuous moves preserve 240px travel",
+      "status": "FAIL",
+      "message": "scroll position: expected 740, got 510"
+    },
+    {
+      "name": "-90deg button: 24 continuous moves preserve 240px travel",
+      "status": "FAIL",
+      "message": "scroll position: expected 740, got 510"
+    },
+    {
+      "name": "-90deg card: 24 continuous moves preserve 240px travel",
+      "status": "FAIL",
+      "message": "scroll position: expected 740, got 510"
+    },
+    {
+      "name": "-90deg blank: 24 continuous moves preserve 240px travel",
+      "status": "PASS",
+      "details": {
+        "finalScrollTop": 740,
+        "lostTargets": [
+          "SECTION"
+        ],
+        "moveCount": 24
+      }
+    },
+    {
+      "name": "90deg child capture transfer does not discard direction reversal",
+      "status": "FAIL",
+      "message": "scroll position: expected 620, got 510"
+    },
+    {
+      "name": "-90deg child capture transfer does not discard direction reversal",
+      "status": "FAIL",
+      "message": "scroll position: expected 620, got 510"
+    },
+    {
+      "name": "actual-panel-capture-loss terminates active owner while preserving next gesture",
+      "status": "FAIL",
+      "message": "scroll position: expected 540, got 520"
+    },
+    {
+      "name": "pointercancel terminates active owner while preserving next gesture",
+      "status": "FAIL",
+      "message": "scroll position: expected 540, got 520"
+    },
+    {
+      "name": "stop terminates active owner while preserving next gesture",
+      "status": "FAIL",
+      "message": "scroll position: expected 540, got 520"
+    },
+    {
+      "name": "Child capture transfer preserves drag click suppression and keyboard click",
+      "status": "FAIL",
+      "message": "scroll position: expected 620, got 510"
+    },
+    {
+      "name": "Secondary pointer cannot disrupt captured owner across continuous moves",
+      "status": "FAIL",
+      "message": "scroll position: expected 580, got 540"
+    },
+    {
+      "name": "Native portrait does not capture or prevent any continuous move",
+      "status": "PASS"
+    },
+    {
+      "name": "bottom edge absorbs repeated drag without debt and reverses immediately",
+      "status": "FAIL",
+      "message": "scroll position: expected 2590, got 2600"
+    },
+    {
+      "name": "top edge absorbs repeated drag without debt and reverses immediately",
+      "status": "FAIL",
+      "message": "scroll position: expected 10, got 0"
+    },
+    {
+      "name": "Inertia stops at boundary without extra scheduled frames",
+      "status": "FAIL",
+      "message": "scroll position: expected 2600, got 2586"
+    }
+  ]
+}

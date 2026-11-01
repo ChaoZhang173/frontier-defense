@@ -50,7 +50,7 @@ namespace Frontier
         internal AssaultGroup(GameWorld owner,AssaultBatch batch)
         {
             world=owner;Batch=batch;State=AssaultGroupState.Forming;
-            Anchor=new Vector3(batch.Lane==0?-13.5f:13.5f,-4,47.5f);
+            Anchor=GameWorld.EnemySpawnPoints[batch.SourceSite]+Vector3.back*14;
         }
 
         internal void Add(Health health)
@@ -61,7 +61,7 @@ namespace Frontier
                 int i=heavyCount++;
                 offset=new Vector3((i%3-1)*2.4f,0,-1.4f+(i/3)*2.6f);
             }
-            else if(health.Role==Role.Spitter)
+            else if(health.Role==Role.Spitter||health.Role==Role.Siege)
             {
                 int i=spitterCount++;
                 offset=new Vector3((i%3-1)*2.2f,0,5.2f+(i/3)*1.6f);
@@ -157,6 +157,8 @@ namespace Frontier
         public IReadOnlyList<AssaultBatch> Schedule => schedule;
         public IReadOnlyList<AssaultGroup> Groups => groups;
         public float Elapsed { get; private set; }
+        public int Suppressed {get;private set;}
+        public int TotalSuppressed {get;private set;}
         public int Spawned { get; private set; }
         public int Remaining { get; private set; }
         public int RemainingToSpawn => Remaining;
@@ -228,7 +230,7 @@ namespace Frontier
         public void StartWave(int wave)
         {
             schedule.Clear();groups.Clear();nextBatch=memberIndex=Spawned=0;memberLeft=Elapsed=0;deploying=null;
-            Remaining=WavePlan.Counts[wave-1];
+            Suppressed=0;Remaining=WavePlan.Counts[wave-1];
             var lanes=new[]{new List<Role>(),new List<Role>()};
             foreach(var order in WavePlan.Create(wave))lanes[order.Lane].Add(order.Role);
             int groupsPerLane=wave==2?5:4;
@@ -251,15 +253,17 @@ namespace Frontier
         {
             if(dt<=0||!world.Active||world.Phase!=Phase.Assault)return;
             Elapsed+=dt;
+            while(deploying==null&&nextBatch<schedule.Count&&!world.EnemyDefenses.IsPortalAlive(schedule[nextBatch].SourceSite)){int skipped=schedule[nextBatch++].Count;Remaining-=skipped;Suppressed+=skipped;TotalSuppressed+=skipped;}
             foreach(var group in groups)group.Tick(dt);
             if(deploying==null&&nextBatch<schedule.Count&&Elapsed>=schedule[nextBatch].At)
             {
                 deploying=new AssaultGroup(world,schedule[nextBatch++]);groups.Add(deploying);memberIndex=0;memberLeft=0;
             }
             if(deploying==null)return;
+            if(!world.EnemyDefenses.IsPortalAlive(deploying.Batch.SourceSite)){int skipped=deploying.Batch.Count-memberIndex;Remaining-=skipped;Suppressed+=skipped;TotalSuppressed+=skipped;deploying.SpawnComplete=true;deploying=null;return;}
             memberLeft-=dt;
             // Capacity pauses the queue; its next role and source remain unchanged until a slot opens.
-            while(memberLeft<=0&&world.EnemiesAlive<GameWorld.EnemyLimit)
+            while(memberLeft<=0&&world.EnemyMobileCount<GameWorld.EnemyLimit)
             {
                 var batch=deploying.Batch;
                 Health enemy=world.SpawnEnemy(batch.Roles[memberIndex],batch.Lane,sourceSite:batch.SourceSite);
@@ -271,10 +275,10 @@ namespace Frontier
                 }
             }
             // Do not accumulate a huge burst debt while the battlefield is full.
-            if(world.EnemiesAlive>=GameWorld.EnemyLimit)memberLeft=Mathf.Max(memberLeft,0);
+            if(world.EnemyMobileCount>=GameWorld.EnemyLimit)memberLeft=Mathf.Max(memberLeft,0);
         }
 
-        static int Rank(Role role)=>role==Role.Colossus?0:role==Role.Spitter?1:2;
+        static int Rank(Role role)=>role==Role.Colossus?0:role==Role.Siege?1:role==Role.Spitter?2:3;
         static void CountRoles(AssaultBatch batch,int start,ref int armor,ref int spitters)
         {
             for(int i=start;i<batch.Count;i++)

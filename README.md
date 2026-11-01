@@ -1,30 +1,43 @@
-# 边境防线 · Frontier Defense v0.6
+# 边境防线 · Frontier Defense v0.7
 
-原创3D第三人称基地防守试玩。v0.6加入自动生产的一辆坦克、中央矮墙阵地和六座敌巢防御塔；五波共460名进攻敌人。使用Unity 6000.3.24f1 / URP17.3，电脑键鼠操作。
+原创 3D 第三人称基地防守试玩。v0.7 扩大战场，加入六座传送门基地、五种移动敌人、独立集结出征的 NPC 突击队，以及维修工和建筑耐久上限加固。使用 Unity 6000.3.24f1 / URP 17.3，电脑键鼠操作。
 
-v0.6已完成：17个模式、583项Mac实跑检查全部通过，原公开站点已更新。详细数据和平台范围见[测试报告](Docs/测试报告.md)，发布记录见[开发进度](Docs/开发进度.md)。
+**最近一次 Unity 游戏更新（2026-09-22）：Mac 原生版与桌面网页版 v0.7。** Web 托管包与 OfflineWeb 分享包来自同一份 Unity Web 构建。小红书兼容版使用独立的 HTML / JavaScript 实现；各平台版本和验证程度不同，见下表。Sites 公开站点仍为旧版；Unity 手机适配和空军系统尚未实现。
 
-**当前维护范围（2026-09-16）：Mac 原生版、网页分享版和 Sites 在线版。** 优先完成游戏内容；Windows 与手机版本暂缓开发，已有 Windows 包只作为历史留档。三个出口共用同一份游戏代码，网页分享包与 Sites 使用同一份 Web 构建。
+## GitHub 下载与平台版本
 
-## 开始试玩（v0.6）
+[多平台发行包（2026-11-01 归档）](https://github.com/ChaoZhang173/frontier-defense/releases/tag/snapshot-2026-11-01) 提供以下现有版本。此次上传保留源码、开发历史、设计与测试记录，没有重新构建 Unity 或改变游戏玩法。
 
-- **Sites 在线版：** [在线试玩](https://frontier-defense-outpost-07.fumeshroom.chatgpt.site)。继续维护原站点；中国大陆部分网络无法打开。
-- **Mac：** 解压 `Releases/FrontierDefense-0.6-Mac.zip`，打开其中的 `Frontier Defense.app`。
-- **网页分享版：** 解压 `Releases/FrontierDefense-0.6-OfflineWeb.zip`，在 Mac 桌面浏览器中打开 `边境防线.html`。游戏文件与字体均已内嵌，不需要账号或本地服务器；用户已确认能直接打开并操作。
-- `Releases/FrontierDefense-0.6-Web.zip` 可用于其他静态 HTTP(S) 托管，不能双击 index.html 直接运行。
+| 平台 | 版本与下载 | 源码位置 | 状态与用法 |
+| --- | --- | --- | --- |
+| macOS（Apple silicon / Intel） | [v0.7 Mac](https://github.com/ChaoZhang173/frontier-defense/releases/download/snapshot-2026-11-01/FrontierDefense-0.7-Mac.zip) | `UnityProject/` | 解压运行 `.app`；已有 Mac 运行和诊断记录 |
+| 桌面网页托管 | [v0.7 Web](https://github.com/ChaoZhang173/frontier-defense/releases/download/snapshot-2026-11-01/FrontierDefense-0.7-Web.zip) | `UnityProject/` | 将完整目录放在静态 HTTP(S) 服务中 |
+| 桌面离线网页 | [v0.7 OfflineWeb](https://github.com/ChaoZhang173/frontier-defense/releases/download/snapshot-2026-11-01/FrontierDefense-0.7-OfflineWeb.zip) | `UnityProject/`、`Tools/build_offline_web.py` | 解压后打开 `边境防线.html`；已有离线 Chrome 启动记录 |
+| Windows x64 | [v0.6 Windows](https://github.com/ChaoZhang173/frontier-defense/releases/download/snapshot-2026-11-01/FrontierDefense-0.6-Windows.zip) | 历史提交 `5268fa6` 中的 `UnityProject/` | 旧版构建，完整解压后运行 `.exe`；未在 Windows 真机验证 |
+| 小红书兼容版 | [v0.6.4 XHS](https://github.com/ChaoZhang173/frontier-defense/releases/download/snapshot-2026-11-01/FrontierDefense-0.6.4-XHS.zip) | `XhsMiniTool/` | 独立 HTML / JavaScript 版本，支持触屏；目标手机验证尚未确认 |
+| 小红书实验原型 | [v0.7.0 XHS 原型包](https://github.com/ChaoZhang173/frontier-defense/releases/download/snapshot-2026-11-01/FrontierDefense-0.7.0-XHS-prototype.zip) | `Verification/xhs-v0.7/prototype/` | 仅供历史研究；旧包与目录中的 `core.js` 存在差异，详见[原型归档说明](Verification/xhs-v0.7/README.md) |
 
-### 网页分享包
+GitHub 自动生成的 “Source code” 压缩包只包含源码；试玩请下载上表中的平台 ZIP。完整包清单与 SHA-256 见 [发行记录](ReleaseAssets/github-release-2026-11-01.json) 和发行页的 `SHA256SUMS.txt`。所有包都保留第三方许可。本次 GitHub 上传不代表小红书审核、手机真机验收或 Sites 站点更新。
 
-将整个 OfflineWeb 压缩包发给朋友，保留其中的说明与 Licenses。朋友先保存并解压，再用桌面浏览器打开 HTML，聊天软件的文件预览不能代替运行游戏。分享包约 19.6 MiB，解压后的单 HTML 约 64.4 MiB。
+源代码目录：`UnityProject/` 为 Unity 工程，`XhsMiniTool/dist/` 为兼容版可编辑源文件，`Tools/` 为构建与打包工具，`Docs/` 与 `Verification/` 保存设计及历史验证证据。生成目录、缓存、日志与 ZIP 不进入 Git 历史。
 
-本包保持 v0.6 游戏资源字节不变，仅将加载方式改为读取内嵌资源。资源还原和压缩包完整性检查已通过。2026-09-16，用户按本机文件打开步骤确认“能进入游戏并操作”；具体浏览器与完整对局未提供，不能扩大为全部浏览器兼容性结论。证据见 `Verification/v0.6/offline-web-static.json` 与 `offline-web-browser.json`。
+实际构建、诊断、浏览器验证及限制见 [v0.7 测试报告](Docs/v0.7测试报告.md)。机制与参数见 [v0.7 设计](Docs/v0.7设计.md)。
+
+## 开始试玩（Unity v0.7）
+
+- **Mac：** 解压上表中的 `FrontierDefense-0.7-Mac.zip`，打开其中的 `Frontier Defense.app`。
+- **网页分享版：** 解压上表中的 `FrontierDefense-0.7-OfflineWeb.zip`，保存到本机后用桌面浏览器打开 `边境防线.html`。游戏资源内嵌于文件，不需要朋友另行搭建本地服务器。
+- **Web 托管包：** 上表中的 `FrontierDefense-0.7-Web.zip` 用于静态 HTTP(S) 托管；不能用双击 `index.html` 代替托管运行。
+- **历史 Sites 在线试玩：** [原公开站点](https://frontier-defense-outpost-07.fumeshroom.chatgpt.site)。此链接本轮未发布 v0.7，不能用于查看本轮改动。
+
+分享时请发送完整压缩包，保留说明与 Licenses；聊天软件中的文件预览不能代替解压后运行。各包的实际生成状态、完整性与浏览器验证结果以 [v0.7 测试报告](Docs/v0.7测试报告.md) 为准。
 
 | 操作 | 按键 |
 | --- | --- |
 | 移动 / 冲刺 | WASD / Shift |
 | 转动视角 / 射击 | 鼠标 / 左键 |
 | 精确瞄准 / 换弹 | 右键 / R |
-| 指挥中心：建造、科技、雇佣兵合同 | 靠近指挥中心正门按 E |
+| 指挥中心：建造、科技、加固、雇佣兵合同 | 靠近指挥中心正门按 E |
 | 免费招募随行守卫 | 瞄准 4 米内可见的普通基地守卫，按 E |
 | 进入 / 退出地堡 | 靠近地堡后门按 E；驻守时 E 退出 |
 | 命令小队入驻指定地堡 | 靠近目标地堡后门或驻守时按 B |
@@ -32,18 +45,25 @@ v0.6已完成：17个模式、583项Mac实跑检查全部通过，原公开站�
 | 小队驻守 / 撤出驻守 | G |
 | 暂停 / 释放鼠标 | Esc |
 
-开战后与波间整备都可移动、射击、招募和指挥小队。第一至第四波结束进入45秒自由整备，倒计时结束自动开战，不再弹出菜单；第五波清场即胜利。所有强化、建造、研究、雇佣和维修都需靠近指挥中心按E；终端中暂停战场与整备倒计时，关闭后恢复。
+开战后与波间整备都可自由行动。第一至第四波结束后有 45 秒整备，第五波进攻部队清除后胜利，指挥中心被毁则失败。所有购买、建造和研究都在指挥中心办理；终端与暂停同时停止战斗、生产、集结、施工、研究、维修及复活计时。
 
-## v0.6 新增
+## v0.7 新增
 
-- **自动坦克：** 战车工厂650补给/28秒，建成后24秒自动生产一辆坦克。坦克实际从工厂行驶到东西线之间的中央阵位，优先攻击重甲；最多同时一辆，阵亡后工厂补产，工厂停运时暂停生产。
-- **中央防线：** 正面两入口之间的墙降低，仍阻挡身体但留下射击空间。玩家到附近按G，小队会沿矮墙排列，中央为坦克留出通道。
-- **自由整备与集中升级：** 波间可自由行动，全部升级转到指挥中心的防线升级、建造科技、小队三页。
-- **更多收入：** 迅行兽/酸脊兽/铁甲兽击杀奖励10/18/48，五波奖励175/210/245/280/315。
-- **敌巢防御：** 六座650耐久防御塔自动攻击22米内靠近的玩家方单位，每座摧毁额外奖励220，本局不重生，不影响进攻波次清场。
-- **更强后期：** 五波40/58/92/120/150，共460，增强后期双线重甲配置与出兵密度。
+- **更大的战场：** 地图东西 120 米、纵深 160 米，保留两条基地入口和坡道，增加八处有实际碰撞的废墟掩体、两翼道路与纵深路线。
+- **六座敌方基地：** 每座包含可摧毁的传送门、兵巢、两座炮塔和本地守军。越深入战场，基地越坚固。摧毁传送门会取消该来源尚未出动的波次增援；摧毁传送门或兵巢也会停止当地守军补员。
+- **更多敌人和分工：** 原有迅行兽、酸脊兽、铁甲兽之外，新增高速潜袭兽和远程攻城兽。五波计划数量为 56 / 80 / 116 / 156 / 200，共 608；切断传送门后实际出兵可减少。同时活动的移动敌人上限为 100，包含基地守军。
+- **独立自动反攻：** 兵营持续生产突击兵，在绿色集结区实际集合满六人后，自动前往敌方传送门基地作战。突击兵最多 24 人，使用独立生产计时，不占基地守卫、玩家随行小队或坦克名额。目标被毁后继续寻找传送门；全部传送门被清除后停止生产并回防。
+- **前移的双地堡：** 两座地堡开局建成，移动到两个入口的外侧。正面墙体降低，地堡、入口驻军与中央矮墙阵地形成交叉火力；地堡仍从后门进入，沿用每座五席与玩家、小队优先规则。
+- **基地维修工：** 两名黄色工人实际走到受损目标旁，每人每秒修复 6 点耐久。只修复基地内存活的建筑与机械单位，受到距离、路线和遮挡约束；阵亡 20 秒后免费补充。
+- **维修购买改为加固：** 原建筑维修购买项改为提高耐久上限，并恢复与新增上限相同的数值。每处最多三级，价格逐级增加；建筑被毁后保留加固等级，重建继承。日常回血由维修工承担。
 
-数值与规则见[v0.6设计](Docs/v0.6设计.md)。
+当前机械单位为自动坦克；维修系统也识别通用机械标记，供后续载具使用。本轮没有新增飞机或星港。
+
+## v0.6 新增（历史）
+
+v0.6 加入自动坦克、中央矮墙阵地和六座独立敌巢防御塔，五波计划共 460 名敌人。其规则已被本轮扩展，历史说明见 [v0.6 设计](Docs/v0.6设计.md) 与 [当时的测试报告](Docs/测试报告.md)。
+
+开发机保留 v0.6 Mac、Web 和 OfflineWeb 包作为回退文件；GitHub 本次提供各平台最新现有包及标注的实验原型。历史在线链接见上方，仍为旧版。
 
 ## v0.5.1 新增（历史）
 
@@ -87,24 +107,24 @@ v0.6已完成：17个模式、583项Mac实跑检查全部通过，原公开站�
 
 ## 核心玩法
 
-守住指挥中心并消灭全部五波敌人。兵营周期补员，地堡自动攻击；开局 160 补给，可花 120 签下第一份雇佣兵合同，再从战场免费招募普通守卫。小队上限为两名雇佣兵加两名守卫，与基地驻军分开计数；基地驻军上限随增援兵营是否存活在 8 / 12 之间变化。玩家射击可标记小队集火目标。
+守住指挥中心，抵御五波攻势，也可以带领小队主动摧毁敌方传送门以切断后续增援。普通守卫、自动突击队、玩家四人小队和坦克各有独立名额。基地守卫上限随增援兵营是否投产在 8 / 12 之间变化；玩家小队固定为两名雇佣兵与两名随行守卫。
 
-玩家脱战五秒后自动修复，阵亡六秒后重生；小队成员脱战后自动修复。雇佣兵阵亡后按合同免费复活，普通守卫阵亡后需另行招募。指挥中心被毁则失败。原有步枪强化、协同火力和指挥中心维修也移至指挥中心，战斗和整备期间均可办理。
+开局 160 补给，可花 120 签下第一份雇佣兵合同，再免费招募可见的普通守卫。转编释放原守卫岗位，由兵营补员；突击兵与维修工不能作为普通守卫招募。玩家射击可标记集火目标。雇佣兵合同本局保留，阵亡后 12 秒免费复活；普通随行守卫阵亡后需另行招募。
 
-当前采用固定建造点。自由摆放建筑、星港、空军、驾驶载具、联机和手机触屏操作尚未实现。角色与场景仍为原创几何体原型。
+玩家脱战五秒后自动恢复，阵亡六秒后重生；小队成员保留脱战恢复。维修工持续维护基地内的建筑与机械，结构加固提高建筑上限。敌方基地驻军与防御建筑独立于五波清场计数，不要求为了结算当前波次消灭整个地图的敌军建筑。
+
+固定建造点、自动战车工厂、科技研究和四人小队玩法继续保留。自由摆放建筑、星港、空军、驾驶载具、联机和手机触屏操作尚未实现。角色与场景仍为原创几何体原型。
 
 ## 验证与继续开发
 
-实际验证结果和设备限制见 [测试报告](Docs/测试报告.md)，版本与发布状态见 [开发进度](Docs/开发进度.md)。当前不安排 Windows 真机验证与手机适配。
+本轮结果见 [v0.7 测试报告](Docs/v0.7测试报告.md)，当前规则见 [v0.7 设计](Docs/v0.7设计.md)。旧版验证与发布记录保留在 [历史测试报告](Docs/测试报告.md) 和 [开发进度](Docs/开发进度.md)，其中的旧版本测试数量与上线状态不代表 v0.7。
 
-Unity 工程：`UnityProject/`，场景：`Assets/Scenes/Frontier.unity`。用全球版 Hub 添加工程并选择 6000.3.24f1。
+Unity 工程：`UnityProject/`，场景：`Assets/Scenes/Frontier.unity`。用全球版 Hub 添加工程并选择 6000.3.24f1。构建入口为 `Assets/Editor/FrontierBuild.cs`，默认 `BuildAll` 构建 Mac 与 Web。
 
-构建入口：`Assets/Editor/FrontierBuild.cs`。程序参数 `--frontier-check=tank|enemy_defense|central|balance_prepared|assault|balance_rifle|balance_squad|construction|fortification|squad|guards|navigation|interaction|mechanics|victory|afk|defeat` 和 `--frontier-output=/绝对路径/报告.json` 可运行诊断；正常启动不启用。截图使用 `--frontier-check=capture --frontier-scene=v06-central|v06-intermission|v06-terminal|v06-factory|v06-squad|v06-enemy`。
+新诊断入口为 `--frontier-check=enemy_bases|expedition|repair`；还保留 `mechanics|guards|navigation|interaction|tank|central|assault|balance_rifle|balance_squad|balance_prepared|victory|afk|defeat` 等模式。通过 `--frontier-output=/绝对路径/报告.json` 指定输出；正常启动不会运行诊断。各模式是否已经适配并通过本轮验证，以 v0.7 测试报告为准。
 
-默认 `BuildAll` 只构建 Mac 与 Web；`Tools/package_release.py` 打包 Mac、Web，并从同一份 Web 构建生成 OfflineWeb 分享包，不更新历史 Windows 包。也可单独运行 `python3 Tools/build_offline_web.py` 生成离线包与静态校验报告。离线封装不改动原 Web 构建或 Sites 文件。
+`Tools/package_release.py` 打包 Mac、Web，并从同一份 Web 构建生成 OfflineWeb 分享包；`Tools/build_offline_web.py` 可独立生成离线包。开发时运行 `python3 Tools/serve_web.py`，访问 `http://127.0.0.1:8765` 可本机复测。
 
-开发时运行 `python3 Tools/serve_web.py`，访问 `http://127.0.0.1:8765` 可本机复测。在线试玩与离线单文件分享包均无需朋友自行启动服务。
-
-发布沿用已有 Sites 站点，静态目录为 `WebSite/dist`。0.1、0.2、0.3、0.4、0.5、0.5.1 试玩包保留用于回退。当前规则见 [v0.6 设计](Docs/v0.6设计.md)，上一版攻势见 [v0.5.1 设计](Docs/v0.5.1设计.md)，小队与驻防见 [v0.5 设计](Docs/v0.5设计.md)，历史机制见 [v0.4 设计](Docs/v0.4设计.md) 和 [v0.3 设计](Docs/v0.3设计.md)。
+本轮不发布 `WebSite/dist` 到 Sites，不更新小红书包，也不生成新的 Windows 交付。更早的 0.1、0.2、0.3、0.4、0.5、0.5.1 和 0.6 试玩包保留用于回退。历史机制文档继续保留：[v0.5.1](Docs/v0.5.1设计.md)、[v0.5](Docs/v0.5设计.md)、[v0.4](Docs/v0.4设计.md)、[v0.3](Docs/v0.3设计.md)。
 
 字体 Frontier Sans 是 Noto Sans SC 的重命名精简衍生版本，许可见 `UnityProject/Assets/ThirdParty/` 与试玩包的 Licenses。字体更新工具为 `Tools/update_font.py`。模型和音效没有使用星际争霸素材。

@@ -1,0 +1,96 @@
+{
+  "method": "Real local desktop Chrome/WebGL via file URL, isolated headless profile. Mobile sizes emulate viewport and touch only; not a Xiaohongshu/iPhone runtime. Controlled QA hooks expose game and view without changing shipped files.",
+  "checks": [
+    {
+      "name": "desktop starts real 3D game",
+      "pass": true,
+      "errors": true,
+      "hud": "守卫 4/8 · 集结 0/6 · 出征 0\n维修工 2/2 · 敌军传送门 6/6",
+      "world": 6,
+      "canvas": [
+        1366,
+        900
+      ],
+      "pageErrors": []
+    },
+    {
+      "name": "desktop full-health HQ fortification by real terminal click",
+      "pass": true,
+      "before": {
+        "max": 2300,
+        "hp": 2300,
+        "credits": 160
+      },
+      "after": {
+        "max": 2950,
+        "hp": 2950,
+        "credits": 40
+      }
+    },
+    {
+      "name": "desktop completed buildings offer fortification",
+      "pass": true
+    },
+    {
+      "name": "phone-landscape starts real 3D game",
+      "pass": true,
+      "errors": true,
+      "hud": "守卫 4/8 · 集结 0/6 · 出征 0\n维修工 2/2 · 敌军传送门 6/6",
+      "world": 6,
+      "canvas": [
+        844,
+        390
+      ],
+      "pageErrors": []
+    },
+    {
+      "name": "phone-landscape full-health HQ fortification by real terminal click",
+      "pass": true,
+      "before": {
+        "max": 2300,
+        "hp": 2300,
+        "credits": 160
+      },
+      "after": {
+        "max": 2950,
+        "hp": 2950,
+        "credits": 40
+      }
+    },
+    {
+      "name": "phone-landscape completed buildings offer fortification",
+      "pass": true
+    },
+    {
+      "name": "phone-portrait starts real 3D game",
+      "pass": true,
+      "errors": true,
+      "hud": "守卫 4/8 · 集结 0/6 · 出征 0\n维修工 2/2 · 敌军传送门 6/6",
+      "world": 6,
+      "canvas": [
+        390,
+        844
+      ],
+      "pageErrors": []
+    },
+    {
+      "name": "phone-portrait full-health HQ fortification by real terminal click",
+      "pass": true,
+      "before": {
+        "max": 2300,
+        "hp": 2300,
+        "credits": 160
+      },
+      "after": {
+        "max": 2950,
+        "hp": 2950,
+        "credits": 40
+      }
+    },
+    {
+      "name": "phone-portrait completed buildings offer fortification",
+      "pass": true
+    }
+  ],
+  "pass": true
+}

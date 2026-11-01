@@ -1,0 +1,83 @@
+{
+  "checkedAt": "2026-09-16T18:38:31.704757+08:00",
+  "specVersion": "1.6.0",
+  "scope": "Read-only dist snapshot; no browser or real-device execution",
+  "files": [
+    {
+      "path": "app.js",
+      "bytes": 15008,
+      "sha256": "057aa54083d220b822034be0be487f168e55382a53404ac7bfbd6d0c71f16993"
+    },
+    {
+      "path": "core.js",
+      "bytes": 30271,
+      "sha256": "1221cd684ee69f14ef8c829fe15010329db353a6c8d135ce62f579616f4482ca"
+    },
+    {
+      "path": "index.html",
+      "bytes": 4720,
+      "sha256": "22ae9eab7297f1c6645313eee3320b51c117113a2cb95648b94786c9a7f0b592"
+    },
+    {
+      "path": "licenses.json",
+      "bytes": 1332,
+      "sha256": "317e51464ba7a561c32fde90a94389e3100b3023b5c355305e28ea9a1f903f3b"
+    },
+    {
+      "path": "scene.js",
+      "bytes": 13314,
+      "sha256": "d030c2be105f9d9e373684bd294944cd709a3e250d7f186b1fbb29ac22b98774"
+    },
+    {
+      "path": "style.css",
+      "bytes": 12501,
+      "sha256": "bb977336e10d33b2a05282d79edc0f57ca24fef388485601f0e69a65dd216aac"
+    },
+    {
+      "path": "three.min.js",
+      "bytes": 670056,
+      "sha256": "223438e0a397a1f5d87d2f32ccd0bd1807dcc81281fe457d72b5f65188408ddb"
+    }
+  ],
+  "totalBytes": 747202,
+  "resources": [
+    {
+      "tag": "link",
+      "url": "./style.css",
+      "exists": true
+    },
+    {
+      "tag": "script",
+      "url": "./three.min.js",
+      "exists": true
+    },
+    {
+      "tag": "script",
+      "url": "./core.js",
+      "exists": true
+    },
+    {
+      "tag": "script",
+      "url": "./scene.js",
+      "exists": true
+    },
+    {
+      "tag": "script",
+      "url": "./app.js",
+      "exists": true
+    }
+  ],
+  "structureErrors": [],
+  "runtimeReview": {
+    "appNetworkCalls": false,
+    "persistentStorageCalls": false,
+    "nativeBridgeCalls": false,
+    "newAPIsWithoutFallbackFound": false,
+    "vendorXR": "Residual implementation found; parent is removing. Rerun final syntax/hash check after edit."
+  },
+  "limitations": [
+    "No ZIP created at review time; audit final ZIP after packaging",
+    "Not a real Chrome 61, iOS, Android or Xiaohongshu device validation",
+    "CSS and WebGL budgets/degradation handled by parent; not independently certified here"
+  ]
+}

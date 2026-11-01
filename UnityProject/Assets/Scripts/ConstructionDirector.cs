@@ -13,6 +13,7 @@ namespace Frontier
         public SiteState State;
         public Health Structure;
         public float SecondsLeft, Duration;
+        public int FortificationLevel;
         public Transform Marker;
     }
 
@@ -30,7 +31,7 @@ namespace Frontier
         {
             world=owner;
             Sites=new[] {
-                MakeSite(0,"西侧地堡",Role.Bunker,new Vector3(-20.5f,0,6),null),
+                MakeSite(0,"西侧地堡",Role.Bunker,new Vector3(-20.5f,0,20),world.Bunkers.Find(h=>h!=null&&h.transform.position.x<0)),
                 MakeSite(1,"增援兵营",Role.Barracks,new Vector3(9,0,-16),null),
                 MakeSite(2,"主兵营",Role.Barracks,world.Barracks.transform.position,world.Barracks),
                 MakeSite(3,"东侧地堡",Role.Bunker,world.Bunker.transform.position,world.Bunker),
@@ -102,7 +103,7 @@ namespace Frontier
         {
             Retire(site.Structure);
             float hp=site.Role==Role.Factory?1400:site.Role==Role.Bunker?1200+400*world.Upgrades.ArmorLevel:1100;
-            site.Structure=world.CreateBuilding(site.Role,site.Position,hp,Size(site.Role));
+            site.Structure=world.CreateBuilding(site.Role,site.Position,hp+FortifyBonus(site.Id),Size(site.Role));
             site.Structure.gameObject.name=site.Name;
             site.State=SiteState.Ready;site.SecondsLeft=0;site.Marker.gameObject.SetActive(false);
             if(site.Id==2){world.Barracks=site.Structure;world.ProductionLeft=world.ProductionInterval;}
@@ -139,22 +140,40 @@ namespace Frontier
                 return;
             }
         }
-        BaseUpgrade RepairKind(int id)=>Sites[id].Role==Role.Bunker?BaseUpgrade.RepairBunker:BaseUpgrade.RepairBarracks;
-        public int RepairCost(int id)=>Valid(id)?(Sites[id].Role==Role.Factory?180:world.Upgrades.Cost(RepairKind(id))):0;
-        public bool CanRepairSite(int id)
+        public const int MaximumFortificationLevel=3;
+        public BuildSite SiteFor(Health structure)
         {
-            if(!Valid(id)||Sites[id].State!=SiteState.Ready)return false;
-            if(Sites[id].Role!=Role.Factory)return world.Upgrades.CanBuy(RepairKind(id),Sites[id].Structure);
-            var h=Sites[id].Structure;
-            return CanManage&&h!=null&&h.Alive&&h.Current<h.Maximum&&world.Credits>=RepairCost(id);
+            if(structure==null)return null;
+            foreach(var site in Sites)if(site.Structure==structure)return site;
+            return null;
         }
-        public bool RepairSite(int id)
+        public static int FortifyDelta(Role role)=>role==Role.Factory?700:role==Role.Bunker?600:role==Role.Barracks?450:0;
+        static int FortifyBaseCost(Role role)=>role==Role.Factory?180:role==Role.Bunker?120:role==Role.Barracks?100:0;
+        public int FortifyLevel(int id)=>Valid(id)?Sites[id].FortificationLevel:0;
+        public int FortifyLevel(Health structure){var site=SiteFor(structure);return site==null?0:site.FortificationLevel;}
+        public int FortifyBonus(int id)=>Valid(id)?FortifyDelta(Sites[id].Role)*FortifyLevel(id):0;
+        public int FortifyBonus(Health structure){var site=SiteFor(structure);return site==null?0:FortifyBonus(site.Id);}
+        public int FortifyCost(int id)=>Valid(id)?FortifyBaseCost(Sites[id].Role)*(1+FortifyLevel(id)):0;
+        public int FortifyCost(Health structure){var site=SiteFor(structure);return site==null?0:FortifyCost(site.Id);}
+        public bool CanFortify(Health structure)
         {
-            if(!CanRepairSite(id))return false;
-            if(Sites[id].Role!=Role.Factory)return world.Upgrades.Buy(RepairKind(id),Sites[id].Structure);
-            world.Credits-=RepairCost(id);Sites[id].Structure.Heal(700);
-            world.Notice("战车工厂维修完成 · 恢复 700 耐久");world.Sounds.Play(SoundId.Upgrade,.6f);return true;
+            var site=SiteFor(structure);
+            return CanManage&&site!=null&&site.State==SiteState.Ready&&structure.Alive&&structure.Current>0&&
+                site.FortificationLevel<MaximumFortificationLevel&&world.Credits>=FortifyCost(site.Id);
         }
+        public bool Fortify(Health structure)
+        {
+            if(!CanFortify(structure))return false;
+            var site=SiteFor(structure);int delta=FortifyDelta(site.Role);
+            world.Credits-=FortifyCost(site.Id);site.FortificationLevel++;
+            structure.Maximum+=delta;structure.Heal(delta);
+            world.Notice(site.Name+" 结构加固 "+site.FortificationLevel+" / "+MaximumFortificationLevel+" · 最大耐久 +"+delta);
+            world.Sounds.Play(SoundId.Upgrade,.6f);return true;
+        }
+        // Existing command-menu entry points now purchase persistent maximum health.
+        public int RepairCost(int id)=>FortifyCost(id);
+        public bool CanRepairSite(int id)=>Valid(id)&&CanFortify(Sites[id].Structure);
+        public bool RepairSite(int id)=>Valid(id)&&Fortify(Sites[id].Structure);
         public string Status(int id)
         {
             if(!Valid(id))return "无效位置";

@@ -1,0 +1,115 @@
+{
+  "checkedAt": "2026-09-16T11:24:51.683Z",
+  "sourcePath": "/Users/czhang/Documents/Games/FrontierDefense/XhsMiniTool/dist/menu-scroll.js",
+  "sha256": "325e59f47f1e9485900a865b774c4279f59eda967c01882d66e1a94fbc1ba532",
+  "sourceUnchanged": true,
+  "testType": "Actual menu-scroll.js evaluated in isolated VM with deterministic DOM event/RAF harness; scroll logic not reimplemented",
+  "limitations": [
+    "No physical touch hardware/browser capture default-action test",
+    "The harness models releasePointerCapture synchronously firing lostpointercapture; browser ordering may vary",
+    "CSS layout and native range value changes are not emulated"
+  ],
+  "summary": {
+    "pass": 24,
+    "fail": 0,
+    "total": 24
+  },
+  "cases": [
+    {
+      "name": "CW finger right scrolls deeper",
+      "status": "PASS"
+    },
+    {
+      "name": "CW finger left returns upward",
+      "status": "PASS"
+    },
+    {
+      "name": "CCW finger left scrolls deeper",
+      "status": "PASS"
+    },
+    {
+      "name": "CCW finger right returns upward",
+      "status": "PASS"
+    },
+    {
+      "name": "Native rotation 0 leaves touch and wheel to browser",
+      "status": "PASS"
+    },
+    {
+      "name": "Cross-axis movement does not turn into scrolling",
+      "status": "PASS"
+    },
+    {
+      "name": "Small tap and keyboard click preserved",
+      "status": "PASS"
+    },
+    {
+      "name": "Drag ghost click suppressed but keyboard remains usable",
+      "status": "PASS"
+    },
+    {
+      "name": "Fresh ordinary tap immediately after drag remains usable",
+      "status": "PASS"
+    },
+    {
+      "name": "Inertia follows drag direction and decays to rest",
+      "status": "PASS"
+    },
+    {
+      "name": "Holding stationary before release does not fling",
+      "status": "PASS"
+    },
+    {
+      "name": "Both hard boundaries clamp and stop inertia",
+      "status": "PASS"
+    },
+    {
+      "name": "Non-scrollable panel never accumulates motion",
+      "status": "PASS"
+    },
+    {
+      "name": "Second finger move/up cannot steal owner gesture",
+      "status": "PASS"
+    },
+    {
+      "name": "Second finger down alone does not erase owner fling velocity",
+      "status": "PASS"
+    },
+    {
+      "name": "pointercancel clears owner without stale capture or inertia",
+      "status": "PASS"
+    },
+    {
+      "name": "lostpointercapture clears owner without stale capture or inertia",
+      "status": "PASS"
+    },
+    {
+      "name": "stop during drag and inertia releases resources and permits next gesture",
+      "status": "PASS"
+    },
+    {
+      "name": "Coast stops when panel hidden",
+      "status": "PASS"
+    },
+    {
+      "name": "Coast stops when document hidden",
+      "status": "PASS"
+    },
+    {
+      "name": "Coast stops when rotation becomes 0",
+      "status": "PASS"
+    },
+    {
+      "name": "Range thumb retains pointer drag and ordinary click",
+      "status": "PASS"
+    },
+    {
+      "name": "Fresh range interaction after menu drag is not blocked",
+      "status": "PASS"
+    },
+    {
+      "name": "Wheel line/page units and edge clamping work in rotated panel",
+      "status": "PASS"
+    }
+  ]
+}

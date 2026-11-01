@@ -41,6 +41,18 @@ namespace Frontier
             if(withSquad&&world.Phase==Phase.Assault&&world.Squad.RecruitedGuardCount<2)
                 foreach(var guard in world.Entities.ToArray())
                     if(world.Squad.CanRecruitGuard(guard)){world.Squad.RecruitGuard(guard);break;}
+            if(withTank&&world.Phase==Phase.Assault&&world.Squad.Count>=3&&world.Squad.Kills==0)
+            {
+                // The complete-feature strategy deploys its real squad at the
+                // trench. Otherwise the player's 90-metre bot targeting clears
+                // every approach before following mercenaries enter rifle range.
+                // BotDestination uses ordinary on-foot movement and holds player
+                // fire while the squad reaches and uses its physical firing posts.
+                Vector3 trench=new Vector3(0,0,23);
+                world.Player.BotDestination=trench;
+                if(Vector3.Distance(world.Player.transform.position,trench)<1&&world.Squad.Order!=SquadOrder.Hold)
+                    world.Squad.GiveOrder(SquadOrder.Hold);
+            }
         }
         void Prepare()
         {

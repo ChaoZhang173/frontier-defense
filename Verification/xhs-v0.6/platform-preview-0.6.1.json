@@ -1,0 +1,26 @@
+{
+  "date": "2026-09-16",
+  "version": "0.6.1",
+  "deployment": "小红书后台显示部署成功",
+  "preview_url": "https://creator.xiaohongshu.com/miniapp-simulator/dfd78648-54fd-4bff-85c9-b6e1a99d5339/index.html",
+  "desktop_platform_checks": [
+    "开始页显示v0.6.1",
+    "在旋转的开始面板中实际拖动后可见部署先锋按钮",
+    "开始按钮正常进入战场",
+    "整备菜单正常打开并暂停战场",
+    "从90补给升级按钮发起拖动后，滚动至地堡火力与指挥中心维修；补给450及升级等级保持不变"
+  ],
+  "independent_checks": {
+    "camera_projection": 108,
+    "input": 27,
+    "scroll_events": 24,
+    "core_rules": 20
+  },
+  "limitations": [
+    "平台预览中的真实鼠标拖动，尚未在用户手机复测触屏手感",
+    "未测Chrome61真实设备帧率"
+  ],
+  "published": false,
+  "terms_accepted": false,
+  "preserved_user_description": "守护基地抵御敌人进攻"
+}

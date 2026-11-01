@@ -30,3 +30,8 @@ WebSite/
 Verification/**/*.log
 
 Releases/
+
+# Downloadable artifacts belong in GitHub Releases, including archived prototypes.
+Verification/**/*.zip
+__pycache__/
+*.pyc

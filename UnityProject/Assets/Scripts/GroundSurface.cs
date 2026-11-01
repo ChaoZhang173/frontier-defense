@@ -5,6 +5,7 @@ namespace Frontier
     // These three planar faces are also used by Art.Ramp's collision mesh.
     public static class GroundSurface
     {
+        public const int MinX=-60,MaxX=60,MinZ=-24,MaxZ=136;
         public const float RampStart=26, RampEnd=40, CanyonHeight=-4;
         public const float RampHalfWidth=4.5f, SideWidth=6, LaneCenter=13.5f;
 
@@ -21,7 +22,7 @@ namespace Frontier
         public static bool WalkableTerrain(float x,float z)
         {
             if(z<=RampStart)return Mathf.Abs(x)<=26.5f&&z>=-21;
-            return Mathf.Abs(x)<=38&&z<=80;
+            return x>=MinX&&x<=MaxX&&z<=MaxZ;
         }
 
         public static bool Traversable(Vector3 from,Vector3 to)

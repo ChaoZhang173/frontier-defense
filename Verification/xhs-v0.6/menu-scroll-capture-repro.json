@@ -1,0 +1,150 @@
+{
+  "checkedAt": "2026-09-16T11:20:55.917Z",
+  "sourcePath": "/Users/czhang/Documents/Games/FrontierDefense/XhsMiniTool/dist/menu-scroll.js",
+  "snapshot": "/Users/czhang/Documents/Games/FrontierDefense/Verification/xhs-v0.6/menu-scroll-v0.6.1-snapshot.js",
+  "sha256": "e03e8ba9b4ec1e945fd199a2f9c9846f752c3d080d0b7d56baf7313360eb7eb3",
+  "sourceStillMatchesLive": true,
+  "mechanism": "Touch child implicit capture is transferred to panel at first move; former child lostpointercapture bubbles into panel listener before the next pointermove.",
+  "sourceReference": "https://www.w3.org/TR/pointerevents3/#process-pending-pointer-capture",
+  "trials": [
+    {
+      "transferCapture": false,
+      "finalScrollTop": 200,
+      "expectedScrollTop": 200,
+      "pendingInertia": 1,
+      "trace": [
+        {
+          "type": "pointerdown",
+          "target": "BUTTON",
+          "x": 100,
+          "scrollTop": 100,
+          "prevented": false
+        },
+        {
+          "type": "pointermove",
+          "target": "BUTTON",
+          "x": 106,
+          "scrollTop": 106,
+          "prevented": true
+        },
+        {
+          "type": "pointermove",
+          "target": "BUTTON",
+          "x": 120,
+          "scrollTop": 120,
+          "prevented": true
+        },
+        {
+          "type": "pointermove",
+          "target": "BUTTON",
+          "x": 140,
+          "scrollTop": 140,
+          "prevented": true
+        },
+        {
+          "type": "pointermove",
+          "target": "BUTTON",
+          "x": 160,
+          "scrollTop": 160,
+          "prevented": true
+        },
+        {
+          "type": "pointermove",
+          "target": "BUTTON",
+          "x": 180,
+          "scrollTop": 180,
+          "prevented": true
+        },
+        {
+          "type": "pointermove",
+          "target": "BUTTON",
+          "x": 200,
+          "scrollTop": 200,
+          "prevented": true
+        },
+        {
+          "type": "pointerup",
+          "target": "SECTION",
+          "x": 200,
+          "scrollTop": 200,
+          "prevented": true
+        }
+      ]
+    },
+    {
+      "transferCapture": true,
+      "finalScrollTop": 106,
+      "expectedScrollTop": 200,
+      "pendingInertia": 0,
+      "trace": [
+        {
+          "type": "pointerdown",
+          "target": "BUTTON",
+          "x": 100,
+          "scrollTop": 100,
+          "prevented": false
+        },
+        {
+          "type": "pointermove",
+          "target": "BUTTON",
+          "x": 106,
+          "scrollTop": 106,
+          "prevented": true
+        },
+        {
+          "type": "lostpointercapture",
+          "target": "BUTTON",
+          "x": 120,
+          "scrollTop": 106,
+          "prevented": true
+        },
+        {
+          "type": "pointermove",
+          "target": "SECTION",
+          "x": 120,
+          "scrollTop": 106,
+          "prevented": false
+        },
+        {
+          "type": "pointermove",
+          "target": "SECTION",
+          "x": 140,
+          "scrollTop": 106,
+          "prevented": false
+        },
+        {
+          "type": "pointermove",
+          "target": "SECTION",
+          "x": 160,
+          "scrollTop": 106,
+          "prevented": false
+        },
+        {
+          "type": "pointermove",
+          "target": "SECTION",
+          "x": 180,
+          "scrollTop": 106,
+          "prevented": false
+        },
+        {
+          "type": "pointermove",
+          "target": "SECTION",
+          "x": 200,
+          "scrollTop": 106,
+          "prevented": false
+        },
+        {
+          "type": "pointerup",
+          "target": "SECTION",
+          "x": 200,
+          "scrollTop": 106,
+          "prevented": false
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Standards-based event dispatch reproduction, not real iOS capture telemetry",
+    "Snapshot preserves v0.6.1 code for repro while parent edits implementation"
+  ]
+}

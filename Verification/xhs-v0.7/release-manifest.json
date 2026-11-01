@@ -1,0 +1,45 @@
+{
+  "version": "0.7.0",
+  "zip": "/Users/czhang/Documents/Games/FrontierDefense/Releases/FrontierDefense-0.7.0-XHS.zip",
+  "zip_bytes": 204348,
+  "sha256": "782308bd82b69eea5ba4df9dd078504a068b992702e8944c684b225e1bf1a625",
+  "files": {
+    "app.js": {
+      "bytes": 19080,
+      "sha256": "b3f4d3fd83adff202b7d7ec7e58027a8ec515d6abd74380a0ebfe8a7ccaf4da1"
+    },
+    "core.js": {
+      "bytes": 29933,
+      "sha256": "44443dd38723c2934e581e3d5976fe9c0ad879e98337e647ff85417996b9cb69"
+    },
+    "index.html": {
+      "bytes": 5492,
+      "sha256": "878bb3f3ae9f0fb411f30145f7ac56deb5bd2ff885ea564d993dbc4643314e9f"
+    },
+    "licenses.json": {
+      "bytes": 1404,
+      "sha256": "8a245501ab97a5cc3f0ab37b57ddd160d5544394e3e73584101be8515c4cb097"
+    },
+    "menu-scroll.js": {
+      "bytes": 3677,
+      "sha256": "325e59f47f1e9485900a865b774c4279f59eda967c01882d66e1a94fbc1ba532"
+    },
+    "scene.js": {
+      "bytes": 18681,
+      "sha256": "c111c448821d253a2d85992697d6c6452110237ab1ec7eec8598bd2c73af044a"
+    },
+    "style.css": {
+      "bytes": 17232,
+      "sha256": "141e803e65f643d388c1cd95cd26f7700063748679db76091a14398f4b38d3bc"
+    },
+    "support.js": {
+      "bytes": 13670,
+      "sha256": "e72e0e671ae2231a5831223b2e1e1b5968ef31121374fc1c8a419b7e065b2734"
+    },
+    "three.min.js": {
+      "bytes": 663229,
+      "sha256": "d409477142aebf12684b278c536a6db2591edcdff6a66c65c081f797321ae6d0"
+    }
+  },
+  "validation_limit": "Automated game logic, input/geometry regressions and desktop Chrome viewport tests; local ZIP structure audit. v0.7.0 has not been uploaded or tested on an iPhone or Chrome 61 runtime."
+}

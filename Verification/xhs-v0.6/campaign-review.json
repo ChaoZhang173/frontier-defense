@@ -1,0 +1,185 @@
+{
+  "at": "2026-09-16T13:06:40.332Z",
+  "coreSha256": "1221cd684ee69f14ef8c829fe15010329db353a6c8d135ce62f579616f4482ca",
+  "method": "Real core simulation with dt=0.1. AFK has no player action; managed bot uses collision-aware go(), actual fire/reload, interact and paid buy() with earned supplies. No HP, damage, currency, wave counts or enemies altered. View/touch/browser not exercised.",
+  "results": [
+    {
+      "mode": "afk",
+      "phase": "defeat",
+      "wave": 3,
+      "seconds": 310.4,
+      "spawned": 156,
+      "maxEnemies": 41,
+      "kills": 115,
+      "playerKills": 0,
+      "deaths": 1,
+      "command": 0,
+      "credits": 1807,
+      "tankProduced": 0,
+      "shots": 0,
+      "records": [
+        {
+          "wave": 1,
+          "phase": "assault",
+          "time": 0.1,
+          "command": 2300,
+          "credits": 160,
+          "spawned": 0,
+          "tankProduced": 0
+        },
+        {
+          "wave": 2,
+          "phase": "assault",
+          "time": 125.2,
+          "command": 1416,
+          "credits": 735,
+          "spawned": 40,
+          "tankProduced": 0
+        },
+        {
+          "wave": 3,
+          "phase": "assault",
+          "time": 263,
+          "command": 1416,
+          "credits": 1637,
+          "spawned": 98,
+          "tankProduced": 0
+        }
+      ],
+      "issues": [],
+      "squad": 0,
+      "upgrades": {
+        "weapon": 0,
+        "defense": 0,
+        "armor": 0,
+        "firepower": 0,
+        "production": 0
+      },
+      "tech": [
+        false,
+        false,
+        false
+      ],
+      "siteStates": [
+        [
+          "west",
+          "empty"
+        ],
+        [
+          "reserve",
+          "empty"
+        ],
+        [
+          "barracks",
+          "ready"
+        ],
+        [
+          "east",
+          "ready"
+        ],
+        [
+          "factory",
+          "empty"
+        ]
+      ]
+    },
+    {
+      "mode": "managed",
+      "phase": "victory",
+      "wave": 5,
+      "seconds": 584.2,
+      "spawned": 460,
+      "maxEnemies": 38,
+      "kills": 464,
+      "playerKills": 286,
+      "deaths": 0,
+      "command": 2300,
+      "credits": 4865,
+      "tankProduced": 1,
+      "shots": 1037,
+      "records": [
+        {
+          "wave": 1,
+          "phase": "assault",
+          "time": 0.1,
+          "command": 2300,
+          "credits": 40,
+          "spawned": 0,
+          "tankProduced": 0
+        },
+        {
+          "wave": 2,
+          "phase": "assault",
+          "time": 110.1,
+          "command": 2300,
+          "credits": 5,
+          "spawned": 40,
+          "tankProduced": 0
+        },
+        {
+          "wave": 3,
+          "phase": "assault",
+          "time": 234.9,
+          "command": 2300,
+          "credits": 87,
+          "spawned": 98,
+          "tankProduced": 0
+        },
+        {
+          "wave": 4,
+          "phase": "assault",
+          "time": 366.4,
+          "command": 2300,
+          "credits": 646,
+          "spawned": 190,
+          "tankProduced": 1
+        },
+        {
+          "wave": 5,
+          "phase": "assault",
+          "time": 500,
+          "command": 2300,
+          "credits": 1486,
+          "spawned": 310,
+          "tankProduced": 1
+        }
+      ],
+      "issues": [],
+      "squad": 4,
+      "upgrades": {
+        "weapon": 4,
+        "defense": 4,
+        "armor": 2,
+        "firepower": 1,
+        "production": 2
+      },
+      "tech": [
+        true,
+        true,
+        false
+      ],
+      "siteStates": [
+        [
+          "west",
+          "ready"
+        ],
+        [
+          "reserve",
+          "ready"
+        ],
+        [
+          "barracks",
+          "ready"
+        ],
+        [
+          "east",
+          "ready"
+        ],
+        [
+          "factory",
+          "ready"
+        ]
+      ]
+    }
+  ]
+}

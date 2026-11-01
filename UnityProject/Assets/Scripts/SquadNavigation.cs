@@ -7,7 +7,7 @@ namespace Frontier
     // Buildings remain obstacles after destruction; new construction can rebuild this grid.
     public sealed class SquadNavigation
     {
-        const int MinX=-38,MinZ=-22,Width=77,Height=103,Count=Width*Height;
+        const int MinX=GroundSurface.MinX,MinZ=GroundSurface.MinZ,Width=GroundSurface.MaxX-MinX+1,Height=GroundSurface.MaxZ-MinZ+1,Count=Width*Height;
         readonly bool[] walkable=new bool[Count];
         readonly float[] distance=new float[Count];
         readonly int[] seen=new int[Count],closed=new int[Count],parent=new int[Count];
@@ -48,16 +48,16 @@ namespace Frontier
         }
         int Nearest(Vector3 p,bool reachable=false,float radius=.36f)
         {
-            int id=Index(p);if(id>=0&&walkable[id]&&(!reachable||Clear(p,Point(id),radius)))return id;
+            int id=Index(p);if(id>=0&&walkable[id]&&(radius<=.43f||Fits(Point(id),radius))&&(!reachable||Clear(p,Point(id),radius)))return id;
             float best=float.MaxValue;int chosen=-1;
             for(int i=0;i<Count;i++)if(walkable[i])
             {
                 Vector3 d=Point(i)-p;float score=d.x*d.x+d.z*d.z;
-                if(score<best&&(!reachable||Clear(p,Point(i),radius))){best=score;chosen=i;}
+                if(score<best&&(radius<=.43f||Fits(Point(i),radius))&&(!reachable||Clear(p,Point(i),radius))){best=score;chosen=i;}
             }
             return chosen;
         }
-        public Vector3 Resolve(Vector3 p){int id=Nearest(p);return id<0?p:Point(id);}
+        public Vector3 Resolve(Vector3 p,float radius=.43f){int id=Nearest(p,false,radius);return id<0?p:Point(id);}
         public bool Clear(Vector3 a,Vector3 b,float radius=.36f)
         {
             float length=new Vector2(b.x-a.x,b.z-a.z).magnitude;int steps=Mathf.Max(1,Mathf.CeilToInt(length/.35f));
@@ -73,7 +73,8 @@ namespace Frontier
         public bool Blocked(Vector3 a,Vector3 b,float radius=.36f)
         {
             Vector3 d=b-a;if(d.sqrMagnitude<.00001f)return false;
-            int count=Physics.CapsuleCastNonAlloc(a+Vector3.up*.65f,a+Vector3.up*1.5f,radius,d.normalized,hits,d.magnitude,Combat.WorldMask,QueryTriggerInteraction.Ignore);
+            float bottom=Mathf.Max(.65f,radius*1.3f+.04f),top=Mathf.Max(1.5f,bottom+.5f);
+            int count=Physics.CapsuleCastNonAlloc(a+Vector3.up*bottom,a+Vector3.up*top,radius,d.normalized,hits,d.magnitude,Combat.WorldMask,QueryTriggerInteraction.Ignore);
             if(count>=hits.Length)return true;
             for(int i=0;i<count;i++)if(hits[i].normal.y<.55f)return true;
             return false;
@@ -82,12 +83,13 @@ namespace Frontier
         {
             if(!OnTerrain(point)||Index(point)<0)return false;
             point.y=GroundSurface.Height(point.x,point.z);
-            return !Physics.CheckCapsule(point+Vector3.up*.65f,point+Vector3.up*1.5f,radius,Combat.WorldMask,QueryTriggerInteraction.Ignore);
+            float bottom=Mathf.Max(.65f,radius*1.3f+.04f),top=Mathf.Max(1.5f,bottom+.5f);
+            return !Physics.CheckCapsule(point+Vector3.up*bottom,point+Vector3.up*top,radius,Combat.WorldMask,QueryTriggerInteraction.Ignore);
         }
 
         public bool Plan(Vector3 from,Vector3 goal,List<Vector3> output,float radius=.36f)
         {
-            output.Clear();int start=Nearest(from,true,radius),end=Nearest(goal);if(start<0||end<0)return false;
+            output.Clear();int start=Nearest(from,true,radius),end=Nearest(goal,false,radius);if(start<0||end<0)return false;
             Vector3 target=Point(end);
             if(Clear(from,target,radius)){output.Add(target);return true;}
             search++;heap.Clear();seen[start]=search;distance[start]=0;parent[start]=-1;Push(start,Heuristic(start,end));
